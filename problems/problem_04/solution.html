@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çözüm: OSPF Komşuluk Problemleri - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-solution">
+                        <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="solution.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="solution-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+<h1>✅ Çözüm Adımları: OSPF Komşuluk Problemleri</h1>
+            <p>L3 - Network Layer - Uygulamalı Çözüm Rehberi</p>
+        </header>
+        
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Ana Sayfa</a> / <a href="description.html">Problem 4</a> / Çözüm Detayları
+        </nav>
+        
+        <main class="content">
+            <section class="section">
+                <h2>🔧 Adım Adım OSPF Komşuluk Onarım Süreci</h2>
+                <p>Bu rehber, OSPF router'ları arasında komşuluk problemlerinin tespit edilmesi ve çözülmesi için izlenmesi gereken adımları detaylı olarak açıklamaktadır.</p>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ Çözüm Sonrası: OSPF Komşuluk Kuruldu</h2>
+                <p>OSPF area yapılandırması düzeltildikten sonra, router'lar başarıyla komşuluk kurarak ağlar arası iletişimi sağlar. Aşağıda düzeltilmiş topoloji görülmektedir:</p>
+                
+                <div class="topology-diagram">
+                    <pre class="ascii-art">
+    192.168.10.0/24                192.168.100.0/24               192.168.20.0/24
+         ┌───────┐                       ┌───────┐                      ┌───────┐
+         │  PC0  │                       │       │                      │  PC1  │
+         │ .10.10│◄─────────────────────►│       │◄─────────────────────►│ .20.10│
+         └───────┘                       │       │                      └───────┘
+                                         │       │
+                  ┌─────────────────────►│Router │◄─────────────────────┐
+                  │     Gig0/0           │   A   │          Gig0/1      │
+                  │    .100.1            │AREA 0 │         .100.2       │
+                  │                      └───────┘                      │
+                  │                                                     │
+                  │                    ✅ ÇÖZÜM ✅                     │
+                  │               Aynı OSPF Area!                      │
+                  │                                                     │
+         ┌────────▼────────┐                           ┌────────────────▼──┐
+         │     Router-A    │                           │     Router-B      │
+         │    OSPF Area 0  │         KOMŞULUK         │    OSPF Area 0   │
+         │                 │◄───── KURULDU! ─────────►│                   │
+         │ 192.168.10.1/24 │                           │ 192.168.20.1/24  │
+         │192.168.100.1/24 │                           │192.168.100.2/24  │
+         └─────────────────┘                           └───────────────────┘
+    </pre>
+                    <p><strong>✅ Çözüm:</strong> Her iki router da artık OSPF Area 0'da yapılandırıldı.</p>
+                    <p><strong>🔗 Komşuluk:</strong> Router-A ve Router-B FULL adjacency durumunda</p>
+                    <p><strong>📊 Route Sharing:</strong> OSPF LSA'ları başarıyla paylaşılıyor</p>
+                    <p><strong>🌐 Connectivity:</strong> PC0 ↔ PC1 arası iletişim çalışıyor</p>
+                </div>
+                
+                <p>OSPF komşuluğu kurulduktan sonra ping testinin başarılı olduğu görülmektedir:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/ospf_ping_success.png" alt="OSPF Çözümü - Ping Başarılı" class="screenshot">
+                    <figcaption>Resim 1: OSPF komşuluk kurulduktan sonra başarılı ping testi</figcaption>
+                </div>
+                
+                <h4>Packet Tracer Çözüm Dosyası:</h4>
+                <p>Çözüm sonrası çalışır durumu gösteren Packet Tracer dosyasını <a href="packet_tracer/ospf_solution.pkt" download>buradan</a> indirebilirsiniz.</p>
+            </section>
+
+            <section class="section">
+                <h2>Adım 1: OSPF Komşuluk Probleminin Tespiti</h2>
+                
+                <div class="step">
+                    <div class="step-number">1A</div>
+                    <div class="step-content">
+                        <h3>Ağlar Arası Bağlantıyı Test Etme</h3>
+                        <p>OSPF komşuluk kurulamadığında, farklı ağlardaki cihazlar birbirleriyle iletişim kuramaz.</p>
+                        <div class="code-block">
+<span class="comment"># Komşuluk kurulamadığında ping testi</span>
+<span class="command">PC0> ping 192.168.20.10</span>
+<span class="output">Request timed out.</span>
+<span class="output">Request timed out.</span>
+<span class="comment"># OSPF route'ları yayılamadığı için erişim yok</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">1B</div>
+                    <div class="step-content">
+                        <h3>OSPF Komşu Durumunu Kontrol Etme</h3>
+                        <p>Router'larda OSPF komşu listesini kontrol ederek problemi tespit edin.</p>
+                        <div class="code-block">
+<span class="command">Router-A# show ip ospf neighbor</span>
+<span class="output">(Boş sonuç - komşuluk kurulmamış)</span>
+
+<span class="command">Router-A# show ip ospf interface brief</span>
+<span class="output">Interface    PID   Area            IP Address/Mask    Cost  State Nbrs F/C
+Gig0/0       1     0               192.168.10.1/24   1     DR    0/0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Adım 2: OSPF Area Uyuşmazlığını Düzeltme</h2>
+                
+                <div class="step">
+                    <div class="step-number">2A</div>
+                    <div class="step-content">
+                        <h3>Mevcut OSPF Yapılandırmasını İnceleme</h3>
+                        <p>Router'lardaki OSPF area yapılandırmalarını kontrol edin.</p>
+                        <div class="code-block">
+<span class="command">Router-A# show running-config | section router ospf</span>
+<span class="output">router ospf 1
+ network 192.168.10.0 0.0.0.255 area 0
+ network 192.168.100.0 0.0.0.255 area 0</span>
+
+<span class="command">Router-B# show running-config | section router ospf</span>
+<span class="output">router ospf 1
+ network 192.168.20.0 0.0.0.255 area 1
+ network 192.168.100.0 0.0.0.255 area 1</span>
+<span class="comment"># Problem: Farklı area'lar (0 vs 1)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2B</div>
+                    <div class="step-content">
+                        <h3>Area Yapılandırmasını Düzeltme</h3>
+                        <p>Her iki router'ı da aynı area'ya (Area 0) ait olacak şekilde yapılandırın.</p>
+                        <div class="code-block">
+<span class="command">Router-B(config)# router ospf 1</span>
+<span class="command">Router-B(config-router)# no network 192.168.20.0 0.0.0.255 area 1</span>
+<span class="command">Router-B(config-router)# no network 192.168.100.0 0.0.0.255 area 1</span>
+<span class="command">Router-B(config-router)# network 192.168.20.0 0.0.0.255 area 0</span>
+<span class="command">Router-B(config-router)# network 192.168.100.0 0.0.0.255 area 0</span>
+<span class="comment"># Her iki router da artık Area 0'da</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Adım 3: OSPF Komşuluk Doğrulama</h2>
+
+                <div class="step">
+                    <div class="step-number">3A</div>
+                    <div class="step-content">
+                        <h3>Komşuluk Convergence Beklemek</h3>
+                        <p>OSPF'nin komşuluk kurmasını bekleyin (10-30 saniye sürebilir).</p>
+                        <div class="code-block">
+<span class="command">Router-A# show ip ospf neighbor</span>
+<span class="output">Neighbor ID     Pri   State           Dead Time   Address         Interface
+192.168.20.1      1   FULL/BDR        00:00:34    192.168.100.2   GigabitEthernet0/1</span>
+<span class="comment"># FULL durumu = komşuluk başarıyla kuruldu</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3B</div>
+                    <div class="step-content">
+                        <h3>Route Tablosunu Kontrol Etme</h3>
+                        <p>OSPF route'larının öğrenildiğini doğrulayın.</p>
+                        <div class="code-block">
+<span class="command">Router-A# show ip route ospf</span>
+<span class="output">     192.168.20.0/24 [110/2] via 192.168.100.2, 00:01:23, GigabitEthernet0/1</span>
+<span class="comment"># OSPF route başarıyla öğrenildi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3C</div>
+                    <div class="step-content">
+                        <h3>Uçtan Uca Bağlantı Testi</h3>
+                        <p>Farklı ağlardaki cihazlar arasında ping testini tekrarlayın.</p>
+                        <div class="code-block">
+<span class="command">PC0> ping 192.168.20.10</span>
+<span class="output">Reply from 192.168.20.10: bytes=32 time=1ms TTL=126</span>
+<span class="output">Reply from 192.168.20.10: bytes=32 time=1ms TTL=126</span>
+<span class="comment"># Komşuluk kurulduktan sonra ping başarılı</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Lab Özeti</h2>
+                <div class="packet-tracer-box">
+                    <h4>📁 Lab Dosyaları:</h4>
+                    <ul>
+                        <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/ospf_problem.pkt" class="file-link">ospf_problem.pkt</a> - Farklı area'lar, komşuluk yok</li>
+                        <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/ospf_solution.pkt" class="file-link">ospf_solution.pkt</a> - Aynı area, komşuluk kuruldu</li>
+                    </ul>
+                    
+                    <h4>Lab Hedefleri:</h4>
+                    <ul>
+                        <li>OSPF komşuluk problemlerini tespit etme</li>
+                        <li>Area uyuşmazlığı sorununu çözme</li>
+                        <li>OSPF neighbor state'lerini anlama</li>
+                        <li>Route propagation'ını doğrulama</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>💡 Önemli OSPF Komşuluk Gereksinimleri</h2>
+                <div class="info-box">
+                    <h4>Komşuluk Kurulması İçin Gerekli Koşullar:</h4>
+                    <ul>
+                        <li><strong>Aynı Area ID:</strong> Komşu router'lar aynı OSPF area'sında olmalı</li>
+                        <li><strong>Aynı Subnet:</strong> Arayüzler aynı IP subnet'inde olmalı</li>
+                        <li><strong>Aynı Hello/Dead Timer:</strong> Hello ve Dead interval süreleri eşleşmeli</li>
+                        <li><strong>Aynı Authentication:</strong> Kimlik doğrulama ayarları aynı olmalı</li>
+                        <li><strong>Aynı MTU:</strong> Interface MTU değerleri uyumlu olmalı</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        
+        <nav class="navigation">
+            <a href="description.html" class="nav-button">← Problem Tanımı</a>
+            <a href="../../index.html" class="nav-button">Ana Sayfa</a>
+            <a href="../problem_05/description.html" class="nav-button">Problem 5'e Geç →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                gsap.fromTo(section, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+            
+            console.log('🔧 Problem 04 Solution (TR) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

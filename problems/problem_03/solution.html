@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çözüm: STP Döngü Problemleri - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-solution">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="solution.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="solution-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+            <h1>✅ Çözüm Adımları: STP Döngü Problemleri</h1>
+            <p>L2 - Data Link Layer - Uygulamalı Çözüm Rehberi</p>
+        </header>
+        
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Ana Sayfa</a> / <a href="description.html">Problem 3</a> / Çözüm Detayları
+        </nav>
+        
+        <main class="content">
+            <section class="section">
+                <h2>🔧 Adım Adım STP Onarım Süreci</h2>
+                <p>Bu rehber, Spanning Tree Protocol döngü problemlerinin tespit edilmesi ve çözülmesi için izlenmesi gereken adımları detaylı olarak açıklamaktadır.</p>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ Çözüm Sonrası: STP Düzgün Çalışıyor</h2>
+                <p>STP doğru şekilde yapılandırıldıktan sonra, ağdaki döngüler engellenerek normal iletişim sağlanır. Aşağıda STP'nin aktif olduğu durumda ping testinin başarılı olduğu görülmektedir:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/stp_ping_success.png" alt="STP Çözümü - Ping Başarılı" class="screenshot">
+                    <figcaption>Resim 1: STP etkinleştirildikten sonra başarılı ping testi</figcaption>
+                </div>
+                
+                <h4>Packet Tracer Çözüm Dosyaları:</h4>
+                <ul>
+                    <li><a href="packet_tracer/stp_solution.pkt" download>stp_solution.pkt</a> - Çözüm sonrası çalışır durum</li>
+                    <li><a href="packet_tracer/stp_normal.pkt" download>stp_normal.pkt</a> - Normal STP çalışma örneği</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Adım 1: Döngü Probleminin Tespiti</h2>
+                
+                <div class="step">
+                    <div class="step-number">1A</div>
+                    <div class="step-content">
+                        <h3>Ağ Performans Problemlerini İzleme</h3>
+                        <p>STP döngüsü durumunda ağda broadcast storm oluşur ve ping testleri başarısız olur veya çok yavaş yanıt verir.</p>
+                        <div class="code-block">
+<span class="comment"># Döngü durumunda ping testi</span>
+<span class="command">PC-A> ping 192.168.1.11</span>
+<span class="output">Request timed out.</span>
+<span class="output">Request timed out.</span>
+<span class="comment"># Broadcast storm nedeniyle iletişim kurulamaz</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">1B</div>
+                    <div class="step-content">
+                        <h3>STP Durumunu Kontrol Etme</h3>
+                        <p>Switch'lerde STP durumunu kontrol ederek problemi tespit edin.</p>
+                        <div class="code-block">
+<span class="command">Switch# show spanning-tree</span>
+<span class="comment"># STP devre dışıysa tüm portlar forwarding olacak</span>
+<span class="command">Switch# show spanning-tree summary</span>
+<span class="output">Switch is in pvst mode</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Adım 2: STP Yapılandırmasını Düzeltme</h2>
+                
+                <div class="step">
+                    <div class="step-number">2A</div>
+                    <div class="step-content">
+                        <h3>STP'yi Etkinleştirme</h3>
+                        <p>Tüm switch'lerde STP'nin etkin olduğundan emin olun.</p>
+                        <div class="code-block">
+<span class="command">Switch(config)# spanning-tree mode pvst</span>
+<span class="comment"># PVST+ modunu etkinleştir</span>
+
+<span class="command">Switch(config)# spanning-tree vlan 1</span>
+<span class="comment"># VLAN 1 için STP'yi etkinleştir</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2B</div>
+                    <div class="step-content">
+                        <h3>Root Bridge Belirleme</h3>
+                        <p>En uygun switch'i root bridge olarak yapılandırın.</p>
+                        <div class="code-block">
+<span class="command">Switch(config)# spanning-tree vlan 1 root primary</span>
+<span class="comment"># Bu switch'i primary root olarak ayarla</span>
+
+<span class="command">Switch(config)# spanning-tree vlan 1 priority 4096</span>
+<span class="comment"># Alternatif: Manuel priority ayarlama</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Adım 3: STP Convergence ve Doğrulama</h2>
+
+                <div class="step">
+                    <div class="step-number">3A</div>
+                    <div class="step-content">
+                        <h3>STP Convergence Bekleme</h3>
+                        <p>STP'nin yeniden hesaplamasını bekleyin (30-50 saniye sürebilir).</p>
+                        <div class="code-block">
+<span class="command">Switch# show spanning-tree</span>
+<span class="output">VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     0060.4775.7CE0
+             This bridge is the root
+             
+  Bridge ID  Priority    32769
+             Address     0060.4775.7CE0
+             
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+Fa0/1            Desg FWD 19        128.1    P2p
+Fa0/2            Desg FWD 19        128.2    P2p</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3B</div>
+                    <div class="step-content">
+                        <h3>Nihai Bağlantı Testi</h3>
+                        <p>STP convergence tamamlandıktan sonra ping testlerinin başarılı olduğunu doğrulayın.</p>
+                        <div class="code-block">
+<span class="command">PC-A> ping 192.168.1.11</span>
+<span class="output">Reply from 192.168.1.11: bytes=32 time=1ms TTL=128</span>
+<span class="output">Reply from 192.168.1.11: bytes=32 time=1ms TTL=128</span>
+<span class="comment"># STP döngüyü engellediği için ping başarılı</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Lab Özeti</h2>
+                <div class="packet-tracer-box">
+                    <h4>📁 Lab Dosyaları:</h4>
+                    <ul>
+                        <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/stp_problem.pkt" class="file-link">stp_problem.pkt</a> - STP devre dışı, döngü var</li>
+                        <li><strong>Normal Durum:</strong> <a href="packet_tracer/stp_normal.pkt" class="file-link">stp_normal.pkt</a> - STP etkin, normal çalışma</li>
+                        <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/stp_solution.pkt" class="file-link">stp_solution.pkt</a> - Çözüm sonrası</li>
+                    </ul>
+                    
+                    <h4>Lab Hedefleri:</h4>
+                    <ul>
+                        <li>STP döngü problemlerini tespit etme</li>
+                        <li>Broadcast storm etkilerini gözlemleme</li>
+                        <li>STP yapılandırmasını düzeltme</li>
+                        <li>Root bridge seçimi ve port rollerini anlama</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        
+        <nav class="navigation">
+            <a href="description.html" class="nav-button">← Problem Tanımı</a>
+            <a href="../../index.html" class="nav-button">Ana Sayfa</a>
+            <a href="../problem_04/description.html" class="nav-button">Problem 4'e Geç →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                gsap.fromTo(section, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+            
+            console.log('🔧 Problem 03 Solution (TR) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

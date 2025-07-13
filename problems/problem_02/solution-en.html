@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solution: VLAN Configuration Errors - Admin Guide</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-solution">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="solution.html" class="lang-btn">🇹🇷 Türkçe</a>
+                <a href="solution-en.html" class="lang-btn active">🇺🇸 English</a>
+            </div>
+            
+            <h1>✅ Solution Steps: VLAN Configuration Errors</h1>
+            <p>L2 - Data Link Layer - Practical Solution Guide</p>
+        </header>
+        
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Home</a> / <a href="description-en.html">Problem 2</a> / Solution Details
+        </nav>
+        
+        <main class="content">
+            <section class="section">
+                <h2>🔧 Step-by-Step Solution Guide (Packet Tracer Lab)</h2>
+                <p>This guide describes step by step the process of detecting and correcting the problem in the <code>vlan_problem.pkt</code> file, specifically <strong>PC4 being assigned to the wrong VLAN</strong>.</p>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ Corrected Network Topology</h2>
+                <div class="topology-diagram">
+                    <pre class="ascii-art">
+    ┌─────────────┐     Trunk     ┌─────────────┐     Trunk     ┌─────────────┐
+    │   Switch0   │◄─────────────►│   Switch1   │◄─────────────►│   Switch2   │
+    │             │               │             │               │             │
+    └─────┬───┬───┘               └─────┬───┬───┘               └─────┬───┬───┘
+          │   │                         │   │                         │   │
+          │   │                         │   │                         │   │
+     ┌────▼──┐│                    ┌────▼──┐│                    ┌────▼──┐│
+     │  PC0  ││                    │  PC2  ││                    │ PC4*  ││
+     │VLAN 10││                    │VLAN 10││                    │VLAN 10││
+     │ .10.11││                    │ .10.12││                    │ .10.13││
+     └───────┘│                    └───────┘│                    └───────┘│
+          ┌───▼──┐                      ┌───▼──┐                      ┌───▼──┐
+          │  PC1  │                     │  PC3  │                     │  PC5  │
+          │VLAN 20│                     │VLAN 20│                     │VLAN 20│
+          │ .20.11│                     │ .20.12│                     │ .20.13│
+          └───────┘                     └───────┘                     └───────┘
+    </pre>
+                    <p><strong>* Problem:</strong> PC4 was initially assigned to VLAN 20 (error). Moved to VLAN 10 in solution.</p>
+                    <p><strong>VLAN 10 (SALES):</strong> PC0, PC2, PC4 - 192.168.10.0/24 subnet</p>
+                    <p><strong>VLAN 20 (ENGINEERING):</strong> PC1, PC3, PC5 - 192.168.20.0/24 subnet</p>
+                    <p><strong>Trunk Ports:</strong> Carry VLAN 10 and 20 between switches</p>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Step 1: Detecting Faulty Situation (Troubleshooting)</h2>
+                
+                <div class="step">
+                    <div class="step-number">1A</div>
+                    <div class="step-content">
+                        <h3>Ping Test Between PCs</h3>
+                        <p>First, to confirm the existence of the problem, a ping is sent from PC0 (192.168.10.11) to PC4 (192.168.10.13) which should be in the same VLAN. The test is seen to fail.</p>
+                        <div class="code-block">
+<span class="command">PC0> ping 192.168.10.13</span>
+<span class="output">
+Pinging 192.168.10.13 with 32 bytes of data:
+
+Request timed out.
+Request timed out.
+Request timed out.
+Request timed out.
+
+Ping statistics for 192.168.10.13:
+    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),</span>
+<span class="comment"># PC4 is in different VLAN, so ping fails</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">1B</div>
+                    <div class="step-content">
+                        <h3>Checking VLAN Status on Switches</h3>
+                        <p>Connect to Switch2 where the problem occurs and use the <code>show vlan brief</code> command to check which VLANs the ports are assigned to. The output of this command shows that PC4's connected <strong>FastEthernet0/1</strong> port is assigned to <strong>VLAN 20</strong> instead of the required VLAN 10.</p>
+                        <div class="code-block">
+<span class="command">Switch2# show vlan brief</span>
+<span class="comment"># Output shows that Fa0/1 port is in the wrong VLAN.</span>
+<span class="output">VLAN  Name         Status    Ports
+----  -----------  --------  --------------------------------
+10    SALES        active    Fa0/2
+20    ENGINEERING  active    </span><span class="error">Fa0/1</span><span class="output">, Fa0/4</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">1C</div>
+                    <div class="step-content">
+                        <h3>Checking Trunk Ports</h3>
+                        <p>Check the trunk ports that provide inter-switch connectivity using the <code>show interfaces trunk</code> command. In this scenario, it is understood that the trunk ports are properly configured and the problem does not originate from here.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Step 2: Fixing Configuration</h2>
+                
+                <div class="step">
+                    <div class="step-number">2A</div>
+                    <div class="step-content">
+                        <h3>Assigning Access Port to Correct VLAN</h3>
+                        <p>The detected faulty port (FastEthernet0/1) is assigned to the correct VLAN 10 (SALES).</p>
+                        <div class="code-block">
+<span class="command">Switch2(config)# interface FastEthernet0/1</span>
+<span class="command">Switch2(config-if)# switchport access vlan 10</span>
+<span class="comment"># This command assigns the port to the correct VLAN.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Step 3: Verification and Final Test</h2>
+
+                <div class="step">
+                    <div class="step-number">3A</div>
+                    <div class="step-content">
+                        <h3>Checking Configuration Again</h3>
+                        <p>After the correction, when the <code>show vlan brief</code> command is run again, it is seen that the FastEthernet0/1 port is now correctly listed under VLAN 10.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3B</div>
+                    <div class="step-content">
+                        <h3>Final Ping Test</h3>
+                        <p>After the correction is verified, a ping is sent again from PC0 to PC4. This time the test is seen to be successful and the problem is resolved.</p>
+                        <div class="code-block">
+<span class="command">PC0> ping 192.168.10.13</span>
+<span class="output">
+Pinging 192.168.10.13 with 32 bytes of data:
+
+Reply from 192.168.10.13: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.13: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.13: bytes=32 time<1ms TTL=128
+Reply from 192.168.10.13: bytes=32 time<1ms TTL=128
+
+Ping statistics for 192.168.10.13:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 0ms, Average = 0ms</span>
+<span class="comment"># ✅ PC4 is now in correct VLAN, ping successful!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3C</div>
+                    <div class="step-content">
+                        <h3>Saving Solution File</h3>
+                        <p>After all errors are corrected in Packet Tracer, the file is saved as <code>vlan_solution.pkt</code>.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Lab</h2>
+                <div class="packet-tracer-box">
+                    <h4>📁 Lab Files:</h4>
+                    <ul>
+                        <li><strong>Initial (with errors):</strong> <a href="packet_tracer/vlan_problem.pkt" class="file-link">vlan_problem.pkt</a></li>
+                        <li><strong>Solved Version:</strong> <a href="packet_tracer/vlan_solution.pkt" class="file-link">vlan_solution.pkt</a></li>
+                    </ul>
+                    
+                    <h4>Lab Objectives:</h4>
+                    <ul>
+                        <li>Detect and fix VLAN configuration errors</li>
+                        <li>Ensure correct VLAN configuration of the network</li>
+                        <li>Test whether VLAN isolation is working</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        
+        <nav class="navigation">
+            <a href="description-en.html" class="nav-button">← Problem Description</a>
+            <a href="../../index.html" class="nav-button">Home</a>
+            <a href="../problem_03/description-en.html" class="nav-button">Go to Problem 3 →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN and Interactive Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursor = document.getElementById('cursor'), cursorOutline = document.getElementById('cursorOutline');
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                setTimeout(() => { cursor.style.opacity = '1'; cursorOutline.style.opacity = '1'; }, 500);
+                document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px'; });
+                function animateOutline() { outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1; cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px'; requestAnimationFrame(animateOutline); }
+                animateOutline();
+                document.querySelectorAll('a, button, .nav-button, .lang-btn').forEach(el => {
+                    el.addEventListener('mouseenter', () => { cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover'); });
+                    el.addEventListener('mouseleave', () => { cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover'); });
+                });
+            }
+            document.querySelectorAll('.section').forEach(section => gsap.fromTo(section, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", scrollTrigger: { trigger: section, start: "top 85%", once: true } }));
+            console.log('🔧 Problem 2 Solution (EN) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

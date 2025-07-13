@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solution: STP Loop Problems - Admin Guide</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-solution">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="solution.html" class="lang-btn">🇹🇷 Türkçe</a>
+                <a href="solution-en.html" class="lang-btn active">🇺🇸 English</a>
+            </div>
+            
+            <h1>✅ Solution Steps: STP Loop Problems</h1>
+            <p>L2 - Data Link Layer - Practical Solution Guide</p>
+        </header>
+        
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Home</a> / <a href="description-en.html">Problem 3</a> / Solution Details
+        </nav>
+        
+        <main class="content">
+            <section class="section">
+                <h2>🔧 Step-by-Step STP Repair Process</h2>
+                <p>This guide explains in detail the steps to be followed for detecting and resolving Spanning Tree Protocol loop problems.</p>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ After Solution: STP Working Properly</h2>
+                <p>After STP is properly configured, loops in the network are prevented and normal communication is established. Below you can see that the ping test is successful when STP is active:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/stp_ping_success.png" alt="STP Solution - Ping Successful" class="screenshot">
+                    <figcaption>Figure 1: Successful ping test after enabling STP</figcaption>
+                </div>
+                
+                <h4>Packet Tracer Solution Files:</h4>
+                <ul>
+                    <li><a href="packet_tracer/stp_solution.pkt" download>stp_solution.pkt</a> - Working state after solution</li>
+                    <li><a href="packet_tracer/stp_normal.pkt" download>stp_normal.pkt</a> - Normal STP operation example</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Step 1: Loop Problem Detection</h2>
+                
+                <div class="step">
+                    <div class="step-number">1A</div>
+                    <div class="step-content">
+                        <h3>Monitor Network Performance Issues</h3>
+                        <p>In case of STP loop, broadcast storm occurs in the network and ping tests fail or respond very slowly.</p>
+                        <div class="code-block">
+<span class="comment"># Ping test during loop condition</span>
+<span class="command">PC-A> ping 192.168.1.11</span>
+<span class="output">Request timed out.</span>
+<span class="output">Request timed out.</span>
+<span class="comment"># Communication cannot be established due to broadcast storm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">1B</div>
+                    <div class="step-content">
+                        <h3>Check STP Status</h3>
+                        <p>Check the STP status on switches to detect the problem.</p>
+                        <div class="code-block">
+<span class="command">Switch# show spanning-tree</span>
+<span class="comment"># If STP is disabled, all ports will be forwarding</span>
+<span class="command">Switch# show spanning-tree summary</span>
+<span class="output">Switch is in pvst mode</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Step 2: Fix STP Configuration</h2>
+                
+                <div class="step">
+                    <div class="step-number">2A</div>
+                    <div class="step-content">
+                        <h3>Enable STP</h3>
+                        <p>Make sure STP is active on all switches.</p>
+                        <div class="code-block">
+<span class="command">Switch(config)# spanning-tree mode pvst</span>
+<span class="comment"># Enable PVST+ mode</span>
+
+<span class="command">Switch(config)# spanning-tree vlan 1</span>
+<span class="comment"># Enable STP for VLAN 1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2B</div>
+                    <div class="step-content">
+                        <h3>Determine Root Bridge</h3>
+                        <p>Configure the most suitable switch as root bridge.</p>
+                        <div class="code-block">
+<span class="command">Switch(config)# spanning-tree vlan 1 root primary</span>
+<span class="comment"># Set this switch as primary root</span>
+
+<span class="command">Switch(config)# spanning-tree vlan 1 priority 4096</span>
+<span class="comment"># Alternative: Manual priority setting</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Step 3: STP Convergence and Verification</h2>
+
+                <div class="step">
+                    <div class="step-number">3A</div>
+                    <div class="step-content">
+                        <h3>Wait for STP Convergence</h3>
+                        <p>Wait for STP recalculation (may take 30-50 seconds).</p>
+                        <div class="code-block">
+<span class="command">Switch# show spanning-tree</span>
+<span class="output">VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     0060.4775.7CE0
+             This bridge is the root
+             
+  Bridge ID  Priority    32769
+             Address     0060.4775.7CE0
+             
+Interface        Role Sts Cost      Prio.Nbr Type
+---------------- ---- --- --------- -------- --------------------------------
+Fa0/1            Desg FWD 19        128.1    P2p
+Fa0/2            Desg FWD 19        128.2    P2p</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3B</div>
+                    <div class="step-content">
+                        <h3>Final Connectivity Test</h3>
+                        <p>Verify that ping tests are successful after STP convergence is complete.</p>
+                        <div class="code-block">
+<span class="command">PC-A> ping 192.168.1.11</span>
+<span class="output">Reply from 192.168.1.11: bytes=32 time=1ms TTL=128</span>
+<span class="output">Reply from 192.168.1.11: bytes=32 time=1ms TTL=128</span>
+<span class="comment"># Ping successful because STP prevented the loop</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Lab Summary</h2>
+                <div class="packet-tracer-box">
+                    <h4>📁 Lab Files:</h4>
+                    <ul>
+                        <li><strong>Problem File:</strong> <a href="packet_tracer/stp_problem.pkt" class="file-link">stp_problem.pkt</a> - STP disabled, loop exists</li>
+                        <li><strong>Normal State:</strong> <a href="packet_tracer/stp_normal.pkt" class="file-link">stp_normal.pkt</a> - STP enabled, normal operation</li>
+                        <li><strong>Solution File:</strong> <a href="packet_tracer/stp_solution.pkt" class="file-link">stp_solution.pkt</a> - After solution</li>
+                    </ul>
+                    
+                    <h4>Lab Objectives:</h4>
+                    <ul>
+                        <li>Detecting STP loop problems</li>
+                        <li>Observing broadcast storm effects</li>
+                        <li>Fixing STP configuration</li>
+                        <li>Understanding root bridge selection and port roles</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        
+        <nav class="navigation">
+            <a href="description-en.html" class="nav-button">← Problem Definition</a>
+            <a href="../../index.html" class="nav-button">Home</a>
+            <a href="../problem_04/description-en.html" class="nav-button">Go to Problem 4 →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                gsap.fromTo(section, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+            
+            console.log('🔧 Problem 03 Solution (EN) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

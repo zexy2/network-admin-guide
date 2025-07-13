@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çözüm: HTTP/HTTPS Web Server Protocol Problemleri - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-solution">
+                        <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="solution.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="solution-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+<h1>✅ Çözüm Adımları: HTTP/HTTPS Web Server Protocol Problemleri</h1>
+            <p>L7 - Application Layer - Uygulamalı Çözüm Rehberi</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Ana Sayfa</a> / <a href="description.html">Problem 10</a> / Çözüm
+        </nav>
+
+        <main class="content">
+            <section class="section">
+                <h2>🖼️ HTTP/HTTPS Protocol Çözüm Örnekleri</h2>
+                <p>Aşağıda web server problemlerinin çözüldükten sonraki başarılı durumları gösterilmektedir:</p>
+                
+                <div class="image-container">
+                    <img src="../../images/screenshots/http_success_display.png" alt="HTTP Success Response" class="screenshot" style="background: #d4edda; border: 2px solid #28a745; padding: 20px; text-align: center; color: #155724;">
+                    <figcaption>Resim 1: Optimized web server - HTTP 200 OK responses ve fast loading</figcaption>
+                </div>
+                
+                <div class="success-box">
+                    <strong>✅ Çözüm Sonucu:</strong> Web server optimization'dan sonra tüm HTTP requests normal şekilde response alıyor ve sayfa loading hızı optimize edildi.
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>📋 HTTP/HTTPS Problem Çözüm Metodolojisi</h2>
+                
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>HTTP Status Code Analysis ve Düzeltme</h3>
+                        <p><strong>Status Code Troubleshooting:</strong> HTTP response codes'ları analyze ederek root cause'u tespit etmek</p>
+                        
+                        <div class="code-block">
+<span class="comment"># Browser DevTools ile HTTP status monitoring</span>
+<span class="command">F12 → Network Tab → Reload Page</span>
+<span class="output">✅ Status: 200 OK (Success)
+✅ Time: 850ms (Fast)
+✅ Size: 245KB (Optimized)</span>
+
+<span class="comment"># curl ile HTTP response verification</span>
+<span class="command">curl -w "Status: %{http_code}, Time: %{time_total}s\n" http://webserver.local</span>
+<span class="output">Status: 200, Time: 0.821s</span>
+
+<span class="comment"># Apache error log monitoring</span>
+<span class="command">tail -f /var/log/apache2/error.log</span>
+<span class="output">[notice] Apache/2.4.41 configured -- resuming normal operations</span>
+                        </div>
+                        
+                        <h4>Status Code Specific Solutions:</h4>
+                        <ul>
+                            <li><strong>404 Fix:</strong> File path validation, virtual host configuration</li>
+                            <li><strong>500 Fix:</strong> Application debugging, memory limits increase</li>
+                            <li><strong>503 Fix:</strong> Load balancing, resource optimization</li>
+                            <li><strong>504 Fix:</strong> Timeout settings adjustment</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Web Server Performance Optimization</h3>
+                        <p>HTTP connection handling ve resource management optimization:</p>
+                        
+                        <div class="code-block">
+<span class="comment"># Apache performance configuration</span>
+<span class="command"># httpd.conf optimization</span>
+<span class="command">KeepAlive On</span>
+<span class="command">MaxKeepAliveRequests 100</span>
+<span class="command">KeepAliveTimeout 15</span>
+
+<span class="comment"># Nginx performance tuning</span>
+<span class="command"># nginx.conf optimization</span>
+<span class="command">worker_processes auto;</span>
+<span class="command">worker_connections 1024;</span>
+<span class="command">keepalive_timeout 65;</span>
+<span class="command">gzip on;</span>
+
+<span class="comment"># Resource limit optimization</span>
+<span class="command">memory_limit = 256M</span>
+<span class="command">max_execution_time = 60</span>
+<span class="command">max_input_time = 120</span>
+                        </div>
+                        
+                        <div class="info-box">
+                            <strong>💡 Performance Best Practices:</strong> Keep-alive connections, static resource caching ve gzip compression enable etmek web site performance'ını dramatically improve eder.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>HTTPS/SSL Protocol Configuration</h3>
+                        <p>Secure HTTP communication ve SSL certificate management:</p>
+                        
+                        <div class="code-block">
+<span class="comment"># SSL certificate installation</span>
+<span class="command">sudo certbot --apache -d webserver.local</span>
+<span class="output">Successfully deployed certificate for webserver.local</span>
+
+<span class="comment"># Apache SSL virtual host</span>
+<span class="command">&lt;VirtualHost *:443&gt;</span>
+<span class="command">    ServerName webserver.local</span>
+<span class="command">    SSLEngine on</span>
+<span class="command">    SSLCertificateFile /etc/ssl/certs/webserver.crt</span>
+<span class="command">    SSLCertificateKeyFile /etc/ssl/private/webserver.key</span>
+<span class="command">&lt;/VirtualHost&gt;</span>
+
+<span class="comment"># SSL security headers</span>
+<span class="command">Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"</span>
+<span class="command">Header always set X-Content-Type-Options nosniff</span>
+<span class="command">Header always set X-Frame-Options DENY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Connection Timeout ve Resource Management</h3>
+                        <p>HTTP connection timeout optimization ve resource limit management:</p>
+                        
+                        <div class="code-block">
+<span class="comment"># Apache timeout configuration</span>
+<span class="command">Timeout 300</span>
+<span class="command">ProxyTimeout 300</span>
+<span class="command">ProxyBadHeader Ignore</span>
+
+<span class="comment"># Nginx timeout settings</span>
+<span class="command">client_body_timeout 12;</span>
+<span class="command">client_header_timeout 12;</span>
+<span class="command">send_timeout 10;</span>
+<span class="command">proxy_connect_timeout 60s;</span>
+<span class="command">proxy_send_timeout 60s;</span>
+<span class="command">proxy_read_timeout 60s;</span>
+
+<span class="comment"># Resource monitoring</span>
+<span class="command">htop</span>
+<span class="output">CPU: 25%, Memory: 45%, Load: 1.2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Load Balancing ve High Availability</h3>
+                        <p>Multiple web server configuration ve traffic distribution:</p>
+                        
+                        <div class="code-block">
+<span class="comment"># Nginx load balancer configuration</span>
+<span class="command">upstream webservers {</span>
+<span class="command">    server 192.168.2.10:80 weight=3;</span>
+<span class="command">    server 192.168.2.11:80 weight=2;</span>
+<span class="command">    server 192.168.2.12:80 backup;</span>
+<span class="command">}</span>
+
+<span class="command">server {</span>
+<span class="command">    location / {</span>
+<span class="command">        proxy_pass http://webservers;</span>
+<span class="command">        proxy_set_header Host $host;</span>
+<span class="command">    }</span>
+<span class="command">}</span>
+
+<span class="comment"># Health check monitoring</span>
+<span class="command">curl -f http://192.168.2.10/health</span>
+<span class="output">✅ Server Status: Healthy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h3>Monitoring ve Proactive Maintenance</h3>
+                        <p>Continuous monitoring ve preventive maintenance strategies:</p>
+                        
+                        <div class="code-block">
+<span class="comment"># Real-time web server monitoring</span>
+<span class="command">apache2ctl status</span>
+<span class="output">Apache Server Status for webserver.local
+Server uptime: 15 days 6 hours
+Total requests: 1,245,380
+Requests per second: 0.95</span>
+
+<span class="comment"># Automated health checking</span>
+<span class="command">#!/bin/bash</span>
+<span class="command">curl -f http://webserver.local/health || systemctl restart apache2</span>
+
+<span class="comment"># Log rotation ve cleanup</span>
+<span class="command">logrotate /etc/logrotate.d/apache2</span>
+<span class="output">Apache logs rotated successfully</span>
+                        </div>
+                        
+                        <div class="success-box">
+                            <strong>✅ Monitoring Results:</strong> Automated monitoring scripts active, server health checks passing, performance metrics within optimal ranges.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Lab Implementation</h2>
+                <div class="packet-tracer-box">
+                    <h4>📁 Lab Dosyaları:</h4>
+                    <ul>
+                        <li><strong>Problem Senaryosu:</strong> <a href="packet_tracer/http_problem.pkt" class="file-link">http_problem.pkt</a> - Web server timeouts ve errors</li>
+                        <li><strong>Çözüm Senaryosu:</strong> <a href="packet_tracer/http_solution.pkt" class="file-link">http_solution.pkt</a> - Optimized web server configuration</li>
+                    </ul>
+                    
+                    <h4>📊 Lab Performance Comparison:</h4>
+                    <div class="code-block">
+<span class="comment"># Problem Version Performance</span>
+<span class="command">curl -w "Time: %{time_total}s\n" http://webserver.local</span>
+<span class="output">Time: 8.245s (SLOW)</span>
+
+<span class="comment"># Solution Version Performance</span>
+<span class="command">curl -w "Time: %{time_total}s\n" http://webserver.local</span>
+<span class="output">Time: 0.821s (FAST)</span>
+
+<span class="comment"># Concurrent connections test</span>
+<span class="command">ab -n 100 -c 10 http://webserver.local/</span>
+<span class="output">Requests per second: 45.23 [#/sec] (mean)</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>📈 Performance Metrics ve KPI Tracking</h2>
+                
+                <div class="info-box">
+                    <h4>🔍 Key Performance Indicators:</h4>
+                    <ul>
+                        <li><strong>Response Time:</strong> Average HTTP response time &lt; 1 second</li>
+                        <li><strong>Availability:</strong> Server uptime &gt; 99.9%</li>
+                        <li><strong>Throughput:</strong> Requests per second capacity</li>
+                        <li><strong>Error Rate:</strong> HTTP 5xx errors &lt; 0.1%</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>⚠️ Performance Thresholds ve Alerts:</h4>
+                    <ul>
+                        <li><strong>Critical Alert:</strong> Response time &gt; 5 seconds</li>
+                        <li><strong>Warning Alert:</strong> CPU usage &gt; 80%</li>
+                        <li><strong>Info Alert:</strong> Memory usage &gt; 70%</li>
+                        <li><strong>Emergency:</strong> Server downtime &gt; 2 minutes</li>
+                    </ul>
+                </div>
+                
+                <div class="success-box">
+                    <h4>🎯 Optimization Results Summary:</h4>
+                    <ul>
+                        <li>✅ Average response time improved from 8.2s to 0.8s (90% improvement)</li>
+                        <li>✅ HTTP error rate reduced from 15% to 0.05%</li>
+                        <li>✅ Concurrent user capacity increased from 50 to 500</li>
+                        <li>✅ SSL/HTTPS security properly configured</li>
+                        <li>✅ Load balancing active with 3 backend servers</li>
+                        <li>✅ Automated monitoring ve alerting operational</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🌟 HTTP/HTTPS Best Practices Summary</h2>
+                <div class="info-box">
+                    <ul>
+                        <li><strong>Performance:</strong> Enable keep-alive, gzip compression, static caching</li>
+                        <li><strong>Security:</strong> Force HTTPS, security headers, certificate management</li>
+                        <li><strong>Scalability:</strong> Load balancing, resource optimization, connection pooling</li>
+                        <li><strong>Reliability:</strong> Health checks, automated failover, monitoring</li>
+                        <li><strong>Maintenance:</strong> Log rotation, performance tuning, capacity planning</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <nav class="navigation">
+            <a href="description.html" class="nav-button">← Problem Tanımı</a>
+            <a href="../problem_09/solution.html" class="nav-button">← Problem 9 Çözüm</a>
+            <a href="../../index.html" class="nav-button">Ana Sayfa</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                gsap.fromTo(section, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+            
+            console.log('🔧 Problem 10 Solution (TR) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

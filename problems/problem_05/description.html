@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem 5: DHCP IP Çakışmaları - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-l3">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="description.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="description-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+            <h1>🟠 Problem 5: DHCP IP Dağıtım Çakışmaları</h1>
+            <p>L3 - Network Layer (Ağ Katmanı) - Admin Rehber Tutorial</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">Ana Sayfa</a> &gt;
+            <a href="#">Problem 5: DHCP Çakışmaları</a>
+        </nav>
+
+        <main class="content">
+            <section class="section">
+                <h2>Problem Tanımı: DHCP ve IP Çakışması</h2>
+                <p>
+                    Dynamic Host Configuration Protocol (DHCP), bir ağdaki cihazlara (bilgisayarlar, telefonlar, vb.) otomatik olarak IP adresi, alt ağ maskesi, varsayılan ağ geçidi (default gateway) ve DNS sunucu bilgileri atayan bir ağ yönetim protokolüdür. DHCP, IP adresi yönetimini büyük ölçüde basitleştirir.
+                </p>
+                <p>
+                    <strong>IP Adresi Çakışması</strong>, aynı ağ segmentindeki (VLAN/subnet) iki veya daha fazla cihazın aynı IP adresini kullanmaya çalışması durumudur. Bu, ağda ciddi iletişim sorunlarına yol açar. DHCP düzgün yapılandırıldığında bu çakışmaları önler, ancak hatalı konfigürasyonlar veya beklenmedik durumlar bu soruna neden olabilir.
+                </p>
+                <div class="danger-box">
+                    <strong>Etkisi:</strong> IP çakışması yaşayan cihazlar ağda kararsız bir bağlantıya sahip olur, sık sık kopmalar yaşar veya ağa hiç erişemezler. Bu durum, son kullanıcılar için büyük bir verimlilik kaybına neden olur.
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>🖼️ DHCP Çakışma Problemi (Örnek Şema)</h2>
+                <p>Aşağıda DHCP sunucusunda IP adresi çakışması probleminin bir örneği gösterilmektedir. DHCP scope'unda çakışan IP adresleri nedeniyle ağda iletişim problemleri yaşanır:</p>
+                
+                <div class="topology-diagram">
+                    <pre class="ascii-art">
+                 DHCP Server (Router)                    Problematik Ağ Yapısı
+                 192.168.1.1/24                         
+                ┌─────────────────┐                    
+                │ DHCP Pool:      │                    ⚠️ IP ÇAKIŞMA PROBLEMI ⚠️
+                │ 192.168.1.10-50 │                    
+                │ Gateway: .1     │                    
+                │ DNS: 8.8.8.8    │                    
+                └─────────┬───────┘                    
+                          │                            
+              ┌───────────┼───────────┐                
+              │                       │                
+              │                       │                
+        ┌─────▼─────┐             ┌───▼───┐            
+        │    PC1    │             │  PC2  │            
+        │Dynamic IP │             │Static │            
+        │192.168.1.25│             │192.168.1.25│      ❌ AYNI IP!
+        │(DHCP'den) │             │(Manuel)│            
+        └───────────┘             └───────┘            
+              │                       │                
+              └───── ARP Conflict ────┘                
+                   WHO HAS 192.168.1.25?              
+    </pre>
+                    <p><strong>⚠️ Problem:</strong> PC1 DHCP'den 192.168.1.25 aldı, PC2'de manuel aynı IP atanmış!</p>
+                    <p><strong>🔍 Tespit:</strong> ARP conflict, intermittent connectivity issues</p>
+                    <p><strong>📊 Etki:</strong> Her iki PC de ağ bağlantısında sorun yaşıyor</p>
+                </div>
+                
+                <h3>Kullanıcı Tarafında Görülen Hata</h3>
+                <div class="image-container">
+                    <img src="../../images/screenshots/dhcp_conflict_error.png" alt="DHCP Çakışma Hatası" class="screenshot">
+                    <figcaption>Resim 1: DHCP IP adresi çakışması nedeniyle oluşan ağ problemi</figcaption>
+                </div>
+                
+                <h3>Teknik Tespit: DHCP Conflict Detection</h3>
+                <p>DHCP sunucusunda çakışma tespiti ve detayları:</p>
+                <div class="code-block">
+<span class="command">Router# show ip dhcp conflict</span>
+<span class="output">
+IP address        Detection method    Detection time          VRF
+192.168.1.25      Ping               May 15 2024 10:30:45    
+192.168.1.25      Gratuitous ARP     May 15 2024 10:31:12    </span>
+<span class="comment"># Aynı IP için birden fazla çakışma tespit edildi</span>
+
+<span class="command">Router# show ip dhcp binding | include 192.168.1.25</span>
+<span class="output">
+IP address          Client-ID/              Lease expiration        Type       State      Interface
+                    Hardware address/
+                    User name
+192.168.1.25        01aa.bbcc.dd11.22      May 15 2024 11:30:45    Automatic  Active     Vlan10</span>
+<span class="comment"># DHCP PC1'e bu IP'yi kiralamış (lease)</span>
+
+<span class="command">Router# show ip arp 192.168.1.25</span>
+<span class="output">
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  192.168.1.25           0   aa.bb.cc.11.22  ARPA   Vlan10
+Internet  192.168.1.25           0   ff.ee.dd.33.44  ARPA   Vlan10</span>
+<span class="comment"># ❌ Aynı IP için 2 farklı MAC adresi - ÇAKIŞMA!</span>
+                </div>
+                
+                <p>DHCP problemleri çözüldükten sonra ağ iletişiminin normale döndüğü aşağıda görülmektedir:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/dhcp_ping_success.png" alt="DHCP Çözümü - Ping Başarılı" class="screenshot">
+                    <figcaption>Resim 2: DHCP düzeltildikten sonra başarılı ping testi</figcaption>
+                </div>
+                
+                <h4>Packet Tracer Simülasyon Dosyası:</h4>
+                <p>Bu DHCP çakışma probleminin simülasyonunu içeren Packet Tracer dosyasını <a href="packet_tracer/dhcp_problem.pkt" download>buradan</a> indirebilirsiniz.</p>
+                
+                <p><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/dhcp_solution.pkt" download>dhcp_solution.pkt</a> - Düzeltilmiş DHCP yapılandırması</p>
+            </section>
+
+            <section class="section">
+                <h2>IP Çakışmalarının Yaygın Nedenleri</h2>
+                <ul>
+                    <li><strong>Birden Fazla DHCP Sunucusu:</strong> Aynı VLAN veya yayın alanında (broadcast domain) yetkisiz veya yanlışlıkla kurulmuş ikinci bir DHCP sunucusunun (Rogue DHCP) bulunması. Bu sunucular, ana DHCP sunucusunun dağıtım aralığıyla çakışan IP'ler dağıtabilir.</li>
+                    <li><strong>Statik IP Adreslemesi:</strong> Bir cihaza (sunucu, yazıcı, vb.) manuel olarak statik bir IP adresi atanması, ancak bu IP adresinin aynı zamanda DHCP sunucusunun dağıtım havuzunda (pool) yer alması. DHCP sunucusu bu adresi başka bir cihaza atadığında çakışma meydana gelir.</li>
+                    <li><strong>DHCP Sunucusu Hataları:</strong> DHCP sunucusunun veritabanının bozulması veya sunucunun yeniden başlatıldıktan sonra daha önce dağıttığı bir IP'yi (lease süresi dolmadan) başka bir cihaza tekrar dağıtması.</li>
+                    <li><strong>Uykudan Uyanma (Sleep Mode) Sorunları:</strong> Bir cihazın (özellikle laptop) uzun süre uyku modunda kaldıktan sonra ağa tekrar bağlandığında eski IP'sini korumaya çalışması, ancak DHCP sunucusunun bu IP'yi o arada başka bir cihaza atamış olması.</li>
+                    <li><strong>Hatalı DHCP Relay Yapılandırması:</strong> Farklı VLAN'lardaki istemcilere IP dağıtmak için kullanılan DHCP Relay Agent (IP Helper Address) yapılandırmasının birden fazla, çakışan havuzlara sahip sunucuyu işaret etmesi.</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Belirtiler ve Tespit Yöntemleri</h2>
+                <h3>Kullanıcı Tarafındaki Belirtiler:</h3>
+                <ul>
+                    <li>Windows gibi işletim sistemlerinde "Duplicate IP address detected" (Yinelenen IP adresi algılandı) hatası.</li>
+                    <li>Ağ bağlantısının sürekli gelip gitmesi, internet erişiminde kesintiler.</li>
+                    <li>Ağa bağlanılamaması veya sınırlı bağlantı uyarısı alınması.</li>
+                </ul>
+
+                <h3>Ağ Yöneticisi için Tespit Komutları (Cisco IOS):</h3>
+                <div class="code-block">
+<pre><span class="comment"># DHCP sunucusu tarafından tespit edilen IP çakışmalarını listeleme</span>
+<span class="command">Router# show ip dhcp conflict</span>
+<span class="comment">Bu komut, çakışan IP adresini ve MAC adresini gösterir.</span>
+
+<span class="comment"># Belirli bir IP adresini hangi MAC adresinin kullandığını görme (ARP tablosu)</span>
+<span class="command">Router# show ip arp | include 192.168.1.55</span>
+<span class="comment">Eğer aynı IP için ARP tablosunda MAC adresi sürekli değişiyorsa (ARP flapping), bu bir çakışma belirtisidir.</span>
+
+<span class="comment"># DHCP sunucusunun hangi IP'leri hangi MAC adreslerine kiraladığını görme</span>
+<span class="command">Router# show ip dhcp binding</span>
+
+<span class="comment"># Switch üzerinde bir MAC adresinin hangi porttan geldiğini bulma</span>
+<span class="command">Switch# show mac address-table | include aabb.cc00.0100</span>
+<span class="comment">Bu, çakışmaya neden olan cihazların fiziksel konumunu bulmaya yardımcı olur.</span>
+</pre>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Packet Tracer Simülasyonu</h2>
+                <div class="packet-tracer-box">
+                    <p>Bu problemin en yaygın iki senaryosu olan "Yetkisiz DHCP Sunucusu" ve "Statik IP çakışması" durumlarını ve bunların çözüm adımlarını görmek için ilgili Packet Tracer dosyasını inceleyebilirsiniz.</p>
+                    <p><strong>Dosyalar:</strong> 
+                        <a href="packet_tracer/dhcp_conflict_problem.pkt" class="file-link">dhcp_conflict_problem.pkt</a>, 
+                        <a href="packet_tracer/rogue_dhcp_problem.pkt" class="file-link">rogue_dhcp_problem.pkt</a>
+                    </p>
+                </div>
+            </section>
+        </main>
+
+        <nav class="navigation">
+            <a href="../../index.html" class="nav-button">← Ana Sayfa</a>
+            <a href="solution.html" class="nav-button">Çözüm Detayları →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN and Interactive Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursor = document.getElementById('cursor'), cursorOutline = document.getElementById('cursorOutline');
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                setTimeout(() => { cursor.style.opacity = '1'; cursorOutline.style.opacity = '1'; }, 500);
+                document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px'; });
+                function animateOutline() { outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1; cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px'; requestAnimationFrame(animateOutline); }
+                animateOutline();
+                document.querySelectorAll('a, button, .nav-button, .lang-btn').forEach(el => {
+                    el.addEventListener('mouseenter', () => { cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover'); });
+                    el.addEventListener('mouseleave', () => { cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover'); });
+                });
+            }
+            document.querySelectorAll('.section').forEach(section => gsap.fromTo(section, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", scrollTrigger: { trigger: section, start: "top 85%", once: true } }));
+            console.log('🔧 Problem 5: DHCP IP Conflicts - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

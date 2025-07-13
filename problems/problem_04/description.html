@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem 4: OSPF Komşuluk Kurma Sorunları - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-l3">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="description.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="description-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+            <h1>🟠 Problem 4: OSPF Komşuluk Kurma Sorunları</h1>
+            <p>L3 - Network Layer (Ağ Katmanı) - Admin Rehber Tutorial</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">Ana Sayfa</a> &gt;
+            <a href="#">Problem 4: OSPF Komşuluk</a>
+        </nav>
+
+        <main class="content">
+            <section class="section">
+                <h2>Problem Tanımı: OSPF ve Komşuluk İlişkisi</h2>
+                <p>
+                    Open Shortest Path First (OSPF), büyük ve karmaşık ağlarda kullanılan, yaygın bir link-state yönlendirme protokolüdür. OSPF'in temel çalışma prensibi, router'ların birbirleriyle "komşuluk" (adjacency) kurarak link-state bilgilerini (LSA) paylaşması ve bu bilgilerle tüm ağ topolojisinin bir haritasını çıkarmasıdır.
+                </p>
+                <p>
+                    <strong>OSPF Komşuluk Problemi</strong>, iki OSPF router'ının çeşitli nedenlerden dolayı komşuluk ilişkisini tam olarak kuramaması (Full state'e ulaşamaması) durumudur. Bu, yönlendirme tablolarının eksik veya yanlış oluşmasına, dolayısıyla ağdaki belirli hedeflere ulaşılamamasına neden olur.
+                </p>
+                <div class="info-box">
+                    <strong>Bilgi:</strong> OSPF komşuluk süreci birkaç aşamadan oluşur: Down, Init, 2-Way, ExStart, Exchange, Loading ve Full. Sorun genellikle router'ların 2-Way veya ExStart aşamalarında takılıp kalmasıyla ortaya çıkar.
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ Hatalı OSPF Topolojisi (Area Uyuşmazlığı)</h2>
+                <p>Aşağıda OSPF komşuluğunun kurulamadığı bir durumun örneği gösterilmektedir. İki router farklı OSPF area'larında yapılandırıldığında (Router-A: Area 0, Router-B: Area 1), komşuluk kurulamaz ve ağlar arası iletişim sağlanamaz:</p>
+                
+                <div class="topology-diagram">
+                    <pre class="ascii-art">
+    192.168.10.0/24                192.168.100.0/24               192.168.20.0/24
+         ┌───────┐                       ┌───────┐                      ┌───────┐
+         │  PC0  │                       │       │                      │  PC1  │
+         │ .10.10│◄─────────────────────►│       │◄─────────────────────►│ .20.10│
+         └───────┘                       │       │                      └───────┘
+                                         │       │
+                  ┌─────────────────────►│Router │◄─────────────────────┐
+                  │     Gig0/0           │   A   │          Gig0/1      │
+                  │    .100.1            │AREA 0 │         .100.2       │
+                  │                      └───────┘                      │
+                  │                                                     │
+                  │                    ❌ PROBLEM ❌                    │
+                  │              Farklı OSPF Area'lar!                  │
+                  │                                                     │
+         ┌────────▼────────┐                           ┌────────────────▼──┐
+         │     Router-A    │                           │     Router-B      │
+         │    OSPF Area 0  │           KOMŞULUK       │    OSPF Area 1   │
+         │                 │◄─────── KURULAMAZ ──────►│                   │
+         │ 192.168.10.1/24 │                           │ 192.168.20.1/24  │
+         │192.168.100.1/24 │                           │192.168.100.2/24  │
+         └─────────────────┘                           └───────────────────┘
+    </pre>
+                </div>
+                
+                <h3>Problem Tespit: Ping Testi Başarısız</h3>
+                <p>PC0'dan PC1'e ping atıldığında, OSPF area uyuşmazlığı nedeniyle başarısız olur:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/ospf_ping_failure.png" alt="OSPF Komşuluk Problemi - Ping Başarısız" class="screenshot">
+                    <figcaption>Resim 1: OSPF komşuluk kurulamadığında ağlar arası ping başarısızlığı</figcaption>
+                </div>
+                
+                <h3>Problem Tespit: OSPF Komşu Listesi Boş</h3>
+                <p>Router'larda OSPF komşu kontrolü yapıldığında boş sonuç alınır:</p>
+                <div class="code-block">
+<span class="command">Router-A# show ip ospf neighbor</span>
+<span class="output">(Boş sonuç - hiç komşu yok)</span>
+<span class="comment"># Area uyuşmazlığı nedeniyle komşuluk kurulamıyor</span>
+
+<span class="command">Router-B# show ip ospf neighbor</span>
+<span class="output">(Boş sonuç - hiç komşu yok)</span>
+<span class="comment"># Her iki router da birbirini komşu olarak görmüyor</span>
+                </div>
+                
+                <h4>Packet Tracer Simülasyon Dosyası:</h4>
+                <p>Bu OSPF komşuluk probleminin simülasyonunu içeren Packet Tracer dosyasını <a href="packet_tracer/ospf_problem.pkt" download>buradan</a> indirebilirsiniz.</p>
+            </section>
+            
+            <section class="section">
+                <h2>OSPF Komşuluk Kurulamamasının Yaygın Sebepleri</h2>
+                <p>İki OSPF router'ının komşuluk kurabilmesi için bir dizi parametrenin birebir aynı olması gerekir. İşte en sık karşılaşılan hata nedenleri:</p>
+                <ul>
+                    <li><strong>Farklı Area ID:</strong> Komşu olmak isteyen iki router arayüzü mutlaka aynı OSPF Area ID'sine sahip olmalıdır. (Backbone area için Area 0).</li>
+                    <li><strong>Farklı Subnet Mask:</strong> İki router'ın birbirine bağlı arayüzlerinin IP adresleri aynı subnet'te olmalı ve subnet mask'ları eşleşmelidir.</li>
+                    <li><strong>Farklı OSPF Hello/Dead Interval Zamanlayıcıları:</strong> Komşuluk için Hello ve Dead interval süreleri her iki tarafta da aynı olmalıdır. (Default: Hello=10s, Dead=40s).</li>
+                    <li><strong>Farklı OSPF Area Tipi:</strong> Alan tipleri (Stub, NSSA, vb.) eşleşmelidir.</li>
+                    <li><strong>Farklı MTU (Maximum Transmission Unit) Değerleri:</strong> Arayüzlerin MTU değerleri uyuşmuyorsa, router'lar Exchange aşamasında takılı kalır. Genellikle bu sorun loglarda belirtilir.</li>
+                    <li><strong>Erişim Kontrol Listeleri (ACLs):</strong> Bir arayüzde veya router genelinde OSPF trafiğini (Hedef IP 224.0.0.5 veya 224.0.0.6) engelleyen bir ACL olabilir.</li>
+                    <li><strong>Authentication (Kimlik Doğrulama) Hataları:</strong> OSPF kimlik doğrulaması yapılandırılmışsa, şifrelerin (password) veya MD5 anahtarlarının her iki tarafta da eşleşmesi gerekir.</li>
+                    <li><strong>Pasif Arayüz (Passive-Interface) Hatası:</strong> Komşuluk kurulması gereken bir arayüzün yanlışlıkla "pasif" olarak ayarlanması, o arayüzden OSPF Hello paketlerinin gönderilmesini engeller.</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Belirtiler ve Tespit Yöntemleri</h2>
+                <h3>Tespit için Cisco IOS Komutları:</h3>
+                <div class="code-block">
+<pre><span class="comment"># OSPF komşularını ve durumlarını listeleme</span>
+<span class="command">Router# show ip ospf neighbor</span>
+<span class="comment">Output'ta komşunun durumu "FULL" değilse (örn: "2WAY" veya "EXSTART"), sorun var demektir.</span>
+
+<span class="comment"># OSPF yapılandırılmış arayüzleri ve durumlarını kontrol etme</span>
+<span class="command">Router# show ip ospf interface brief</span>
+
+<span class="comment"># Bir arayüzdeki OSPF parametrelerini detaylı görme (Hello/Dead intervals, Area ID vb.)</span>
+<span class="command">Router# show ip ospf interface GigabitEthernet0/1</span>
+
+<span class="comment"># OSPF ile ilgili debug mesajlarını anlık olarak görme (Dikkatli kullanın!)</span>
+<span class="command">Router# debug ip ospf hello</span>
+<span class="command">Router# debug ip ospf adj</span>
+<span class="comment">İşi bitince "no debug all" veya "undebug all" komutunu kullanmayı unutmayın.</span>
+</pre>
+                </div>
+                 <div class="danger-box">
+                    <strong>Uyarı:</strong> Canlı (production) bir ağda <code>debug</code> komutlarını kullanmak, router CPU'sunu aşırı yorabilir ve performansı olumsuz etkileyebilir. Sadece kontrollü bir şekilde ve kısa süreler için kullanın.
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Packet Tracer Simülasyonu</h2>
+                <div class="packet-tracer-box">
+                    <p>Farklı OSPF komşuluk hata senaryolarını (yanlış area ID, MTU uyuşmazlığı vb.) ve bunların çözümlerini görmek için ilgili Packet Tracer dosyasını inceleyebilirsiniz.</p>
+                    <p><strong>Dosya:</strong> <a href="packet_tracer/ospf_adjacency_problem.pkt" class="file-link">ospf_adjacency_problem.pkt</a></p>
+                </div>
+            </section>
+        </main>
+
+        <nav class="navigation">
+            <a href="../../index.html" class="nav-button">← Ana Sayfa</a>
+            <a href="solution.html" class="nav-button">Çözüm Detayları →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                document.querySelectorAll('a, button, .nav-button, .lang-btn').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            document.querySelectorAll('.section').forEach((section) => {
+                gsap.fromTo(section, { opacity: 0, y: 50 }, {
+                    opacity: 1, y: 0, duration: 0.8, ease: "power3.out",
+                    scrollTrigger: { trigger: section, start: "top 85%", once: true }
+                });
+            });
+            
+            console.log('🔧 Problem 4: OSPF Neighbor - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

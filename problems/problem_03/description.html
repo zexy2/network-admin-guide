@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem 3: Spanning Tree Protocol (STP) Döngüleri - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-l2">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="description.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="description-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+            <h1>🟢 Problem 3: Spanning Tree Protocol (STP) Döngüleri</h1>
+            <p>L2 - Data Link Layer (Veri Bağlantı Katmanı) - Admin Rehber Tutorial</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">Ana Sayfa</a> &gt;
+            <a href="#">Problem 3: STP Döngüleri</a>
+        </nav>
+
+        <main class="content">
+            <section class="section">
+                <h2>Problem Tanımı: STP ve Ağ Döngüleri</h2>
+                <p>
+                    Spanning Tree Protocol (STP), yedekli bağlantılara sahip (loop içeren) Layer 2 topolojilerde yayın fırtınalarını (broadcast storms) ve MAC adresi tablosu istikrarsızlıklarını önlemek için tasarlanmış bir ağ protokolüdür. STP, belirli portları "blocking" (engelleme) moduna alarak ağda mantıksal olarak döngüsüz bir yol oluşturur.
+                </p>
+                <p>
+                    <strong>STP Döngü Problemi</strong>, STP'nin düzgün çalışmadığı veya yanlış yapılandırıldığı durumlarda ortaya çıkar. Bu durumda, ağdaki fiziksel döngüler aktif hale gelir ve bu da yıkıcı yayın fırtınalarına yol açar.
+                </p>
+                <div class="danger-box">
+                    <strong>Kritik Tehlike:</strong> Bir STP döngüsü, ağdaki tüm bant genişliğini saniyeler içinde tüketebilir ve tüm ağ cihazlarını (switch'ler, router'lar, sunucular) erişilemez hale getirebilir.
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>🖼️ Döngüye Neden Olan Ağ Topolojisi (Örnek Şema)</h2>
+                <p>Aşağıda STP'nin devre dışı bırakıldığı durumda oluşan yayın fırtınasının (broadcast storm) bir örneği gösterilmektedir. Üç switch'in üçgen topolojisinde bağlandığı ve STP olmadığında ping testlerinin başarısız olduğu görülmektedir:</p>
+                
+                <!-- Interactive STP Loop Animation -->
+                <div class="svg-animation-container" id="stpAnimation">
+                    <h3 style="text-align: center; margin-bottom: 1rem; color: var(--accent-teal);">🔄 İnteraktif STP Döngü Animasyonu</h3>
+                    <svg viewBox="0 0 800 500" style="width: 100%; height: auto; background: #0a192f;">
+                        <defs>
+                            <linearGradient id="switchGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#3498db"/>
+                                <stop offset="100%" stop-color="#2980b9"/>
+                            </linearGradient>
+                            <filter id="switchGlow">
+                                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        
+                        <!-- Background -->
+                        <rect width="800" height="500" fill="#112240" opacity="0.3"/>
+                        
+                        <!-- Network Links -->
+                        <line id="link1" x1="200" y1="150" x2="600" y2="150" stroke="#64ffda" stroke-width="6" opacity="0.8"/>
+                        <line id="link2" x1="200" y1="150" x2="400" y2="350" stroke="#64ffda" stroke-width="6" opacity="0.8"/>
+                        <line id="link3" x1="600" y1="150" x2="400" y2="350" stroke="#64ffda" stroke-width="6" opacity="0.8"/>
+                        
+                        <!-- Port status indicators -->
+                        <circle id="port1A" cx="220" cy="150" r="8" fill="#2ecc71"/>
+                        <circle id="port1B" cx="580" cy="150" r="8" fill="#2ecc71"/>
+                        <circle id="port2A" cx="210" cy="170" r="8" fill="#2ecc71"/>
+                        <circle id="port2C" cx="390" cy="330" r="8" fill="#2ecc71"/>
+                        <circle id="port3B" cx="590" cy="170" r="8" fill="#2ecc71"/>
+                        <circle id="port3C" cx="410" cy="330" r="8" fill="#2ecc71"/>
+                        
+                        <!-- Switches -->
+                        <!-- Switch A (Root Bridge) -->
+                        <rect x="150" y="120" width="100" height="60" rx="10" fill="url(#switchGradient)" 
+                              stroke="#64ffda" stroke-width="3" filter="url(#switchGlow)" id="switchA"/>
+                        <text x="200" y="140" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Switch A</text>
+                        <text x="200" y="155" text-anchor="middle" fill="#f1c40f" font-size="10" font-weight="bold" id="roleA">ROOT BRIDGE</text>
+                        <text x="200" y="170" text-anchor="middle" fill="white" font-size="8" id="statusA">STP: ENABLED</text>
+                        
+                        <!-- Switch B -->
+                        <rect x="550" y="120" width="100" height="60" rx="10" fill="url(#switchGradient)" 
+                              stroke="#64ffda" stroke-width="3" filter="url(#switchGlow)" id="switchB"/>
+                        <text x="600" y="140" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Switch B</text>
+                        <text x="600" y="155" text-anchor="middle" fill="#2ecc71" font-size="10" font-weight="bold" id="roleB">DESIGNATED</text>
+                        <text x="600" y="170" text-anchor="middle" fill="white" font-size="8" id="statusB">STP: ENABLED</text>
+                        
+                        <!-- Switch C -->
+                        <rect x="350" y="320" width="100" height="60" rx="10" fill="url(#switchGradient)" 
+                              stroke="#64ffda" stroke-width="3" filter="url(#switchGlow)" id="switchC"/>
+                        <text x="400" y="340" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Switch C</text>
+                        <text x="400" y="355" text-anchor="middle" fill="#2ecc71" font-size="10" font-weight="bold" id="roleC">DESIGNATED</text>
+                        <text x="400" y="370" text-anchor="middle" fill="white" font-size="8" id="statusC">STP: ENABLED</text>
+                        
+                        <!-- Broadcast Packet -->
+                        <circle id="broadcastPacket" cx="200" cy="150" r="10" fill="#ff6b6b" opacity="0">
+                            <animate attributeName="r" values="8;12;8" dur="0.5s" repeatCount="indefinite"/>
+                        </circle>
+                        <text x="200" y="120" text-anchor="middle" fill="#ff6b6b" font-size="10" font-weight="bold" opacity="0" id="packetLabel">BROADCAST</text>
+                        
+                        <!-- Blocked Port Indicator -->
+                        <text x="400" y="280" text-anchor="middle" fill="#e74c3c" font-size="12" font-weight="bold" opacity="0" id="blockedText">PORT BLOCKED</text>
+                        <line x1="580" y1="140" x2="420" y2="340" stroke="#e74c3c" stroke-width="8" opacity="0" id="blockedLine"/>
+                        
+                        <!-- Status Display -->
+                        <rect x="50" y="400" width="700" height="80" rx="10" fill="#112240" stroke="#64ffda" stroke-width="2"/>
+                        <text x="70" y="420" fill="#64ffda" font-size="14" font-weight="bold">Network Status:</text>
+                        <text x="70" y="440" fill="#2ecc71" font-size="12" id="networkStatus">Phase 1: Normal Operation - All ports forwarding</text>
+                        <text x="70" y="455" fill="#f39c12" font-size="10" id="stpStatus">STP Convergence: Stable</text>
+                        <text x="70" y="470" fill="#95a5a6" font-size="10" id="loopStatus">Loop Prevention: Active</text>
+                        
+                        <!-- Legend -->
+                        <text x="50" y="40" fill="#64ffda" font-size="14" font-weight="bold">STP Döngü Önleme Simülasyonu</text>
+                        <text x="50" y="60" fill="#2ecc71" font-size="10">🟢 Normal Port | 🔴 Blocked Port | 📡 Broadcast Packet</text>
+                    </svg>
+                    <p style="text-align: center; margin-top: 1rem; color: var(--text-secondary); font-style: italic;">
+                        Sayfayı aşağı kaydırarak STP döngü önleme mekanizmasını izleyin
+                    </p>
+                </div>
+                
+                <div class="image-container">
+                    <img src="../../images/screenshots/stp_ping_failure.png" alt="STP Döngüsü - Ping Başarısız" class="screenshot">
+                    <figcaption>Resim 1: STP devre dışıyken oluşan yayın fırtınası nedeniyle başarısız ping testi</figcaption>
+                </div>
+                
+                <h4>Packet Tracer Simülasyon Dosyası:</h4>
+                <p>Bu STP döngüsü probleminin simülasyonunu içeren Packet Tracer dosyasını <a href="packet_tracer/stp_problem.pkt" download>buradan</a> indirebilirsiniz.</p>
+                
+                <p><strong>Ek Dosyalar:</strong></p>
+                <ul>
+                    <li><a href="packet_tracer/stp_normal.pkt" download>stp_normal.pkt</a> - Normal STP çalışma durumu</li>
+                    <li><a href="packet_tracer/stp_solution.pkt" download>stp_solution.pkt</a> - Çözüm dosyası</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>STP Döngülerinin Yaygın Sebepleri</h2>
+                <ul>
+                    <li><strong>Yanlış Root Bridge Seçimi:</strong> Düşük kapasiteli bir switch'in Root Bridge olarak seçilmesi, trafiğin suboptimal yollardan akmasına ve bazı portların beklenmedik şekilde engellenmesine neden olabilir.</li>
+                    <li><strong>STP'nin Devre Dışı Bırakılması:</strong> Bir switch veya port üzerinde STP'nin kasıtlı veya yanlışlıkla devre dışı bırakılması.</li>
+                    <li><strong>PortFast Hataları:</strong> Sunucu veya PC gibi host cihazlarının bağlı olduğu portlarda PortFast özelliği kullanılır. Ancak bu portlara yanlışlıkla bir switch veya hub bağlanırsa, geçici döngüler oluşabilir. BPDU Guard bu durumu önlemek için kullanılır.</li>
+                    <li><strong>Tek Yönlü Bağlantı Hataları (Unidirectional Links):</strong> Fiber optik bağlantılarda sıkça görülen bir durumdur. İki fiberden biri koptuğunda, bir switch hala linkin "up" olduğunu düşünebilir ve BPDU paketlerini gönderemez/alamaz. Bu da STP'nin yanlış kararlar vermesine yol açar.</li>
+                    <li><strong>Zamanlayıcı (Timer) Uyuşmazlıkları:</strong> STP hello, forward delay ve max age zamanlayıcılarının ağ genelinde tutarsız olması.</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Belirtiler ve Tespit Yöntemleri</h2>
+                <h3>Ağdaki Belirtiler:</h3>
+                <ul>
+                    <li>Ağ genelinde aşırı yavaşlık veya tam erişim kaybı.</li>
+                    <li>Switch'lerin ve router'ların CPU kullanım oranlarının %90-100 seviyelerine çıkması.</li>
+                    <li>Switch'lerin üzerindeki aktivite ışıklarının aşırı hızlı ve sürekli yanıp sönmesi.</li>
+                    <li>Ağdaki cihazların MAC adresi tablolarının sürekli değişmesi (MAC flapping).</li>
+                </ul>
+
+                <h3>Tespit için Cisco IOS Komutları:</h3>
+                <div class="code-block">
+                    <pre><span class="comment"># Bir switch'in STP durumunu ve Root Bridge bilgilerini kontrol etme</span>
+<span class="command">Switch# show spanning-tree</span>
+
+<span class="comment"># Belirli bir VLAN için STP durumunu görme</span>
+<span class="command">Switch# show spanning-tree vlan 10</span>
+
+<span class="comment"># MAC adresi tablosunda sürekli adres değişikliği olup olmadığını kontrol etme (MAC Flapping)</span>
+<span class="command">Switch# show mac address-table</span>
+
+<span class="comment"># Switch loglarını kontrol ederek STP ile ilgili hataları arama</span>
+<span class="command">Switch# show logging</span>
+</pre>
+                </div>
+                <div class="info-box">
+                    <strong>İpucu:</strong> Döngüden şüpheleniyorsanız, işe ağın merkezindeki (core/distribution) switch'lerden başlayarak <code>show spanning-tree</code> komutunu uygulamak genellikle en hızlı yoldur. Root Bridge'in kim olduğunu ve portların rollerini (Root, Designated, Blocking) kontrol edin. Beklenmedik bir portun "Forwarding" modda olması döngünün habercisidir.
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Packet Tracer Simülasyonu</h2>
+                <div class="packet-tracer-box">
+                    <p>Bu problemin çeşitli senaryolarını ve çözüm adımlarını daha iyi anlamak için ilgili Packet Tracer dosyasını inceleyebilirsiniz. Simülasyon, hatalı yapılandırılmış bir STP topolojisini ve bu sorunu gidermek için gereken adımları içermektedir.</p>
+                    <p><strong>Problem Dosyası:</strong> <a href="packet_tracer/stp_problem.pkt" class="file-link">stp_problem.pkt</a></p>
+                    <p><strong>Normal Çalışma:</strong> <a href="packet_tracer/stp_normal.pkt" class="file-link">stp_normal.pkt</a></p>
+                    <p><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/stp_solution.pkt" class="file-link">stp_solution.pkt</a></p>
+                </div>
+            </section>
+        </main>
+
+        <nav class="navigation">
+            <a href="../../index.html" class="nav-button">← Ana Sayfa</a>
+            <a href="solution.html" class="nav-button">Çözüm Detayları →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        // Register GSAP plugin
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // STP Loop Prevention Animation
+        function initSTPAnimation() {
+            const stpContainer = document.getElementById('stpAnimation');
+            if (!stpContainer) return;
+            
+            // Get SVG elements
+            const broadcastPacket = document.getElementById('broadcastPacket');
+            const packetLabel = document.getElementById('packetLabel');
+            const blockedText = document.getElementById('blockedText');
+            const blockedLine = document.getElementById('blockedLine');
+            const networkStatus = document.getElementById('networkStatus');
+            const stpStatus = document.getElementById('stpStatus');
+            const loopStatus = document.getElementById('loopStatus');
+            const roleC = document.getElementById('roleC');
+            const port3B = document.getElementById('port3B');
+            const port3C = document.getElementById('port3C');
+            
+            // Create main timeline
+            let mainTL = gsap.timeline({ paused: true });
+            
+            // Phase 1: Show potential loop scenario
+            mainTL.to([broadcastPacket, packetLabel], {
+                opacity: 1,
+                duration: 0.8,
+                ease: "power2.out"
+            })
+            .call(() => {
+                networkStatus.textContent = "Phase 2: Broadcast packet injected into network";
+                stpStatus.textContent = "STP Convergence: Analyzing topology...";
+            }, [], 0.5)
+            
+            // Packet travels from A to B
+            .to(broadcastPacket, {
+                motionPath: {
+                    path: "M 200 150 L 600 150",
+                    autoRotate: false,
+                },
+                duration: 1.5,
+                ease: "power2.inOut"
+            })
+            .to(packetLabel, {
+                x: 600,
+                duration: 1.5,
+                ease: "power2.inOut"
+            }, "<")
+            
+            // Packet attempts to go from B to C
+            .to(broadcastPacket, {
+                motionPath: {
+                    path: "M 600 150 L 400 350",
+                    autoRotate: false,
+                },
+                duration: 1.5,
+                ease: "power2.inOut"
+            })
+            .to(packetLabel, {
+                x: 400,
+                y: 320,
+                duration: 1.5,
+                ease: "power2.inOut"
+            }, "<")
+            
+            // Show STP blocking decision
+            .call(() => {
+                networkStatus.textContent = "Phase 3: STP detects potential loop - Blocking port";
+                stpStatus.textContent = "STP Convergence: Port blocking initiated";
+                loopStatus.textContent = "Loop Prevention: Activating port block";
+            }, [], 3.5)
+            
+            // Show blocked port
+            .to([blockedText, blockedLine], {
+                opacity: 1,
+                duration: 0.8,
+                ease: "power2.out"
+            })
+            .to(port3B, {
+                attr: { fill: "#e74c3c" },
+                duration: 0.5
+            }, "<")
+            .to(roleC, {
+                attr: { fill: "#e74c3c" },
+                duration: 0.3,
+                onComplete: () => {
+                    roleC.textContent = "BLOCKING";
+                }
+            }, "<")
+            
+            // Packet is blocked and cannot continue the loop
+            .to(broadcastPacket, {
+                scale: 0.5,
+                opacity: 0.3,
+                duration: 0.8,
+                ease: "power2.out"
+            })
+            .call(() => {
+                networkStatus.textContent = "Phase 4: Loop prevented - Network stable";
+                stpStatus.textContent = "STP Convergence: Complete";
+                loopStatus.textContent = "Loop Prevention: Active - Port B→C blocked";
+            }, [], 5.5)
+            
+            // Reset packet position and show successful delivery via allowed path
+            .set(broadcastPacket, {
+                x: 200,
+                y: 150,
+                scale: 1,
+                opacity: 0.8
+            })
+            .set(packetLabel, {
+                x: 200,
+                y: 120
+            })
+            
+            // Show packet taking the allowed path (A→C directly)
+            .to(broadcastPacket, {
+                motionPath: {
+                    path: "M 200 150 L 400 350",
+                    autoRotate: false,
+                },
+                duration: 2,
+                ease: "power2.inOut"
+            })
+            .to(packetLabel, {
+                x: 400,
+                y: 320,
+                duration: 2,
+                ease: "power2.inOut"
+            }, "<")
+            
+            // Final status
+            .call(() => {
+                networkStatus.textContent = "Final: Broadcast delivered via loop-free path";
+                stpStatus.textContent = "STP Convergence: Stable topology maintained";
+            }, [], 7.5)
+            
+            // Fade out packet
+            .to([broadcastPacket, packetLabel], {
+                opacity: 0,
+                duration: 1,
+                ease: "power2.out"
+            }, 8.5);
+            
+            // ScrollTrigger for STP animation
+            ScrollTrigger.create({
+                trigger: stpContainer,
+                start: "top 70%",
+                end: "bottom 30%",
+                onEnter: () => {
+                    mainTL.restart();
+                },
+                onLeaveBack: () => {
+                    resetSTPAnimation();
+                }
+            });
+            
+            function resetSTPAnimation() {
+                // Reset all elements to initial state
+                gsap.set([broadcastPacket, packetLabel, blockedText, blockedLine], { opacity: 0 });
+                gsap.set([broadcastPacket, packetLabel], { x: 200, y: 150, scale: 1 });
+                gsap.set(packetLabel, { y: 120 });
+                gsap.set(port3B, { attr: { fill: "#2ecc71" } });
+                gsap.set(roleC, { attr: { fill: "#2ecc71" } });
+                
+                // Reset text content
+                roleC.textContent = "DESIGNATED";
+                networkStatus.textContent = "Phase 1: Normal Operation - All ports forwarding";
+                stpStatus.textContent = "STP Convergence: Stable";
+                loopStatus.textContent = "Loop Prevention: Active";
+                
+                mainTL.pause(0);
+            }
+            
+            // Add switch pulsing effect during STP operation
+            const switches = [
+                document.getElementById('switchA'),
+                document.getElementById('switchB'),
+                document.getElementById('switchC')
+            ];
+            
+            switches.forEach((sw, index) => {
+                gsap.to(sw, {
+                    scale: 1.05,
+                    duration: 2,
+                    ease: "sine.inOut",
+                    repeat: -1,
+                    yoyo: true,
+                    delay: index * 0.7
+                });
+            });
+        }
+        
+        // Initialize animations when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                initSTPAnimation();
+            }, 500);
+        });
+        
+        // Custom Cursor System and Page Setup
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                // Show cursors after page load
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                // Mouse movement tracking
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                    
+                    cursor.style.left = mouseX + 'px';
+                    cursor.style.top = mouseY + 'px';
+                });
+                
+                // Smooth outline follow
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1;
+                    outlineY += (mouseY - outlineY) * 0.1;
+                    
+                    cursorOutline.style.left = outlineX + 'px';
+                    cursorOutline.style.top = outlineY + 'px';
+                    
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                const interactiveElements = document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link');
+                
+                interactiveElements.forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover');
+                        cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover');
+                        cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                gsap.fromTo(section, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+            
+            console.log('🌉 Problem 3: STP Loop Prevention (TR) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

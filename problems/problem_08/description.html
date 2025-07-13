@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem 8: SSH Session Timeout ve Uzaktan Erişim Problemleri - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-l5">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="description.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="description-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+            <h1>🟣 Problem 8: SSH Session Timeout ve Uzaktan Erişim Problemleri</h1>
+            <p>L5 - Session Layer (Oturum Katmanı) - Admin Rehber Tutorial</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Ana Sayfa</a> / L5 Session Layer / Problem 8
+        </nav>
+
+        <main class="content">
+            <section class="section">
+                <h2>📋 Problem Tanımı</h2>
+                <p>SSH (Secure Shell), ağ yöneticilerinin uzaktan güvenli erişim sağladığı en kritik protokollerden biridir. SSH session timeout problemleri, admin'lerin daily operations sırasında en sık karşılaştığı network management sorunlarının başında gelir. Bu problemler, özellikle uzun süren yapılandırma işlemleri sırasında session'ın beklenmedik şekilde kesilmesine neden olur.</p>
+                
+                <div class="danger-box">
+                    <strong>⚠️ Kritik Durum:</strong> SSH session'ın beklenmedik kesilmesi, yapılandırma ortasında cihazlara erişim kaybına ve potansiyel downtime'a neden olabilir.
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ SSH Session Timeout Senaryosu</h2>
+                <p>Aşağıda SSH session timeout probleminin tipik bir örneği gösterilmektedir. Admin bir router'ı yapılandırırken, session idle timeout nedeniyle bağlantı kesilir:</p>
+                
+                <div class="image-container">
+                    <img src="../../images/screenshots/ssh_timeout_problem.png" alt="SSH Session Timeout Hatası" class="screenshot">
+                    <figcaption>Resim 1: SSH session timeout nedeniyle bağlantı kesintisi</figcaption>
+                </div>
+                
+                <p>SSH session düzgün yapılandırıldıktan sonra, uzun süreli bağlantıların kararlı şekilde çalıştığı görülür:</p>
+                
+                <div class="image-container">
+                    <img src="../../images/screenshots/ssh_session_success.png" alt="SSH Keepalive Başarılı" class="screenshot">
+                    <figcaption>Resim 2: SSH keepalive ile kararlı bağlantı</figcaption>
+                </div>
+                
+                <h3>🎮 İnteraktif SSH Terminal Simülatörü</h3>
+                <p><strong>Canlı Demo:</strong> SSH session timeout problemlerini hands-on deneyimleyin! Gerçek SSH terminal deneyimi ile keepalive, timeout ve session management'ı test edin.</p>
+                
+                <div class="ssh-simulator-container">
+                    <div class="ssh-controls">
+                        <div class="control-panel">
+                            <div class="ssh-settings">
+                                <h4>🔧 SSH Server Configuration</h4>
+                                <div class="setting-group">
+                                    <label for="session-timeout">Session Timeout: <span id="timeout-value">300s</span></label>
+                                    <input type="range" id="session-timeout" min="30" max="3600" value="300" class="ssh-slider">
+                                </div>
+                                <div class="setting-group">
+                                    <label for="keepalive-interval">Keepalive Interval: <span id="keepalive-value">60s</span></label>
+                                    <input type="range" id="keepalive-interval" min="10" max="300" value="60" class="ssh-slider">
+                                </div>
+                                <div class="setting-group">
+                                    <label for="client-alive">Client Alive Max: <span id="client-alive-value">3</span></label>
+                                    <input type="range" id="client-alive" min="1" max="10" value="3" class="ssh-slider">
+                                </div>
+                            </div>
+                            
+                            <div class="ssh-actions">
+                                <button id="connect-ssh" class="ssh-btn connect">🔐 SSH Connect</button>
+                                <button id="disconnect-ssh" class="ssh-btn disconnect" disabled>🚫 Disconnect</button>
+                                <button id="send-keepalive" class="ssh-btn keepalive" disabled>💓 Send Keepalive</button>
+                                <button id="simulate-inactivity" class="ssh-btn inactivity" disabled>⏱️ Simulate Idle</button>
+                            </div>
+                        </div>
+                        
+                        <div class="ssh-status">
+                            <div class="connection-status">
+                                <h4>📊 Connection Status</h4>
+                                <div class="status-item">
+                                    <span class="status-label">State:</span>
+                                    <span id="connection-state" class="status-value disconnected">Disconnected</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Uptime:</span>
+                                    <span id="session-uptime" class="status-value">00:00:00</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Last Activity:</span>
+                                    <span id="last-activity" class="status-value">Never</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Keepalive Count:</span>
+                                    <span id="keepalive-count" class="status-value">0</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-label">Missed Keepalives:</span>
+                                    <span id="missed-keepalives" class="status-value">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ssh-terminal-container">
+                        <div class="terminal-header">
+                            <div class="terminal-controls">
+                                <span class="terminal-btn close"></span>
+                                <span class="terminal-btn minimize"></span>
+                                <span class="terminal-btn maximize"></span>
+                            </div>
+                            <div class="terminal-title">SSH Session - admin@router.local</div>
+                            <div class="terminal-status">
+                                <span id="terminal-status-indicator" class="status-indicator offline"></span>
+                                <span id="terminal-status-text">Offline</span>
+                            </div>
+                        </div>
+                        
+                        <div class="terminal-body">
+                            <div id="terminal-output" class="terminal-output">
+                                <div class="welcome-message">
+                                    <pre class="ascii-art">
+    ____  ____  __ __      ______ _________  ____  ___ ____ ___   ____    __ 
+   / ___\/  __\/  |  \    |      |       |/    ||   |    |   \ /    |  |  |
+   |    \|  \_/|  |  |    |      |    ___||  o  | _    |  |  ||    |  |  |
+   \___ ||   _/|  _  |    |_|  |_|   |___ |     |  |   |  |  ||    |  |__|
+   /   \||  |  |  |  |      |  | |       ||  _  |  |   |  |  ||    |    __|
+   \     ||  |_ |  |  |      |  | |        |  |  |  |   |  |  | |    |  |  |
+    \____||_____||__|__|     |__| |_______ |__|__|__|\_|__|__|__| \____|  |__|
+                                          
+    </pre>
+                                    <div class="system-info">
+                                        <p>🔒 <strong>Secure Shell Interactive Terminal</strong></p>
+                                        <p>🌐 Network Device Management System</p>
+                                        <p>⚡ SSH Protocol v2.0 - Education Mode</p>
+                                        <hr>
+                                        <p class="instruction">Click "SSH Connect" button to establish connection...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="terminal-input-line">
+                                <span id="terminal-prompt" class="terminal-prompt">$</span>
+                                <input type="text" id="terminal-input" class="terminal-input" disabled 
+                                       placeholder="Type 'help' for available commands...">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ssh-visualization">
+                        <h4>📡 SSH Protocol Visualization</h4>
+                        <svg id="ssh-animation" width="900" height="300" viewBox="0 0 900 300">
+                            <!-- Background -->
+                            <rect width="100%" height="100%" fill="#0a0a0a" rx="10"/>
+                            
+                            <!-- Client -->
+                            <g id="ssh-client" class="ssh-device">
+                                <rect x="50" y="120" width="120" height="60" fill="#1f2937" stroke="#60a5fa" stroke-width="2" rx="8"/>
+                                <text x="110" y="140" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="bold">SSH CLIENT</text>
+                                <text x="110" y="155" text-anchor="middle" fill="#94a3b8" font-size="10">Terminal</text>
+                                <text x="110" y="170" text-anchor="middle" fill="#94a3b8" font-size="9">:22</text>
+                                <circle id="client-status" cx="160" cy="130" r="5" fill="#ef4444"/>
+                            </g>
+                            
+                            <!-- Network -->
+                            <g id="ssh-network">
+                                <ellipse cx="450" cy="150" rx="120" ry="40" fill="rgba(59, 130, 246, 0.1)" 
+                                         stroke="#3b82f6" stroke-width="1" stroke-dasharray="3,3"/>
+                                <text x="450" y="150" text-anchor="middle" fill="#3b82f6" font-size="11">SSH Protocol</text>
+                                <text x="450" y="165" text-anchor="middle" fill="#64748b" font-size="9">Encrypted Channel</text>
+                            </g>
+                            
+                            <!-- Server -->
+                            <g id="ssh-server" class="ssh-device">
+                                <rect x="730" y="120" width="120" height="60" fill="#1f2937" stroke="#f59e0b" stroke-width="2" rx="8"/>
+                                <text x="790" y="140" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="bold">SSH SERVER</text>
+                                <text x="790" y="155" text-anchor="middle" fill="#94a3b8" font-size="10">Router/Switch</text>
+                                <text x="790" y="170" text-anchor="middle" fill="#94a3b8" font-size="9">Port :22</text>
+                                <circle id="server-status" cx="740" cy="130" r="5" fill="#ef4444"/>
+                            </g>
+                            
+                            <!-- Connection Line -->
+                            <line x1="170" y1="150" x2="730" y2="150" stroke="#64748b" stroke-width="2" 
+                                  stroke-dasharray="5,5" id="ssh-connection" opacity="0.3"/>
+                            
+                            <!-- Keepalive Packets -->
+                            <g id="keepalive-packet" style="opacity: 0;">
+                                <circle cx="0" cy="0" r="8" fill="#10b981" stroke="#059669" stroke-width="2"/>
+                                <text x="0" y="3" text-anchor="middle" fill="white" font-size="8" font-weight="bold">💓</text>
+                            </g>
+                            
+                            <!-- Data Packets -->
+                            <g id="data-packet" style="opacity: 0;">
+                                <circle cx="0" cy="0" r="10" fill="#8b5cf6" stroke="#7c3aed" stroke-width="2"/>
+                                <text x="0" y="3" text-anchor="middle" fill="white" font-size="8" font-weight="bold">📊</text>
+                            </g>
+                            
+                            <!-- Timeout Warning -->
+                            <g id="timeout-warning" style="opacity: 0;">
+                                <circle cx="450" cy="220" r="30" fill="rgba(239, 68, 68, 0.2)" 
+                                        stroke="#ef4444" stroke-width="3" stroke-dasharray="5,5"/>
+                                <text x="450" y="220" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="bold">TIMEOUT</text>
+                                <text x="450" y="235" text-anchor="middle" fill="#dc2626" font-size="8">Session Lost</text>
+                            </g>
+                            
+                            <!-- Timer Display -->
+                            <rect x="350" y="50" width="200" height="50" fill="rgba(15, 23, 42, 0.9)" 
+                                  stroke="#334155" stroke-width="1" rx="5"/>
+                            <text x="360" y="70" fill="#f1f5f9" font-size="11" font-weight="bold">Session Timer:</text>
+                            <text id="session-timer-display" x="360" y="85" fill="#fbbf24" font-size="14" font-weight="bold">00:00</text>
+                            <text id="timer-status" x="450" y="85" fill="#64748b" font-size="10">Idle</text>
+                        </svg>
+                    </div>
+                </div>
+                
+                <h4>Packet Tracer Simülasyon Dosyaları:</h4>
+                <ul>
+                    <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/ssh_timeout_problem.pkt" download>ssh_timeout_problem.pkt</a> - SSH timeout problemi</li>
+                    <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/ssh_timeout_solution.pkt" download>ssh_timeout_solution.pkt</a> - SSH optimize edilmiş</li>
+                </ul>
+            </section>
+            
+            <section class="section">
+                <h2>🔍 SSH Session Timeout Problemlerinin Ana Sebepleri</h2>
+                
+                <h3>1. Server-Side Timeout Ayarları</h3>
+                <ul>
+                    <li><strong>SSH Daemon Timeout:</strong> SSH sunucusundaki idle timeout süresi çok kısa ayarlanmış</li>
+                    <li><strong>TCPKeepAlive Devre Dışı:</strong> SSH server keepalive paketleri göndermiyor</li>
+                    <li><strong>ClientAliveInterval:</strong> Client'a keepalive sinyali gönderme aralığı ayarlanmamış</li>
+                    <li><strong>MaxSessions Limit:</strong> Aynı anda izin verilen session sayısı aşıldı</li>
+                </ul>
+                
+                <h3>2. Client-Side Konfigürasyon Sorunları</h3>
+                <ul>
+                    <li><strong>ServerAliveInterval:</strong> Client'tan server'a keepalive göndermeme</li>
+                    <li><strong>Terminal Inactive:</strong> Terminal client'ında inactivity timeout</li>
+                    <li><strong>Network Latency:</strong> Yüksek latency nedeniyle keepalive yanıtları gecikmesi</li>
+                </ul>
+                
+                <h3>3. Ağ Altyapısı Problemleri</h3>
+                <ul>
+                    <li><strong>NAT/Firewall Timeout:</strong> NAT table'ında connection tracking timeout</li>
+                    <li><strong>Stateful Firewall:</strong> Stateful firewall'ların connection state timeout'u</li>
+                    <li><strong>Load Balancer:</strong> Load balancer session persistence problemleri</li>
+                    <li><strong>Proxy Servers:</strong> Ara proxy'lerin timeout ayarları</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>🔧 Tespit Yöntemleri ve Komutlar</h2>
+                
+                <div class="info-box">
+                    <strong>💡 Not:</strong> SSH session problemlerini tespit etmek için hem client hem server tarafında detaylı analiz gerekir.
+                </div>
+                
+                <h3>Server-Side SSH Analizi</h3>
+                <div class="code-block">
+<span class="comment"># SSH daemon konfigürasyonunu kontrol etme</span>
+<span class="command">Router# show running-config | include ssh</span>
+<span class="output">ip ssh time-out 60
+ip ssh authentication-retries 3
+ip ssh version 2</span>
+
+<span class="comment"># Aktif SSH session'ları görme</span>
+<span class="command">Router# show ssh</span>
+<span class="output">Connection Version Mode Encryption  Hmac         State                 Username
+1          2.0     IN   aes128-ctr  hmac-sha1    Session started       admin
+2          2.0     OUT  aes128-ctr  hmac-sha1    Session started       netadmin</span>
+
+<span class="comment"># VTY line timeout ayarlarını kontrol etme</span>
+<span class="command">Router# show running-config | section line vty</span>
+<span class="output">line vty 0 4
+ exec-timeout 30 0
+ transport input ssh</span>
+                </div>
+                
+                <h3>Linux/Unix Server SSH Analizi</h3>
+                <div class="code-block">
+<span class="comment"># SSH daemon konfigürasyonunu kontrol etme</span>
+<span class="command">cat /etc/ssh/sshd_config | grep -E "(ClientAlive|TCPKeepAlive)"</span>
+<span class="output">TCPKeepAlive yes
+ClientAliveInterval 0
+ClientAliveCountMax 3</span>
+
+<span class="comment"># Aktif SSH bağlantılarını görme</span>
+<span class="command">who</span>
+<span class="output">admin    pts/0        2025-01-21 10:30 (192.168.1.100)
+netadmin pts/1        2025-01-21 11:15 (192.168.1.101)</span>
+
+<span class="comment"># SSH connection loglarını inceleme</span>
+<span class="command">tail -f /var/log/auth.log | grep ssh</span>
+<span class="output">Jan 21 11:30:15 server sshd[12345]: Connection closed by 192.168.1.100 port 54321 [preauth]</span>
+                </div>
+                
+                <h3>Client-Side Analizi</h3>
+                <div class="code-block">
+<span class="comment"># SSH client verbose output ile bağlantı analizi</span>
+<span class="command">ssh -v admin@192.168.1.1</span>
+<span class="output">OpenSSH_8.6p1, OpenSSL 1.1.1k  FIPS 25 Mar 2021
+debug1: Connection established.
+debug1: kex: algorithm: curve25519-sha256
+debug1: Server host key: ssh-rsa SHA256:abcd1234...</span>
+
+<span class="comment"># Keepalive ile SSH bağlantısı</span>
+<span class="command">ssh -o ServerAliveInterval=60 admin@192.168.1.1</span>
+<span class="comment"># Her 60 saniyede bir keepalive paketi gönder</span>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>⚠️ Session Timeout Belirtileri</h2>
+                
+                <h3>Network Admin'lerin Yaşadığı Tipik Durumlar:</h3>
+                <ul>
+                    <li><strong>Yapılandırma Ortasında Kesinti:</strong> Router/switch config sırasında bağlantı kesilmesi</li>
+                    <li><strong>"Connection timed out" Hataları:</strong> Uzun süre inaktif kalınca session'ın kapanması</li>
+                    <li><strong>SCP/SFTP Transfer Kesintileri:</strong> Dosya transferi sırasında bağlantı kopmalar</li>
+                    <li><strong>Tekrar Login Gereksinimi:</strong> Kısa aralıklarla yeniden authenticate olma zorunluluğu</li>
+                </ul>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Kritik Riskler:</strong>
+                    <ul>
+                        <li>Yarım kalmış konfigürasyonlar nedeniyle network instability</li>
+                        <li>Critical device'lara erişim kaybı</li>
+                        <li>Emergency durumlarda troubleshooting zorluğu</li>
+                        <li>Production change window'larında zaman kaybı</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Simülasyonu</h2>
+                <div class="packet-tracer-box">
+                    <p>SSH session timeout problemlerinin farklı senaryolarını ve çözüm yöntemlerini görmek için Packet Tracer simülasyonunu inceleyebilirsiniz. Lab, server-side ve client-side timeout ayarlarını optimize etme sürecini kapsar.</p>
+                    
+                    <h4>📁 Lab Dosyaları:</h4>
+                    <ul>
+                        <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/ssh_timeout_problem.pkt" class="file-link">ssh_timeout_problem.pkt</a></li>
+                        <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/ssh_timeout_solution.pkt" class="file-link">ssh_timeout_solution.pkt</a></li>
+                    </ul>
+                    
+                    <h4>Lab Senaryoları:</h4>
+                    <ul>
+                        <li>Cisco router SSH timeout ayarları</li>
+                        <li>VTY line exec-timeout konfigürasyonu</li>
+                        <li>Client-side keepalive optimizasyonu</li>
+                        <li>Multiple session management</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>💼 Gerçek Dünya Senaryoları</h2>
+                
+                <div class="info-box">
+                    <h4>🏢 Vaka: Gece Vardiyası Network Maintenance</h4>
+                    <p><strong>Durum:</strong> Network engineer gece vardiyasında critical switch upgrade yapıyor</p>
+                    <p><strong>Problem:</strong> SSH session 30 dakika sonra timeout oluyor, upgrade yarım kalıyor</p>
+                    <p><strong>Risk:</strong> Production network'te yarım kalmış konfigürasyon</p>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>🚨 Vaka: Emergency Network Troubleshooting</h4>
+                    <p><strong>Durum:</strong> Network outage sırasında remote location router'ına SSH ile erişim</p>
+                    <p><strong>Problem:</strong> Yavaş internet nedeniyle SSH keepalive fail oluyor</p>
+                    <p><strong>Sonuç:</strong> Troubleshooting süreci uzuyor, downtime artıyor</p>
+                </div>
+            </section>
+        </main>
+
+        <nav class="navigation">
+            <a href="../../index.html" class="nav-button">← Ana Sayfa</a>
+            <a href="../problem_07/description.html" class="nav-button">← Problem 7</a>
+            <a href="solution.html" class="nav-button">Çözüm Detayları →</a>
+            <a href="../problem_09/description.html" class="nav-button">Problem 9 →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN and Interactive Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <style>
+        .ssh-simulator-container {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.5);
+            border: 2px solid #334155;
+        }
+        .ssh-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        .control-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #475569;
+        }
+        .ssh-settings h4 {
+            color: #f1f5f9;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .setting-group {
+            margin-bottom: 15px;
+        }
+        .setting-group label {
+            display: block;
+            color: #cbd5e1;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .ssh-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #334155;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .ssh-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #06d6a0, #118ab2);
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(6, 214, 160, 0.5);
+        }
+        .ssh-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .ssh-btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .ssh-btn.connect {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        .ssh-btn.disconnect {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+        .ssh-btn.keepalive {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        .ssh-btn.inactivity {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+        .ssh-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        .ssh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .ssh-status {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #475569;
+        }
+        .connection-status h4 {
+            color: #f1f5f9;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .status-label {
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .status-value {
+            color: #f1f5f9;
+            font-weight: 700;
+        }
+        .status-value.disconnected {
+            color: #ef4444;
+        }
+        .status-value.connected {
+            color: #10b981;
+        }
+        .ssh-terminal-container {
+            background: #0a0a0a;
+            border-radius: 15px;
+            border: 1px solid #333;
+            margin-bottom: 25px;
+            overflow: hidden;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+        }
+        .terminal-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+        }
+        .terminal-controls {
+            display: flex;
+            gap: 8px;
+        }
+        .terminal-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .terminal-btn.close { background: #ff5f57; }
+        .terminal-btn.minimize { background: #ffbd2e; }
+        .terminal-btn.maximize { background: #28ca42; }
+        .terminal-title {
+            color: #f1f5f9;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .terminal-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        .status-indicator.offline { background: #ef4444; }
+        .status-indicator.online { background: #10b981; }
+        #terminal-status-text {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .terminal-body {
+            background: #0a0a0a;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        .terminal-output {
+            flex: 1;
+            padding: 15px;
+            color: #f1f5f9;
+            overflow-y: auto;
+            max-height: 350px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .ascii-art {
+            color: #10b981;
+            font-size: 8px;
+            line-height: 1.2;
+            margin-bottom: 15px;
+        }
+        .system-info p {
+            margin: 5px 0;
+            color: #cbd5e1;
+        }
+        .system-info hr {
+            border: none;
+            border-top: 1px solid #334155;
+            margin: 15px 0;
+        }
+        .instruction {
+            color: #fbbf24 !important;
+            font-style: italic;
+        }
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-top: 1px solid #333;
+            background: #111;
+        }
+        .terminal-prompt {
+            color: #10b981;
+            font-weight: 700;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #f1f5f9;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+        .terminal-input::placeholder {
+            color: #64748b;
+        }
+        .ssh-visualization {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #475569;
+        }
+        .ssh-visualization h4 {
+            color: #f1f5f9;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .ssh-device {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .ssh-device:hover {
+            filter: brightness(1.2);
+        }
+        .command-output {
+            color: #94a3b8;
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        .error-output {
+            color: #ef4444;
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        .success-output {
+            color: #10b981;
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        @keyframes keepalive-pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @media (max-width: 768px) {
+            .ssh-controls {
+                grid-template-columns: 1fr;
+            }
+            .ssh-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursor = document.getElementById('cursor'), cursorOutline = document.getElementById('cursorOutline');
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                setTimeout(() => { cursor.style.opacity = '1'; cursorOutline.style.opacity = '1'; }, 500);
+                document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px'; });
+                function animateOutline() { outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1; cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px'; requestAnimationFrame(animateOutline); }
+                animateOutline();
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .ssh-btn, .ssh-slider').forEach(el => {
+                    el.addEventListener('mouseenter', () => { cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover'); });
+                    el.addEventListener('mouseleave', () => { cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover'); });
+                });
+            }
+
+            // SSH Terminal Simulator
+            let sshSettings = {
+                sessionTimeout: 300,
+                keepaliveInterval: 60,
+                clientAliveMax: 3
+            };
+            let sshSession = {
+                connected: false,
+                startTime: null,
+                lastActivity: null,
+                keepaliveCount: 0,
+                missedKeepalives: 0,
+                inactivityTimer: null,
+                keepaliveTimer: null,
+                sessionTimer: null,
+                timeoutWarningShown: false
+            };
+            let terminalHistory = [];
+            let historyIndex = -1;
+
+            // Initialize elements
+            const elements = {
+                connectBtn: document.getElementById('connect-ssh'),
+                disconnectBtn: document.getElementById('disconnect-ssh'),
+                keepaliveBtn: document.getElementById('send-keepalive'),
+                inactivityBtn: document.getElementById('simulate-inactivity'),
+                terminalInput: document.getElementById('terminal-input'),
+                terminalOutput: document.getElementById('terminal-output'),
+                terminalPrompt: document.getElementById('terminal-prompt'),
+                connectionState: document.getElementById('connection-state'),
+                sessionUptime: document.getElementById('session-uptime'),
+                lastActivity: document.getElementById('last-activity'),
+                keepaliveCount: document.getElementById('keepalive-count'),
+                missedKeepalives: document.getElementById('missed-keepalives'),
+                statusIndicator: document.getElementById('terminal-status-indicator'),
+                statusText: document.getElementById('terminal-status-text'),
+                timerDisplay: document.getElementById('session-timer-display'),
+                timerStatus: document.getElementById('timer-status')
+            };
+
+            // Settings sliders
+            document.getElementById('session-timeout').addEventListener('input', (e) => {
+                sshSettings.sessionTimeout = parseInt(e.target.value);
+                document.getElementById('timeout-value').textContent = sshSettings.sessionTimeout + 's';
+            });
+
+            document.getElementById('keepalive-interval').addEventListener('input', (e) => {
+                sshSettings.keepaliveInterval = parseInt(e.target.value);
+                document.getElementById('keepalive-value').textContent = sshSettings.keepaliveInterval + 's';
+                if (sshSession.connected) restartKeepaliveTimer();
+            });
+
+            document.getElementById('client-alive').addEventListener('input', (e) => {
+                sshSettings.clientAliveMax = parseInt(e.target.value);
+                document.getElementById('client-alive-value').textContent = sshSettings.clientAliveMax;
+            });
+
+            // SSH Connection Functions
+            function connectSSH() {
+                if (sshSession.connected) return;
+                
+                sshSession.connected = true;
+                sshSession.startTime = new Date();
+                sshSession.lastActivity = new Date();
+                sshSession.keepaliveCount = 0;
+                sshSession.missedKeepalives = 0;
+                sshSession.timeoutWarningShown = false;
+
+                // Animate connection
+                animateSSHConnection();
+                
+                // Update UI
+                updateConnectionStatus();
+                
+                // Start timers
+                startSessionTimers();
+                
+                // Enable terminal
+                elements.terminalInput.disabled = false;
+                elements.terminalInput.focus();
+                
+                // Show connection message
+                addTerminalOutput('🔐 SSH connection established to router.local', 'success-output');
+                addTerminalOutput('🎯 Network Device Management Console', 'command-output');
+                addTerminalOutput('📡 Type "help" for available commands', 'command-output');
+                addTerminalOutput('');
+                
+                elements.terminalPrompt.textContent = 'admin@router#';
+            }
+
+            function disconnectSSH() {
+                if (!sshSession.connected) return;
+                
+                sshSession.connected = false;
+                
+                // Clear timers
+                clearAllTimers();
+                
+                // Animate disconnection
+                animateSSHDisconnection();
+                
+                // Update UI
+                updateConnectionStatus();
+                
+                // Disable terminal
+                elements.terminalInput.disabled = true;
+                elements.terminalPrompt.textContent = '$';
+                
+                // Show disconnection message
+                addTerminalOutput('🚫 SSH connection terminated', 'error-output');
+                addTerminalOutput('');
+            }
+
+            function sendKeepalive() {
+                if (!sshSession.connected) return;
+                
+                sshSession.keepaliveCount++;
+                sshSession.lastActivity = new Date();
+                
+                // Animate keepalive packet
+                animateKeepalive();
+                
+                // Update UI
+                updateConnectionStatus();
+                
+                addTerminalOutput('💓 Keepalive packet sent', 'success-output');
+            }
+
+            function simulateInactivity() {
+                if (!sshSession.connected) return;
+                
+                // Stop sending keepalives and simulate idle
+                clearInterval(sshSession.keepaliveTimer);
+                
+                addTerminalOutput('⏱️ Simulating client inactivity...', 'command-output');
+                addTerminalOutput('⚠️ No keepalive packets will be sent', 'error-output');
+                
+                // Start timeout countdown
+                let timeoutCountdown = sshSettings.sessionTimeout;
+                const countdownInterval = setInterval(() => {
+                    timeoutCountdown--;
+                    elements.timerStatus.textContent = `Timeout in ${timeoutCountdown}s`;
+                    
+                    if (timeoutCountdown <= 30 && !sshSession.timeoutWarningShown) {
+                        sshSession.timeoutWarningShown = true;
+                        showTimeoutWarning();
+                        addTerminalOutput('⚠️ WARNING: Session will timeout in 30 seconds!', 'error-output');
+                    }
+                    
+                    if (timeoutCountdown <= 0) {
+                        clearInterval(countdownInterval);
+                        sessionTimeout();
+                    }
+                }, 1000);
+            }
+
+            function sessionTimeout() {
+                addTerminalOutput('💀 SSH session timed out due to inactivity', 'error-output');
+                addTerminalOutput('🔌 Connection lost - please reconnect', 'error-output');
+                
+                showTimeoutWarning();
+                setTimeout(() => {
+                    disconnectSSH();
+                }, 2000);
+            }
+
+            // Animation Functions
+            function animateSSHConnection() {
+                const tl = gsap.timeline();
+                
+                tl.to('#client-status', {fill: '#10b981', duration: 0.5})
+                  .to('#server-status', {fill: '#10b981', duration: 0.5}, "<+0.2")
+                  .to('#ssh-connection', {opacity: 1, strokeWidth: 4, stroke: '#10b981', duration: 0.8}, "<")
+                  .set('#timer-status', {text: 'Connected'});
+            }
+
+            function animateSSHDisconnection() {
+                const tl = gsap.timeline();
+                
+                tl.to('#client-status', {fill: '#ef4444', duration: 0.3})
+                  .to('#server-status', {fill: '#ef4444', duration: 0.3}, "<")
+                  .to('#ssh-connection', {opacity: 0.3, strokeWidth: 2, stroke: '#64748b', duration: 0.5}, "<")
+                  .to('#timeout-warning', {opacity: 0, duration: 0.3})
+                  .set('#timer-status', {text: 'Disconnected'});
+            }
+
+            function animateKeepalive() {
+                const tl = gsap.timeline();
+                
+                tl.set('#keepalive-packet', {x: 170, y: 150, opacity: 1})
+                  .to('#keepalive-packet', {x: 730, duration: 1, ease: "power2.inOut"})
+                  .to('#keepalive-packet', {x: 170, duration: 1, ease: "power2.inOut"})
+                  .to('#keepalive-packet', {opacity: 0, duration: 0.3});
+                
+                // Pulse effect on connection
+                gsap.to('#ssh-connection', {strokeWidth: 6, duration: 0.2, yoyo: true, repeat: 1});
+            }
+
+            function showTimeoutWarning() {
+                gsap.to('#timeout-warning', {opacity: 1, rotation: 360, duration: 1, ease: "bounce.out"});
+            }
+
+            // Timer Functions
+            function startSessionTimers() {
+                // Session uptime timer
+                sshSession.sessionTimer = setInterval(updateSessionUptime, 1000);
+                
+                // Keepalive timer
+                restartKeepaliveTimer();
+            }
+
+            function restartKeepaliveTimer() {
+                if (sshSession.keepaliveTimer) clearInterval(sshSession.keepaliveTimer);
+                
+                sshSession.keepaliveTimer = setInterval(() => {
+                    if (sshSession.connected) {
+                        sendKeepalive();
+                    }
+                }, sshSettings.keepaliveInterval * 1000);
+            }
+
+            function clearAllTimers() {
+                if (sshSession.sessionTimer) clearInterval(sshSession.sessionTimer);
+                if (sshSession.keepaliveTimer) clearInterval(sshSession.keepaliveTimer);
+                if (sshSession.inactivityTimer) clearInterval(sshSession.inactivityTimer);
+            }
+
+            function updateSessionUptime() {
+                if (!sshSession.connected || !sshSession.startTime) return;
+                
+                const now = new Date();
+                const uptime = Math.floor((now - sshSession.startTime) / 1000);
+                const hours = Math.floor(uptime / 3600);
+                const minutes = Math.floor((uptime % 3600) / 60);
+                const seconds = uptime % 60;
+                
+                const uptimeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                elements.sessionUptime.textContent = uptimeStr;
+                elements.timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            function updateConnectionStatus() {
+                if (sshSession.connected) {
+                    elements.connectionState.textContent = 'Connected';
+                    elements.connectionState.className = 'status-value connected';
+                    elements.statusIndicator.className = 'status-indicator online';
+                    elements.statusText.textContent = 'Online';
+                    
+                    elements.connectBtn.disabled = true;
+                    elements.disconnectBtn.disabled = false;
+                    elements.keepaliveBtn.disabled = false;
+                    elements.inactivityBtn.disabled = false;
+                } else {
+                    elements.connectionState.textContent = 'Disconnected';
+                    elements.connectionState.className = 'status-value disconnected';
+                    elements.statusIndicator.className = 'status-indicator offline';
+                    elements.statusText.textContent = 'Offline';
+                    
+                    elements.connectBtn.disabled = false;
+                    elements.disconnectBtn.disabled = true;
+                    elements.keepaliveBtn.disabled = true;
+                    elements.inactivityBtn.disabled = true;
+                    
+                    elements.sessionUptime.textContent = '00:00:00';
+                    elements.timerDisplay.textContent = '00:00';
+                }
+                
+                elements.lastActivity.textContent = sshSession.lastActivity ? 
+                    sshSession.lastActivity.toLocaleTimeString() : 'Never';
+                elements.keepaliveCount.textContent = sshSession.keepaliveCount;
+                elements.missedKeepalives.textContent = sshSession.missedKeepalives;
+            }
+
+            // Terminal Functions
+            function addTerminalOutput(text, className = '') {
+                const outputDiv = document.createElement('div');
+                outputDiv.textContent = text;
+                if (className) outputDiv.className = className;
+                elements.terminalOutput.appendChild(outputDiv);
+                elements.terminalOutput.scrollTop = elements.terminalOutput.scrollHeight;
+            }
+
+            function processCommand(command) {
+                command = command.trim().toLowerCase();
+                
+                // Add command to history
+                terminalHistory.unshift(command);
+                if (terminalHistory.length > 50) terminalHistory.pop();
+                historyIndex = -1;
+                
+                // Show command
+                addTerminalOutput(`admin@router# ${command}`);
+                
+                // Update last activity
+                sshSession.lastActivity = new Date();
+                updateConnectionStatus();
+                
+                // Process command
+                switch(command) {
+                    case 'help':
+                        addTerminalOutput('Available commands:', 'success-output');
+                        addTerminalOutput('  show ip interface brief  - Show interface status', 'command-output');
+                        addTerminalOutput('  show running-config      - Display configuration', 'command-output');
+                        addTerminalOutput('  show ssh                 - SSH connection info', 'command-output');
+                        addTerminalOutput('  show users               - Active user sessions', 'command-output');
+                        addTerminalOutput('  ping <ip>                - Ping test', 'command-output');
+                        addTerminalOutput('  exit                     - Disconnect SSH', 'command-output');
+                        addTerminalOutput('  clear                    - Clear terminal', 'command-output');
+                        break;
+                        
+                    case 'show ssh':
+                        addTerminalOutput('SSH Server Status:', 'success-output');
+                        addTerminalOutput(`  Session timeout: ${sshSettings.sessionTimeout}s`, 'command-output');
+                        addTerminalOutput(`  Keepalive interval: ${sshSettings.keepaliveInterval}s`, 'command-output');
+                        addTerminalOutput(`  Client alive max: ${sshSettings.clientAliveMax}`, 'command-output');
+                        addTerminalOutput(`  Active sessions: 1`, 'command-output');
+                        break;
+                        
+                    case 'show users':
+                        addTerminalOutput('Active SSH Sessions:', 'success-output');
+                        addTerminalOutput('  Line   User     Location', 'command-output');
+                        addTerminalOutput('  vty 0  admin    192.168.1.100', 'command-output');
+                        break;
+                        
+                    case 'show ip interface brief':
+                        addTerminalOutput('Interface Status:', 'success-output');
+                        addTerminalOutput('Interface      IP-Address      Status    Protocol', 'command-output');
+                        addTerminalOutput('GigE0/0        192.168.1.1     up        up', 'command-output');
+                        addTerminalOutput('GigE0/1        10.1.1.1        up        up', 'command-output');
+                        break;
+                        
+                    case 'show running-config':
+                        addTerminalOutput('Current Configuration:', 'success-output');
+                        addTerminalOutput('!', 'command-output');
+                        addTerminalOutput('hostname Router', 'command-output');
+                        addTerminalOutput('!', 'command-output');
+                        addTerminalOutput('ip ssh version 2', 'command-output');
+                        addTerminalOutput(`ip ssh time-out ${Math.floor(sshSettings.sessionTimeout/60)}`, 'command-output');
+                        addTerminalOutput('!', 'command-output');
+                        addTerminalOutput('line vty 0 4', 'command-output');
+                        addTerminalOutput(` exec-timeout ${Math.floor(sshSettings.sessionTimeout/60)} 0`, 'command-output');
+                        addTerminalOutput(' transport input ssh', 'command-output');
+                        addTerminalOutput('!', 'command-output');
+                        break;
+                        
+                    case 'clear':
+                        elements.terminalOutput.innerHTML = '';
+                        break;
+                        
+                    case 'exit':
+                        addTerminalOutput('Terminating SSH session...', 'error-output');
+                        setTimeout(() => disconnectSSH(), 1000);
+                        break;
+                        
+                    default:
+                        if (command.startsWith('ping ')) {
+                            const target = command.split(' ')[1] || '8.8.8.8';
+                            addTerminalOutput(`PING ${target} (${target}): 56 data bytes`, 'command-output');
+                            addTerminalOutput(`64 bytes from ${target}: icmp_seq=1 time=23.4 ms`, 'success-output');
+                            addTerminalOutput(`64 bytes from ${target}: icmp_seq=2 time=21.8 ms`, 'success-output');
+                            addTerminalOutput(`64 bytes from ${target}: icmp_seq=3 time=22.1 ms`, 'success-output');
+                            addTerminalOutput(`--- ${target} ping statistics ---`, 'command-output');
+                            addTerminalOutput('3 packets transmitted, 3 received, 0% packet loss', 'success-output');
+                        } else if (command !== '') {
+                            addTerminalOutput(`Command not found: ${command}`, 'error-output');
+                            addTerminalOutput('Type "help" for available commands', 'command-output');
+                        }
+                        break;
+                }
+                
+                addTerminalOutput('');
+            }
+
+            // Event Listeners
+            elements.connectBtn.addEventListener('click', connectSSH);
+            elements.disconnectBtn.addEventListener('click', disconnectSSH);
+            elements.keepaliveBtn.addEventListener('click', sendKeepalive);
+            elements.inactivityBtn.addEventListener('click', simulateInactivity);
+
+            elements.terminalInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const command = elements.terminalInput.value;
+                    elements.terminalInput.value = '';
+                    processCommand(command);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (historyIndex < terminalHistory.length - 1) {
+                        historyIndex++;
+                        elements.terminalInput.value = terminalHistory[historyIndex] || '';
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (historyIndex > 0) {
+                        historyIndex--;
+                        elements.terminalInput.value = terminalHistory[historyIndex] || '';
+                    } else {
+                        historyIndex = -1;
+                        elements.terminalInput.value = '';
+                    }
+                }
+            });
+
+            // Initialize UI
+            updateConnectionStatus();
+
+            document.querySelectorAll('.section').forEach(section => gsap.fromTo(section, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", scrollTrigger: { trigger: section, start: "top 85%", once: true } }));
+            console.log('🔧 Problem 8: SSH Interactive Terminal Simulator - Features loaded');
+        });
+    </script>
+</body>
+</html> 

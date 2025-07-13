@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem 7: TCP Bağlantı Zaman Aşımları - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-l4">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="description.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="description-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+            <h1>🟣 Problem 7: TCP Bağlantı Zaman Aşımı (Timeout)</h1>
+            <p>L4 - Transport Layer (Taşıma Katmanı) - Admin Rehber Tutorial</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">Ana Sayfa</a> &gt;
+            <a href="#">Problem 7: TCP Timeout</a>
+        </nav>
+
+        <main class="content">
+            <section class="section">
+                <h2>Problem Tanımı: TCP ve Güvenilir İletişim</h2>
+                <p>
+                    Transmission Control Protocol (TCP), ağ üzerinden güvenilir, sıralı ve hata kontrollü veri iletimi sağlamak için tasarlanmış temel bir protokoldür. Web (HTTP/S), e-posta (SMTP), dosya transferi (FTP) gibi birçok kritik uygulama TCP kullanır. Güvenilirliği sağlamak için üç yönlü el sıkışma (Three-Way Handshake: SYN, SYN-ACK, ACK) mekanizmasını kullanır.
+                </p>
+                <p>
+                    <strong>TCP Bağlantı Zaman Aşımı (Timeout) Problemi</strong>, bir istemcinin bir sunucuyla TCP bağlantısı kurmaya çalıştığında, sunucudan beklenen sürede bir yanıt (genellikle SYN-ACK paketi) alamaması durumudur. Bu, istemcinin "hedefe ulaşılamıyor" veya "bağlantı zaman aşımına uğradı" gibi hatalar vermesine neden olur ve iletişim başarısız olur.
+                </p>
+            </section>
+            
+            <section class="section">
+                <h2>🖼️ TCP Timeout Problemi (Örnek Şema)</h2>
+                <p>Aşağıda TCP bağlantı zaman aşımı probleminin bir örneği gösterilmektedir. TCP handshake süreci tamamlanamadığında connection timeout yaşanır:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/tcp_timeout_semasi.png" alt="TCP Timeout Problemi" class="screenshot">
+                    <figcaption>Resim 1: TCP connection timeout senaryosu</figcaption>
+                </div>
+                
+                <p>Normal TCP handshake sürecinin başarılı olduğu durum aşağıda görülmektedir:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/tcp_handshake_semasi.png" alt="TCP Handshake Başarılı" class="screenshot">
+                    <figcaption>Resim 2: Başarılı TCP 3-way handshake süreci</figcaption>
+                </div>
+                
+                <h3>🎮 İnteraktif TCP Bağlantı Simülatörü</h3>
+                <p><strong>Canlı Test:</strong> TCP timeout problemlerini real-time simüle edin! Latency, firewall ve packet loss etkilerini görmek için kontrolleri ayarlayın.</p>
+                
+                <div class="tcp-simulator-container">
+                    <div class="simulator-controls">
+                        <div class="control-row">
+                            <div class="control-group">
+                                <label for="latency-slider">🌐 Network Latency: <span id="latency-value">50ms</span></label>
+                                <input type="range" id="latency-slider" min="5" max="500" value="50" class="slider">
+                            </div>
+                            <div class="control-group">
+                                <label for="packet-loss-slider">📉 Packet Loss: <span id="packet-loss-value">0%</span></label>
+                                <input type="range" id="packet-loss-slider" min="0" max="30" value="0" class="slider">
+                            </div>
+                        </div>
+                        <div class="control-row">
+                            <button id="firewall-toggle" class="control-btn firewall-off">🛡️ Firewall: OFF</button>
+                            <button id="start-connection" class="control-btn">🚀 Start TCP Connection</button>
+                            <button id="reset-simulation" class="control-btn">↻ Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div class="tcp-display">
+                        <svg id="tcp-animation" width="1000" height="500" viewBox="0 0 1000 500">
+                            <!-- Background Grid -->
+                            <defs>
+                                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#334155" stroke-width="0.5" opacity="0.3"/>
+                                </pattern>
+                                <filter id="glow">
+                                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                                <filter id="red-glow">
+                                    <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#grid)"/>
+                            
+                            <!-- Client Device -->
+                            <g id="client-device" class="network-device">
+                                <rect x="50" y="200" width="120" height="80" fill="#1f2937" stroke="#60a5fa" stroke-width="3" rx="10"/>
+                                <text x="110" y="225" text-anchor="middle" fill="#60a5fa" font-size="14" font-weight="bold">CLIENT</text>
+                                <text x="110" y="245" text-anchor="middle" fill="#94a3b8" font-size="11">192.168.1.100</text>
+                                <text x="110" y="260" text-anchor="middle" fill="#94a3b8" font-size="10">TCP Client</text>
+                                <circle id="client-indicator" cx="160" cy="210" r="6" fill="#10b981"/>
+                            </g>
+                            
+                            <!-- Network Cloud -->
+                            <g id="network-cloud" class="network-element">
+                                <ellipse cx="400" cy="150" rx="100" ry="60" fill="rgba(59, 130, 246, 0.1)" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,5"/>
+                                <text x="400" y="135" text-anchor="middle" fill="#3b82f6" font-size="12" font-weight="bold">INTERNET</text>
+                                <text x="400" y="155" text-anchor="middle" fill="#64748b" font-size="10" id="latency-display">Latency: 50ms</text>
+                                <text x="400" y="170" text-anchor="middle" fill="#64748b" font-size="10" id="packet-loss-display">Loss: 0%</text>
+                            </g>
+                            
+                            <!-- Firewall -->
+                            <g id="firewall-device" class="network-element">
+                                <rect x="600" y="120" width="80" height="100" fill="#ef4444" stroke="#dc2626" stroke-width="3" rx="8" opacity="0.3"/>
+                                <text x="640" y="145" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="bold">FIREWALL</text>
+                                <text x="640" y="160" text-anchor="middle" fill="#dc2626" font-size="10">BLOCKING</text>
+                                <text x="640" y="180" text-anchor="middle" fill="#dc2626" font-size="9">Port 80/443</text>
+                                <path d="M620,190 L660,190 M640,175 L640,205" stroke="#ef4444" stroke-width="4"/>
+                            </g>
+                            
+                            <!-- Server Device -->
+                            <g id="server-device" class="network-device">
+                                <rect x="780" y="200" width="120" height="80" fill="#1f2937" stroke="#f59e0b" stroke-width="3" rx="10"/>
+                                <text x="840" y="225" text-anchor="middle" fill="#f59e0b" font-size="14" font-weight="bold">SERVER</text>
+                                <text x="840" y="245" text-anchor="middle" fill="#94a3b8" font-size="11">192.168.2.10</text>
+                                <text x="840" y="260" text-anchor="middle" fill="#94a3b8" font-size="10">Web Server :80</text>
+                                <circle id="server-indicator" cx="790" cy="210" r="6" fill="#10b981"/>
+                            </g>
+                            
+                            <!-- Connection Lines -->
+                            <line x1="170" y1="240" x2="300" y2="170" stroke="#64748b" stroke-width="2" class="connection-line"/>
+                            <line x1="500" y1="170" x2="600" y2="170" stroke="#64748b" stroke-width="2" class="connection-line"/>
+                            <line x1="680" y1="170" x2="780" y2="220" stroke="#64748b" stroke-width="2" class="connection-line"/>
+                            
+                            <!-- TCP Packets -->
+                            <g id="syn-packet" style="opacity: 0;">
+                                <circle cx="0" cy="0" r="12" fill="#10b981" stroke="#059669" stroke-width="2" filter="url(#glow)"/>
+                                <text x="0" y="4" text-anchor="middle" fill="white" font-size="10" font-weight="bold">SYN</text>
+                            </g>
+                            
+                            <g id="syn-ack-packet" style="opacity: 0;">
+                                <circle cx="0" cy="0" r="12" fill="#3b82f6" stroke="#2563eb" stroke-width="2" filter="url(#glow)"/>
+                                <text x="0" y="2" text-anchor="middle" fill="white" font-size="8" font-weight="bold">SYN</text>
+                                <text x="0" y="12" text-anchor="middle" fill="white" font-size="8" font-weight="bold">ACK</text>
+                            </g>
+                            
+                            <g id="ack-packet" style="opacity: 0;">
+                                <circle cx="0" cy="0" r="12" fill="#8b5cf6" stroke="#7c3aed" stroke-width="2" filter="url(#glow)"/>
+                                <text x="0" y="4" text-anchor="middle" fill="white" font-size="10" font-weight="bold">ACK</text>
+                            </g>
+                            
+                            <!-- Timeout Visual -->
+                            <g id="timeout-visual" style="opacity: 0;">
+                                <circle cx="400" cy="300" r="40" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="10,5" filter="url(#red-glow)"/>
+                                <text x="400" y="300" text-anchor="middle" fill="#ef4444" font-size="14" font-weight="bold">TIMEOUT</text>
+                                <text x="400" y="320" text-anchor="middle" fill="#dc2626" font-size="10">Connection Failed</text>
+                            </g>
+                            
+                            <!-- Success Visual -->
+                            <g id="success-visual" style="opacity: 0;">
+                                <circle cx="400" cy="300" r="40" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="4" filter="url(#glow)"/>
+                                <text x="400" y="300" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">CONNECTED</text>
+                                <text x="400" y="320" text-anchor="middle" fill="#059669" font-size="10">3-Way Handshake OK</text>
+                            </g>
+                            
+                            <!-- Timer Display -->
+                            <rect x="50" y="50" width="200" height="80" fill="rgba(15, 23, 42, 0.9)" stroke="#334155" stroke-width="1" rx="8"/>
+                            <text x="60" y="75" fill="#f1f5f9" font-size="12" font-weight="bold">TCP Timer:</text>
+                            <text id="timer-display" x="60" y="95" fill="#fbbf24" font-size="16" font-weight="bold">0.0s</text>
+                            <text x="60" y="115" fill="#64748b" font-size="10" id="timer-status">Ready to connect...</text>
+                            
+                            <!-- Statistics Panel -->
+                            <rect x="750" y="50" width="220" height="120" fill="rgba(15, 23, 42, 0.9)" stroke="#334155" stroke-width="1" rx="8"/>
+                            <text x="760" y="75" fill="#f1f5f9" font-size="12" font-weight="bold">Connection Stats:</text>
+                            <text x="760" y="95" fill="#94a3b8" font-size="10">Attempts: <span id="attempts-count">0</span></text>
+                            <text x="760" y="110" fill="#94a3b8" font-size="10">Success: <span id="success-count">0</span></text>
+                            <text x="760" y="125" fill="#94a3b8" font-size="10">Timeouts: <span id="timeout-count">0</span></text>
+                            <text x="760" y="140" fill="#94a3b8" font-size="10">Avg RTT: <span id="avg-rtt">0ms</span></text>
+                            <text x="760" y="155" fill="#94a3b8" font-size="10">Status: <span id="connection-status">Idle</span></text>
+                        </svg>
+                    </div>
+                    
+                    <div class="tcp-diagnostics">
+                        <h4>🔍 Network Diagnostic Tools</h4>
+                        <div class="diagnostic-controls">
+                            <button id="run-ping" class="diag-btn">📡 Ping Test</button>
+                            <button id="run-telnet" class="diag-btn">🔌 Telnet Port 80</button>
+                            <button id="run-tracert" class="diag-btn">🗺️ Traceroute</button>
+                        </div>
+                        <div id="diagnostic-output" class="diagnostic-output">
+                            <div class="terminal-header">Network Diagnostic Console</div>
+                            <div id="terminal-content">Ready for diagnostics...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4>Packet Tracer Simülasyon Dosyaları:</h4>
+                <ul>
+                    <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/Problem_7_HATA.pkt" download>Problem_7_HATA.pkt</a> - TCP timeout problemi</li>
+                    <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/Problem_7_COZUM.pkt" download>Problem_7_COZUM.pkt</a> - TCP optimizasyonu</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>TCP Zaman Aşımlarının Yaygın Nedenleri</h2>
+                <ul>
+                    <li><strong>Firewall Engellemesi:</strong> En yaygın nedendir. İstemci, sunucu veya aradaki bir ağ güvenlik duvarı (firewall), hedeflenen TCP portuna (örn: 80 for HTTP, 443 for HTTPS) giden trafiği engelliyor olabilir.</li>
+                    <li><strong>Sunucu Tarafı Sorunları:</strong> Hedef sunucu kapalı, aşırı yüklenmiş veya üzerinde çalışan ilgili servis (örn: web sunucusu yazılımı) çalışmıyor, donmuş veya hatalı yapılandırılmış olabilir.</li>
+                    <li><strong>Ağ Yolu Sorunları (Kara Delikler):</strong> İstemci ile sunucu arasındaki bir router'da hedefe giden yolun yanlış olması ve paketlerin kaybolması (black hole). Bu durum genellikle bir önceki problem olan statik route hatalarından kaynaklanır.</li>
+                    <li><strong>Asimetrik Yönlendirme:</strong> Giden ve dönen trafiğin farklı yollar izlemesi ve bu yollardan birinde bir firewall'un stateful (durum bilgili) denetim yaparak bağlantıyı engellemesi.</li>
+                    <li><strong>Aşırı Ağ Gecikmesi (Latency):</strong> Ağ yolundaki yüksek gecikme nedeniyle TCP ACK paketlerinin beklenen sürede geri dönememesi.</li>
+                     <li><strong>Path MTU Discovery (PMTUD) Sorunları:</strong> Ağ yolundaki bir cihazın ICMP "Fragmentation Needed" (Parçalanma Gerekli) mesajlarını engellemesi, büyük paketlerin hedefe ulaşamamasına neden olabilir.</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Belirtiler ve Tespit Yöntemleri</h2>
+                <p>Ana belirti, bir sunucudaki belirli bir servise erişememektir. Örneğin, sunucuya <code>ping</code> atabiliyor (ICMP çalışıyor) olabilirsiniz, ancak web sitesine (TCP port 80/443) erişemiyor olabilirsiniz.</p>
+                
+                <h3>Tespit Araçları ve Komutları:</h3>
+                <div class="code-block">
+<pre><span class="comment"># 1. Temel Bağlantı Kontrolü (Ping)</span>
+<span class="command">C:\> ping sunucu-adresi.com</span>
+<span class="comment">Eğer ping çalışmıyorsa, sorun temel IP bağlantısındadır. Çalışıyorsa, sorun L4 veya üzerindedir.</span>
+
+<span class="comment"># 2. Rota Kontrolü (Traceroute)</span>
+<span class="command">C:\> tracert sunucu-adresi.com</span>
+<span class="comment">Paketin nerede kaybolduğunu gösterir.</span>
+
+<span class="comment"># 3. Port Açık mı? (Telnet/Nmap) - En Kritik Adım</span>
+<span class="command">C:\> telnet sunucu-adresi.com 443</span>
+<span class="comment">Eğer ekran kararırsa veya bir banner gelirse, port açıktır. "Connecting..." yazısında kalıp hata verirse, port kapalı veya engellenmiştir.</span>
+
+<span class="comment"># Nmap ile daha gelişmiş port taraması</span>
+<span class="command">nmap -p 80,443,8080 sunucu-adresi.com</span>
+<span class="comment">Port durumunu (open, closed, filtered) gösterir. 'Filtered' genellikle firewall engellemesi demektir.</span>
+</pre>
+                </div>
+                 <div class="info-box">
+                    <strong>İpucu:</strong> Windows'ta Telnet istemcisi varsayılan olarak kurulu gelmeyebilir. Denetim Masası > Programlar ve Özellikler > Windows özelliklerini aç veya kapat bölümünden etkinleştirebilirsiniz.
+                </div>
+            </section>
+        </main>
+
+        <nav class="navigation">
+            <a href="../../index.html" class="nav-button">← Ana Sayfa</a>
+            <a href="solution.html" class="nav-button">Çözüm Detayları →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN and Interactive Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <style>
+        .tcp-simulator-container {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border: 2px solid #334155;
+        }
+        .simulator-controls {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #475569;
+        }
+        .control-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 200px;
+        }
+        .control-group label {
+            color: #f1f5f9;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .slider {
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: #334155;
+            outline: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .slider:hover { opacity: 1; }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #10b981, #059669);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        .control-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+        .firewall-off {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%) !important;
+            box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3) !important;
+        }
+        .firewall-on {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3) !important;
+        }
+        .tcp-display {
+            background: #020617;
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #1e293b;
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+        .network-device:hover {
+            filter: brightness(1.2);
+            cursor: pointer;
+        }
+        .tcp-diagnostics {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #475569;
+        }
+        .tcp-diagnostics h4 {
+            color: #f1f5f9;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .diagnostic-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .diag-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
+        }
+        .diag-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+        .diagnostic-output {
+            background: #0a0a0a;
+            border-radius: 10px;
+            border: 1px solid #333;
+            min-height: 150px;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+        .terminal-header {
+            background: #1a1a1a;
+            color: #10b981;
+            padding: 10px 15px;
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+            font-size: 12px;
+            border-bottom: 1px solid #333;
+        }
+        #terminal-content {
+            padding: 15px;
+            color: #f1f5f9;
+            font-size: 11px;
+            line-height: 1.4;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .connection-line {
+            transition: stroke-width 0.3s ease;
+        }
+        .connection-line.active {
+            stroke: #10b981;
+            stroke-width: 4;
+            animation: data-flow 2s linear infinite;
+        }
+        @keyframes data-flow {
+            0% { stroke-dasharray: 0,20; }
+            100% { stroke-dasharray: 20,0; }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .pulse { animation: pulse 1s infinite; }
+    </style>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .control-btn, .diag-btn, .slider').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+
+            // TCP Connection Simulator
+            let currentLatency = 50;
+            let currentPacketLoss = 0;
+            let firewallEnabled = false;
+            let connectionStats = { attempts: 0, success: 0, timeouts: 0, totalRTT: 0 };
+            let isConnecting = false;
+            let connectionTimer = null;
+            let timerStart = 0;
+
+            const latencySlider = document.getElementById('latency-slider');
+            const packetLossSlider = document.getElementById('packet-loss-slider');
+            const firewallToggle = document.getElementById('firewall-toggle');
+            const startConnection = document.getElementById('start-connection');
+            const resetSimulation = document.getElementById('reset-simulation');
+
+            // Update displays
+            function updateDisplays() {
+                document.getElementById('latency-value').textContent = currentLatency + 'ms';
+                document.getElementById('packet-loss-value').textContent = currentPacketLoss + '%';
+                document.getElementById('latency-display').textContent = `Latency: ${currentLatency}ms`;
+                document.getElementById('packet-loss-display').textContent = `Loss: ${currentPacketLoss}%`;
+                
+                const firewallDevice = document.getElementById('firewall-device');
+                if (firewallEnabled) {
+                    firewallDevice.style.opacity = '1';
+                    firewallToggle.textContent = '🛡️ Firewall: ON';
+                    firewallToggle.className = 'control-btn firewall-on';
+                } else {
+                    firewallDevice.style.opacity = '0.3';
+                    firewallToggle.textContent = '🛡️ Firewall: OFF';
+                    firewallToggle.className = 'control-btn firewall-off';
+                }
+
+                // Update stats
+                document.getElementById('attempts-count').textContent = connectionStats.attempts;
+                document.getElementById('success-count').textContent = connectionStats.success;
+                document.getElementById('timeout-count').textContent = connectionStats.timeouts;
+                document.getElementById('avg-rtt').textContent = connectionStats.attempts > 0 
+                    ? Math.round(connectionStats.totalRTT / connectionStats.attempts) + 'ms' : '0ms';
+            }
+
+            // Event listeners
+            latencySlider.addEventListener('input', (e) => {
+                currentLatency = parseInt(e.target.value);
+                updateDisplays();
+            });
+
+            packetLossSlider.addEventListener('input', (e) => {
+                currentPacketLoss = parseInt(e.target.value);
+                updateDisplays();
+            });
+
+            firewallToggle.addEventListener('click', () => {
+                firewallEnabled = !firewallEnabled;
+                updateDisplays();
+            });
+
+            resetSimulation.addEventListener('click', () => {
+                connectionStats = { attempts: 0, success: 0, timeouts: 0, totalRTT: 0 };
+                isConnecting = false;
+                if (connectionTimer) clearInterval(connectionTimer);
+                
+                gsap.set(['#syn-packet', '#syn-ack-packet', '#ack-packet', '#timeout-visual', '#success-visual'], {opacity: 0});
+                document.getElementById('timer-display').textContent = '0.0s';
+                document.getElementById('timer-status').textContent = 'Ready to connect...';
+                document.getElementById('connection-status').textContent = 'Idle';
+                
+                updateDisplays();
+            });
+
+            // TCP Connection Animation
+            startConnection.addEventListener('click', () => {
+                if (isConnecting) return;
+                
+                isConnecting = true;
+                connectionStats.attempts++;
+                timerStart = Date.now();
+                
+                document.getElementById('connection-status').textContent = 'Connecting...';
+                document.getElementById('timer-status').textContent = 'Attempting TCP handshake...';
+                
+                // Start timer
+                connectionTimer = setInterval(() => {
+                    const elapsed = (Date.now() - timerStart) / 1000;
+                    document.getElementById('timer-display').textContent = elapsed.toFixed(1) + 's';
+                }, 100);
+
+                simulateTCPHandshake();
+            });
+
+            function simulateTCPHandshake() {
+                // Reset packets
+                gsap.set(['#syn-packet', '#syn-ack-packet', '#ack-packet', '#timeout-visual', '#success-visual'], {opacity: 0});
+                
+                const tl = gsap.timeline();
+                
+                // SYN Packet (Client -> Server)
+                tl.set('#syn-packet', {x: 170, y: 240, opacity: 1})
+                  .to('#syn-packet', {
+                      motionPath: {
+                          path: "M170,240 Q300,180 Q500,160 Q680,180 Q780,220",
+                          autoRotate: false
+                      },
+                      duration: currentLatency / 25,
+                      ease: "power2.inOut"
+                  })
+                  .set('#timer-status', {text: "SYN packet sent..."});
+
+                // Check if packet is dropped or blocked
+                const packetDropped = Math.random() * 100 < currentPacketLoss;
+                const blockedByFirewall = firewallEnabled;
+                
+                if (packetDropped || blockedByFirewall) {
+                    // Timeout scenario
+                    tl.to('#syn-packet', {opacity: 0, scale: 0, duration: 0.5}, "+=0.5")
+                      .set('#timer-status', {text: packetDropped ? "Packet lost in network!" : "Blocked by firewall!"})
+                      .to('#timeout-visual', {opacity: 1, duration: 0.5}, "+=1")
+                      .to('#timeout-visual', {rotation: 360, duration: 2, ease: "power2.inOut"}, "<")
+                      .call(() => {
+                          connectionStats.timeouts++;
+                          connectionStats.totalRTT += (Date.now() - timerStart);
+                          isConnecting = false;
+                          clearInterval(connectionTimer);
+                          document.getElementById('connection-status').textContent = 'Timeout';
+                          updateDisplays();
+                      });
+                } else {
+                    // Successful handshake
+                    tl.set('#timer-status', {text: "SYN received, sending SYN-ACK..."})
+                      .set('#syn-ack-packet', {x: 780, y: 220, opacity: 1}, "+=0.3")
+                      .to('#syn-ack-packet', {
+                          motionPath: {
+                              path: "M780,220 Q680,180 Q500,160 Q300,180 Q170,240",
+                              autoRotate: false
+                          },
+                          duration: currentLatency / 25,
+                          ease: "power2.inOut"
+                      })
+                      .set('#timer-status', {text: "SYN-ACK received, sending ACK..."})
+                      .set('#ack-packet', {x: 170, y: 240, opacity: 1}, "+=0.2")
+                      .to('#ack-packet', {
+                          motionPath: {
+                              path: "M170,240 Q300,180 Q500,160 Q680,180 Q780,220",
+                              autoRotate: false
+                          },
+                          duration: currentLatency / 30,
+                          ease: "power2.inOut"
+                      })
+                      .to('#success-visual', {opacity: 1, scale: 1.2, duration: 0.5}, "+=0.3")
+                      .to('#success-visual', {scale: 1, duration: 0.3})
+                      .call(() => {
+                          connectionStats.success++;
+                          connectionStats.totalRTT += (Date.now() - timerStart);
+                          isConnecting = false;
+                          clearInterval(connectionTimer);
+                          document.getElementById('connection-status').textContent = 'Connected';
+                          document.getElementById('timer-status').textContent = '3-Way handshake completed!';
+                          updateDisplays();
+                      });
+                }
+            }
+
+            // Network Diagnostics
+            document.getElementById('run-ping').addEventListener('click', () => runDiagnostic('ping'));
+            document.getElementById('run-telnet').addEventListener('click', () => runDiagnostic('telnet'));
+            document.getElementById('run-tracert').addEventListener('click', () => runDiagnostic('tracert'));
+
+            function runDiagnostic(type) {
+                const terminal = document.getElementById('terminal-content');
+                
+                switch(type) {
+                    case 'ping':
+                        terminal.innerHTML = `<span style="color: #10b981;">C:\\></span> ping 192.168.2.10<br><br>`;
+                        if (firewallEnabled || currentPacketLoss > 20) {
+                            terminal.innerHTML += `Pinging 192.168.2.10 with 32 bytes of data:<br>`;
+                            terminal.innerHTML += `<span style="color: #ef4444;">Request timed out.</span><br>`;
+                            terminal.innerHTML += `<span style="color: #ef4444;">Request timed out.</span><br>`;
+                            terminal.innerHTML += `<span style="color: #ef4444;">Request timed out.</span><br>`;
+                            terminal.innerHTML += `<span style="color: #ef4444;">Request timed out.</span><br><br>`;
+                            terminal.innerHTML += `<span style="color: #ef4444;">Ping statistics: 0% success</span>`;
+                        } else {
+                            terminal.innerHTML += `Pinging 192.168.2.10 with 32 bytes of data:<br>`;
+                            terminal.innerHTML += `<span style="color: #10b981;">Reply from 192.168.2.10: bytes=32 time=${currentLatency}ms TTL=64</span><br>`;
+                            terminal.innerHTML += `<span style="color: #10b981;">Reply from 192.168.2.10: bytes=32 time=${currentLatency+2}ms TTL=64</span><br>`;
+                            terminal.innerHTML += `<span style="color: #10b981;">Reply from 192.168.2.10: bytes=32 time=${currentLatency-1}ms TTL=64</span><br>`;
+                            terminal.innerHTML += `<span style="color: #10b981;">Reply from 192.168.2.10: bytes=32 time=${currentLatency+1}ms TTL=64</span><br><br>`;
+                            terminal.innerHTML += `<span style="color: #10b981;">Ping statistics: 100% success, avg=${currentLatency}ms</span>`;
+                        }
+                        break;
+                        
+                    case 'telnet':
+                        terminal.innerHTML = `<span style="color: #10b981;">C:\\></span> telnet 192.168.2.10 80<br><br>`;
+                        if (firewallEnabled) {
+                            terminal.innerHTML += `<span style="color: #ef4444;">Connecting To 192.168.2.10...Could not open connection to the host, on port 80:</span><br>`;
+                            terminal.innerHTML += `<span style="color: #ef4444;">Connect failed</span><br><br>`;
+                            terminal.innerHTML += `<span style="color: #fbbf24;">💡 Port 80 appears to be FILTERED (blocked by firewall)</span>`;
+                        } else if (currentLatency > 200) {
+                            terminal.innerHTML += `<span style="color: #ef4444;">Connecting To 192.168.2.10...Connection timeout</span><br><br>`;
+                            terminal.innerHTML += `<span style="color: #fbbf24;">💡 High latency causing connection timeout</span>`;
+                        } else {
+                            terminal.innerHTML += `<span style="color: #10b981;">Connecting To 192.168.2.10...Connected</span><br>`;
+                            terminal.innerHTML += `<span style="color: #10b981;">HTTP/1.1 Server Ready</span><br><br>`;
+                            terminal.innerHTML += `<span style="color: #10b981;">✅ Port 80 is OPEN and accessible</span>`;
+                        }
+                        break;
+                        
+                    case 'tracert':
+                        terminal.innerHTML = `<span style="color: #10b981;">C:\\></span> tracert 192.168.2.10<br><br>`;
+                        terminal.innerHTML += `Tracing route to 192.168.2.10 over a maximum of 30 hops:<br><br>`;
+                        terminal.innerHTML += `  1    ${Math.round(currentLatency/4)} ms     ${Math.round(currentLatency/4)+1} ms     ${Math.round(currentLatency/4)-1} ms  192.168.1.1 [Local Gateway]<br>`;
+                        terminal.innerHTML += `  2    ${Math.round(currentLatency/2)} ms     ${Math.round(currentLatency/2)+2} ms     ${Math.round(currentLatency/2)-1} ms  10.0.0.1 [ISP Router]<br>`;
+                        if (firewallEnabled) {
+                            terminal.innerHTML += `  3     *        *        *     Request timed out. [Firewall blocking]<br>`;
+                            terminal.innerHTML += `<span style="color: #ef4444;">Trace complete. Destination unreachable due to firewall.</span>`;
+                        } else {
+                            terminal.innerHTML += `  3    ${currentLatency} ms     ${currentLatency+3} ms     ${currentLatency-2} ms  192.168.2.10 [Destination]<br><br>`;
+                            terminal.innerHTML += `<span style="color: #10b981;">Trace complete. Route is available.</span>`;
+                        }
+                        break;
+                }
+            }
+
+            updateDisplays();
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section) => {
+                gsap.fromTo(section, { opacity: 0, y: 50 }, {
+                    opacity: 1, y: 0, duration: 0.8, ease: "power3.out",
+                    scrollTrigger: { trigger: section, start: "top 85%", once: true }
+                });
+            });
+            
+            console.log('🔧 Problem 7: TCP Interactive Simulator - Features loaded');
+        });
+    </script>
+</body>
+</html> 

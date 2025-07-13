@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Admin Guide - Verinin Yolculuğu</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- GSAP CDN Links -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-animation"></div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <!-- Fixed Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="#" class="nav-logo">NetworkGuide</a>
+                <ul class="nav-links">
+                    <li><a href="#hero"><span data-tr="Ana Sayfa" data-en="Home">Ana Sayfa</span></a></li>
+                    <li><a href="#problems"><span data-tr="Problemler" data-en="Problems">Problemler</span></a></li>
+                    <li><a href="#stats"><span data-tr="İstatistikler" data-en="Statistics">İstatistikler</span></a></li>
+                    <li><a href="#about"><span data-tr="Hakkında" data-en="About">Hakkında</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <!-- Floating Particles -->
+        <div class="particles" id="particles"></div>
+        
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+            <a href="#" class="lang-btn active" data-lang="tr">🇹🇷 Türkçe</a>
+            <a href="#" class="lang-btn" data-lang="en">🇺🇸 English</a>
+        </div>
+
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title" id="heroTitle">
+                    <span data-tr="Network Admin Guide" data-en="Network Admin Guide">Network Admin Guide</span>
+                </h1>
+                <p class="hero-subtitle" id="heroSubtitle">
+                    <span data-tr="OSI Katmanlarında Ağ Problemleri ve Çözümleri" data-en="Network Problems and Solutions Across OSI Layers">OSI Katmanlarında Ağ Problemleri ve Çözümleri</span>
+                </p>
+                <a href="#problems" class="hero-cta" id="heroCta">
+                    <span data-tr="Problemleri Keşfet" data-en="Explore Problems">Problemleri Keşfet</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Background Network Animation -->
+        <svg class="network-bg" viewBox="0 0 800 600" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.1; z-index: 1;">
+            <defs>
+                <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#64ffda"/>
+                    <stop offset="100%" stop-color="#58a6ff"/>
+                </linearGradient>
+            </defs>
+            
+            <!-- Network Nodes -->
+            <circle id="node1" cx="100" cy="100" r="8" fill="url(#nodeGradient)"/>
+            <circle id="node2" cx="300" cy="150" r="8" fill="url(#nodeGradient)"/>
+            <circle id="node3" cx="500" cy="100" r="8" fill="url(#nodeGradient)"/>
+            <circle id="node4" cx="700" cy="200" r="8" fill="url(#nodeGradient)"/>
+            <circle id="node5" cx="200" cy="300" r="8" fill="url(#nodeGradient)"/>
+            <circle id="node6" cx="600" cy="350" r="8" fill="url(#nodeGradient)"/>
+            
+            <!-- Network Links -->
+            <line id="link1" x1="100" y1="100" x2="300" y2="150" stroke="#64ffda" stroke-width="2" opacity="0.6"/>
+            <line id="link2" x1="300" y1="150" x2="500" y2="100" stroke="#64ffda" stroke-width="2" opacity="0.6"/>
+            <line id="link3" x1="500" y1="100" x2="700" y2="200" stroke="#64ffda" stroke-width="2" opacity="0.6"/>
+            <line id="link4" x1="100" y1="100" x2="200" y2="300" stroke="#64ffda" stroke-width="2" opacity="0.6"/>
+            <line id="link5" x1="200" y1="300" x2="600" y2="350" stroke="#64ffda" stroke-width="2" opacity="0.6"/>
+            <line id="link6" x1="300" y1="150" x2="600" y2="350" stroke="#64ffda" stroke-width="2" opacity="0.6"/>
+            
+            <!-- Data Packets -->
+            <circle id="packet1" cx="100" cy="100" r="4" fill="#64ffda" opacity="0.8"/>
+            <circle id="packet2" cx="300" cy="150" r="4" fill="#58a6ff" opacity="0.8"/>
+            <circle id="packet3" cx="500" cy="100" r="4" fill="#64ffda" opacity="0.8"/>
+        </svg>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="content" id="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card" data-stat="10">
+                    <span class="stat-number" data-tr="10" data-en="10">10</span>
+                    <p class="stat-label" data-tr="Network Problemi" data-en="Network Problems">Network Problemi</p>
+                </div>
+                <div class="stat-card" data-stat="7">
+                    <span class="stat-number" data-tr="7" data-en="7">7</span>
+                    <p class="stat-label" data-tr="OSI Katmanı" data-en="OSI Layers">OSI Katmanı</p>
+                </div>
+                <div class="stat-card" data-stat="15">
+                    <span class="stat-number" data-tr="15+" data-en="15+">15+</span>
+                    <p class="stat-label" data-tr="Ekran Görüntüsü" data-en="Screenshots">Ekran Görüntüsü</p>
+                </div>
+                <div class="stat-card" data-stat="20">
+                    <span class="stat-number" data-tr="20+" data-en="20+">20+</span>
+                    <p class="stat-label" data-tr="Packet Tracer Dosyası" data-en="Packet Tracer Files">Packet Tracer Dosyası</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problems Grid Section -->
+    <section class="content" id="problems">
+        <div class="container">
+            <h2 class="section-title text-center" style="font-size: 3rem; margin-bottom: 3rem;">
+                <span data-tr="Network Problemleri" data-en="Network Problems">Network Problemleri</span>
+            </h2>
+            
+            <div class="problems-grid">
+                <!-- Problem 1: Fiber Optik -->
+                <div class="problem-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="problem-number">1</div>
+                    <h3 class="problem-title" data-tr="Fiber Optik Kablo Kopması" data-en="Fiber Optic Cable Break">Fiber Optik Kablo Kopması</h3>
+                    <p class="problem-description" data-tr="Fiziksel katmanda fiber optik kablo hasarları ve tespit yöntemleri" data-en="Physical layer fiber optic cable damage and detection methods">Fiziksel katmanda fiber optik kablo hasarları ve tespit yöntemleri</p>
+                    <div class="problem-meta">
+                        <span class="osi-layer">L1 - Physical</span>
+                        <span class="difficulty easy" data-tr="Kolay" data-en="Easy">Kolay</span>
+                    </div>
+                    <div class="problem-links">
+                        <a href="#" class="btn btn-primary problem-link" data-tr-href="problems/problem_01/description.html" data-en-href="problems/problem_01/description-en.html">
+                            <span data-tr="Detayları Gör" data-en="View Details">Detayları Gör</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Problem 2: VLAN -->
+                <div class="problem-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="problem-number">2</div>
+                    <h3 class="problem-title" data-tr="VLAN Konfigürasyon Hataları" data-en="VLAN Configuration Errors">VLAN Konfigürasyon Hataları</h3>
+                    <p class="problem-description" data-tr="Veri bağlantı katmanında VLAN izolasyon problemleri" data-en="Data link layer VLAN isolation problems">Veri bağlantı katmanında VLAN izolasyon problemleri</p>
+                    <div class="problem-meta">
+                        <span class="osi-layer">L2 - Data Link</span>
+                        <span class="difficulty medium" data-tr="Orta" data-en="Medium">Orta</span>
+                    </div>
+                    <div class="problem-links">
+                        <a href="#" class="btn btn-primary problem-link" data-tr-href="problems/problem_02/description.html" data-en-href="problems/problem_02/description-en.html">
+                            <span data-tr="Detayları Gör" data-en="View Details">Detayları Gör</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Problem 3: STP -->
+                <div class="problem-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="problem-number">3</div>
+                    <h3 class="problem-title" data-tr="Spanning Tree Protocol Döngüleri" data-en="Spanning Tree Protocol Loops">Spanning Tree Protocol Döngüleri</h3>
+                    <p class="problem-description" data-tr="STP konfigürasyonu ve broadcast storm problemleri" data-en="STP configuration and broadcast storm problems">STP konfigürasyonu ve broadcast storm problemleri</p>
+                    <div class="problem-meta">
+                        <span class="osi-layer">L2 - Data Link</span>
+                        <span class="difficulty hard" data-tr="Zor" data-en="Hard">Zor</span>
+                    </div>
+                    <div class="problem-links">
+                        <a href="#" class="btn btn-primary problem-link" data-tr-href="problems/problem_03/description.html" data-en-href="problems/problem_03/description-en.html">
+                            <span data-tr="Detayları Gör" data-en="View Details">Detayları Gör</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Problem 4: OSPF -->
+                <div class="problem-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="problem-number">4</div>
+                    <h3 class="problem-title" data-tr="OSPF Neighbor Kurulamama" data-en="OSPF Neighbor Establishment Failure">OSPF Neighbor Kurulamama</h3>
+                    <p class="problem-description" data-tr="Ağ katmanında OSPF routing protokol sorunları" data-en="Network layer OSPF routing protocol issues">Ağ katmanında OSPF routing protokol sorunları</p>
+                    <div class="problem-meta">
+                        <span class="osi-layer">L3 - Network</span>
+                        <span class="difficulty hard" data-tr="Zor" data-en="Hard">Zor</span>
+                    </div>
+                    <div class="problem-links">
+                        <a href="#" class="btn btn-primary problem-link" data-tr-href="problems/problem_04/description.html" data-en-href="problems/problem_04/description-en.html">
+                            <span data-tr="Detayları Gör" data-en="View Details">Detayları Gör</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Problem 5: DHCP -->
+                <div class="problem-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="problem-number">5</div>
+                    <h3 class="problem-title" data-tr="DHCP IP Çakışmaları" data-en="DHCP IP Conflicts">DHCP IP Çakışmaları</h3>
+                    <p class="problem-description" data-tr="Ağ katmanında DHCP IP adres yönetim sorunları" data-en="Network layer DHCP IP address management issues">Ağ katmanında DHCP IP adres yönetim sorunları</p>
+                    <div class="problem-meta">
+                        <span class="osi-layer">L3 - Network</span>
+                        <span class="difficulty medium" data-tr="Orta" data-en="Medium">Orta</span>
+                    </div>
+                    <div class="problem-links">
+                        <a href="#" class="btn btn-primary problem-link" data-tr-href="problems/problem_05/description.html" data-en-href="problems/problem_05/description-en.html">
+                            <span data-tr="Detayları Gör" data-en="View Details">Detayları Gör</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Problem 6: Static Route -->
+                <div class="problem-card" data-aos="fade-up" data-aos-delay="600">
+                    <div class="problem-number">6</div>
+                    <h3 class="problem-title" data-tr="Statik Yönlendirme Hataları" data-en="Static Routing Errors">Statik Yönlendirme Hataları</h3>
+                    <p class="problem-description" data-tr="Ağ katmanında statik route konfigürasyon problemleri" data-en="Network layer static route configuration problems">Ağ katmanında statik route konfigürasyon problemleri</p>
+                    <div class="problem-meta">
+                        <span class="osi-layer">L3 - Network</span>
+                        <span class="difficulty medium" data-tr="Orta" data-en="Medium">Orta</span>
+                    </div>
+                    <div class="problem-links">
+                        <a href="#" class="btn btn-primary problem-link" data-tr-href="problems/problem_06/description.html" data-en-href="problems/problem_06/description-en.html">
+                            <span data-tr="Detayları Gör" data-en="View Details">Detayları Gör</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Problem 7: TCP Timeout -->
+                <div class="problem-card" data-aos="fade-up" data-aos-delay="700">
+                    <div class="problem-number">7</div>
+                    <h3 class="problem-title" data-tr="TCP Bağlantı Zaman Aşımı" data-en="TCP Connection Timeout">TCP Bağlantı Zaman Aşımı</h3>
+                    <p class="problem-description" data-tr="Taşıma katmanında TCP timeout ve handshake sorunları" data-en="Transport layer TCP timeout and handshake issues">Taşıma katmanında TCP timeout ve handshake sorunları</p>
+                    <div class="problem-meta">
+                        <span class="osi-layer">L4 - Transport</span>
+                        <span class="difficulty medium" data-tr="Orta" data-en="Medium">Orta</span>
+                    </div>
+                    <div class="problem-links">
+                        <a href="#" class="btn btn-primary problem-link" data-tr-href="problems/problem_07/description.html" data-en-href="problems/problem_07/description-en.html">
+                            <span data-tr="Detayları Gör" data-en="View Details">Detayları Gör</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Problem 8: SSH Session -->
+                <div class="problem-card" data-aos="fade-up" data-aos-delay="800">
+                    <div class="problem-number">8</div>
+                    <h3 class="problem-title" data-tr="SSH Session Timeout" data-en="SSH Session Timeout">SSH Session Timeout</h3>
+                    <p class="problem-description" data-tr="Oturum katmanında SSH bağlantı yönetim sorunları" data-en="Session layer SSH connection management issues">Oturum katmanında SSH bağlantı yönetim sorunları</p>
+                    <div class="problem-meta">
+                        <span class="osi-layer">L5 - Session</span>
+                        <span class="difficulty easy" data-tr="Kolay" data-en="Easy">Kolay</span>
+                    </div>
+                    <div class="problem-links">
+                        <a href="#" class="btn btn-primary problem-link" data-tr-href="problems/problem_08/description.html" data-en-href="problems/problem_08/description-en.html">
+                            <span data-tr="Detayları Gör" data-en="View Details">Detayları Gör</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Problem 9: Character Encoding -->
+                <div class="problem-card" data-aos="fade-up" data-aos-delay="900">
+                    <div class="problem-number">9</div>
+                    <h3 class="problem-title" data-tr="Character Encoding Problemleri" data-en="Character Encoding Problems">Character Encoding Problemleri</h3>
+                    <p class="problem-description" data-tr="Sunum katmanında karakter kodlama ve format sorunları" data-en="Presentation layer character encoding and format issues">Sunum katmanında karakter kodlama ve format sorunları</p>
+                    <div class="problem-meta">
+                        <span class="osi-layer">L6 - Presentation</span>
+                        <span class="difficulty medium" data-tr="Orta" data-en="Medium">Orta</span>
+                    </div>
+                    <div class="problem-links">
+                        <a href="#" class="btn btn-primary problem-link" data-tr-href="problems/problem_09/description.html" data-en-href="problems/problem_09/description-en.html">
+                            <span data-tr="Detayları Gör" data-en="View Details">Detayları Gör</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Problem 10: HTTP/HTTPS -->
+                <div class="problem-card" data-aos="fade-up" data-aos-delay="1000">
+                    <div class="problem-number">10</div>
+                    <h3 class="problem-title" data-tr="HTTP/HTTPS Protocol Problemleri" data-en="HTTP/HTTPS Protocol Problems">HTTP/HTTPS Protocol Problemleri</h3>
+                    <p class="problem-description" data-tr="Uygulama katmanında web server protokol sorunları" data-en="Application layer web server protocol issues">Uygulama katmanında web server protokol sorunları</p>
+                    <div class="problem-meta">
+                        <span class="osi-layer">L7 - Application</span>
+                        <span class="difficulty hard" data-tr="Zor" data-en="Hard">Zor</span>
+                    </div>
+                    <div class="problem-links">
+                        <a href="#" class="btn btn-primary problem-link" data-tr-href="problems/problem_10/description.html" data-en-href="problems/problem_10/description-en.html">
+                            <span data-tr="Detayları Gör" data-en="View Details">Detayları Gör</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="content" id="about" style="background: var(--secondary-dark); margin-top: 4rem;">
+        <div class="container">
+            <div class="section text-center">
+                <h2 data-tr="Proje Hakkında" data-en="About Project">Proje Hakkında</h2>
+                <p data-tr="Bu proje, Computer Networks dersi Final Design Project kapsamında hazırlanmıştır. OSI modelinin 7 katmanında karşılaşılan yaygın ağ problemlerini ve çözüm yöntemlerini kapsamlı bir şekilde ele almaktadır." data-en="This project has been prepared within the scope of Computer Networks course Final Design Project. It comprehensively covers common network problems encountered in 7 layers of the OSI model and their solution methods.">Bu proje, Computer Networks dersi Final Design Project kapsamında hazırlanmıştır. OSI modelinin 7 katmanında karşılaşılan yaygın ağ problemlerini ve çözüm yöntemlerini kapsamlı bir şekilde ele almaktadır.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- JavaScript Files -->
+    <script src="js/main.js"></script>
+</body>
+</html> 

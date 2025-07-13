@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solution: Fiber Optic Cable Break - Admin Guide</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-solution">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="solution.html" class="lang-btn">🇹🇷 Türkçe</a>
+                <a href="solution-en.html" class="lang-btn active">🇺🇸 English</a>
+            </div>
+            
+            <h1>✅ Solution Steps: Fiber Optic Cable Break</h1>
+            <p>L1 - Physical Layer - Practical Solution Guide</p>
+        </header>
+        
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Home</a> / <a href="description-en.html">Problem 1</a> / Solution Details
+        </nav>
+        
+        <main class="content">
+            <section class="section">
+                <h2>🔧 Step-by-Step Repair Process</h2>
+                <p>This guide details the steps to follow in case of a fiber optic cable break. The process covers all stages from fault detection to permanent repair.</p>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ Main Visual of Solution: Connection Restored</h2>
+                <p>After repairing the fiber optic cable break, the successful ping test from PC-A to PC-B is shown below. This proves that the physical layer connection has been fully restored:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/fiber_ping_success.png" alt="Successful Ping After Repair" class="screenshot">
+                    <figcaption>Figure 1: Successful ping test after fiber repair</figcaption>
+                </div>
+                
+                <h4>Packet Tracer Solution File:</h4>
+                <p>You can download the Packet Tracer file showing the working state after repair <a href="packet_tracer/fiber_solution.pkt" download>here</a>.</p>
+            </section>
+
+            <section class="section">
+                <h2>Step 1: Fault Detection and Localization</h2>
+                
+                <div class="step">
+                    <div class="step-number">1A</div>
+                    <div class="step-content">
+                        <h3>Connection Loss Detection</h3>
+                        <p>In case of fiber cable break, the connection between network devices is completely lost. This situation can be immediately detected with ping tests.</p>
+                        <div class="code-block">
+<span class="comment"># Ping test during cable break</span>
+<span class="command">PC-A> ping 192.168.1.11</span>
+<span class="output">Request timed out.</span>
+<span class="output">Request timed out.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">1B</div>
+                    <div class="step-content">
+                        <h3>Check Switch Interface Status</h3>
+                        <p>Check the status of relevant interfaces on switches to confirm the physical layer problem.</p>
+                        <div class="code-block">
+<span class="command">Switch# show interface GigabitEthernet0/1</span>
+<span class="output">GigabitEthernet0/1 is down, line protocol is down</span>
+<span class="comment"># This output indicates a physical connection problem</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Step 2: Physical Repair Process</h2>
+                
+                <div class="step">
+                    <div class="step-number">2A</div>
+                    <div class="step-content">
+                        <h3>Restoring Fiber Connection</h3>
+                        <p>While fusion splicing is done in real life, re-establishing the connection between switches in simulation is sufficient. This simulates physical layer repair.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2B</div>
+                    <div class="step-content">
+                        <h3>Verify Connection Test</h3>
+                        <p>After repair, verify that switch interfaces are in "up" state and ping tests are successful.</p>
+                        <div class="code-block">
+<span class="command">Switch# show interface GigabitEthernet0/1</span>
+<span class="output">GigabitEthernet0/1 is up, line protocol is up</span>
+
+<span class="command">PC-A> ping 192.168.1.11</span>
+<span class="output">Reply from 192.168.1.11: bytes=32 time=1ms TTL=128</span>
+<span class="output">Reply from 192.168.1.11: bytes=32 time=1ms TTL=128</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Step 3: Verification and Testing</h2>
+
+                <div class="step">
+                    <div class="step-number">3A</div>
+                    <div class="step-content">
+                        <h3>End-to-End Connection Test</h3>
+                        <p>After repair completion, comprehensive tests are performed to verify that communication between network devices is fully restored.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3B</div>
+                    <div class="step-content">
+                        <h3>Service Continuity Check</h3>
+                        <p>Ensure all network services are functioning normally. Test that critical applications are accessible.</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        
+        <nav class="navigation">
+            <a href="description-en.html" class="nav-button">← Problem Description</a>
+            <a href="../../index.html" class="nav-button">Home</a>
+            <a href="../problem_02/description-en.html" class="nav-button">Go to Problem 2 →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN and Interactive Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursor = document.getElementById('cursor'), cursorOutline = document.getElementById('cursorOutline');
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                setTimeout(() => { cursor.style.opacity = '1'; cursorOutline.style.opacity = '1'; }, 500);
+                document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px'; });
+                function animateOutline() { outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1; cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px'; requestAnimationFrame(animateOutline); }
+                animateOutline();
+                document.querySelectorAll('a, button, .nav-button, .lang-btn').forEach(el => {
+                    el.addEventListener('mouseenter', () => { cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover'); });
+                    el.addEventListener('mouseleave', () => { cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover'); });
+                });
+            }
+            document.querySelectorAll('.section').forEach(section => gsap.fromTo(section, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", scrollTrigger: { trigger: section, start: "top 85%", once: true } }));
+            console.log('🔧 Problem 1 Solution (EN): Fiber Optic - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem 9: Character Encoding ve Data Format Problemleri - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-l6" style="background: linear-gradient(135deg, #16a085, #1abc9c);">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="description.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="description-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+            <h1>🟢 Problem 9: Character Encoding ve Data Format Problemleri</h1>
+            <p>L6 - Presentation Layer (Sunum Katmanı) - Admin Rehber Tutorial</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Ana Sayfa</a> / L6 Presentation Layer / Problem 9
+        </nav>
+
+        <main class="content">
+            <section class="section">
+                <h2>📋 Problem Tanımı</h2>
+                <p>Character Encoding (karakter kodlama) problemleri, network'te veri aktarımı sırasında farklı sistemler arasında text data'nın yanlış yorumlanması nedeniyle ortaya çıkar. Bu problemler, Presentation Layer (L6) seviyesinde data formatting ve encoding/decoding işlemleri sırasında meydana gelir ve kullanıcıların okunamayan karakterler (garbled text) görmesine neden olur.</p>
+                
+                <div class="danger-box">
+                    <strong>⚠️ Kritik Durum:</strong> Character encoding hataları data bütünlüğünü bozar ve critical bilgilerin kaybolmasına neden olabilir.
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>🖼️ Character Encoding Problem Örnekleri</h2>
+                <p>Aşağıda character encoding problemlerinin tipik örnekleri gösterilmektedir:</p>
+                
+                <div class="image-container">
+                    <img src="../../images/screenshots/encoding_error_display.png" alt="Character Encoding Hatası" class="screenshot" style="background: #f8f9fa; border: 2px dashed #666; padding: 20px; text-align: center; color: #666;">
+                    <figcaption>Resim 1: Yanlış character encoding nedeniyle garbled text görünümü</figcaption>
+                </div>
+                
+                <p>Encoding düzeltildikten sonra text'in doğru şekilde görüntülendiği durum:</p>
+                
+                <div class="image-container">
+                    <img src="../../images/screenshots/encoding_success_display.png" alt="Character Encoding Düzeltildi" class="screenshot" style="background: #f8f9fa; border: 2px dashed #666; padding: 20px; text-align: center; color: #666;">
+                    <figcaption>Resim 2: Doğru character encoding ile normal text görünümü</figcaption>
+                </div>
+
+                <h3>🎮 Interactive Character Encoding Simulator</h3>
+                <p><strong>Live Demo:</strong> Gerçek zamanlı character encoding dönüştürme ve corruption simülatörü! Farklı encoding'ler arası dönüştürme yapın ve text bozulmasını canlı olarak görün.</p>
+                
+                <div class="encoding-simulator-container">
+                    <div class="encoding-controls">
+                        <div class="input-section">
+                            <h4>📝 Text Input</h4>
+                            <textarea id="input-text" placeholder="Türkçe karakterler: ç, ğ, ı, ö, ş, ü
+Özel karakterler: àáâãäåæçèéêë
+Simgeler: €, £, ¥, ©, ®, ™, ±">Türkçe karakterler test: çıktı, ğüzel, öğretici, şahane!
+Email: admin@şirket.com.tr
+Avrupa: résumé, café, naïve, fiancée
+Para: €1,234.56, £789.00</textarea>
+                            
+                            <div class="quick-samples">
+                                <h5>🔤 Hızlı Test Metinleri:</h5>
+                                <button class="sample-btn" data-text="Türkçe: çıktı, ğüzel, ıslak, öğretici, şahane, ücretsiz">🇹🇷 Türkçe</button>
+                                <button class="sample-btn" data-text="Français: café, résumé, naïve, fiancée, cliché">🇫🇷 Fransızca</button>
+                                <button class="sample-btn" data-text="Deutsch: Müller, Größe, weiß, Straße, Bäcker">🇩🇪 Almanca</button>
+                                <button class="sample-btn" data-text="Español: niño, señor, año, corazón, piñata">🇪🇸 İspanyolca</button>
+                                <button class="sample-btn" data-text="Mixed: €1,234 • £567 • ¥890 • ©2025 • ®TM • ±5%">💰 Simgeler</button>
+                            </div>
+                        </div>
+                        
+                        <div class="encoding-settings">
+                            <h4>⚙️ Encoding Settings</h4>
+                            <div class="setting-row">
+                                <label>Source Encoding:</label>
+                                <select id="source-encoding">
+                                    <option value="utf-8">UTF-8 (Recommended)</option>
+                                    <option value="iso-8859-1">ISO-8859-1 (Latin1)</option>
+                                    <option value="iso-8859-9">ISO-8859-9 (Turkish)</option>
+                                    <option value="windows-1252">Windows-1252</option>
+                                    <option value="ascii">ASCII (7-bit)</option>
+                                    <option value="cp1254">CP1254 (Turkish)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="setting-row">
+                                <label>Target Encoding:</label>
+                                <select id="target-encoding">
+                                    <option value="utf-8">UTF-8 (Recommended)</option>
+                                    <option value="iso-8859-1">ISO-8859-1 (Latin1)</option>
+                                    <option value="iso-8859-9">ISO-8859-9 (Turkish)</option>
+                                    <option value="windows-1252">Windows-1252</option>
+                                    <option value="ascii">ASCII (7-bit)</option>
+                                    <option value="cp1254">CP1254 (Turkish)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="corruption-controls">
+                                <h5>🔧 Corruption Simulation</h5>
+                                <button id="simulate-corruption" class="action-btn corrupt">💥 Simulate Encoding Error</button>
+                                <button id="detect-encoding" class="action-btn detect">🔍 Auto-Detect Encoding</button>
+                                <button id="convert-encoding" class="action-btn convert">🔄 Convert Encoding</button>
+                                <button id="clear-all" class="action-btn clear">🧹 Clear All</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="output-display">
+                        <div class="display-panel original">
+                            <h4>📄 Original Text (Source Encoding)</h4>
+                            <div class="text-preview" id="original-preview">Metin girildikten sonra burada görünecek...</div>
+                            <div class="encoding-info">
+                                <span class="info-label">Encoding:</span> 
+                                <span id="original-encoding-info">UTF-8</span>
+                                <span class="byte-count" id="original-bytes">0 bytes</span>
+                            </div>
+                        </div>
+                        
+                        <div class="display-panel converted">
+                            <h4>🔄 Converted Text (Target Encoding)</h4>
+                            <div class="text-preview" id="converted-preview">Dönüştürülmüş text burada görünecek...</div>
+                            <div class="encoding-info">
+                                <span class="info-label">Encoding:</span> 
+                                <span id="converted-encoding-info">UTF-8</span>
+                                <span class="byte-count" id="converted-bytes">0 bytes</span>
+                            </div>
+                        </div>
+                        
+                        <div class="display-panel corrupted">
+                            <h4>💥 Corrupted View (Encoding Mismatch)</h4>
+                            <div class="text-preview corrupted-text" id="corrupted-preview">Encoding hatası simülasyonu burada görünecek...</div>
+                            <div class="encoding-info error">
+                                <span class="info-label">Problem:</span> 
+                                <span id="corruption-type">Source/Target encoding mismatch</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="protocol-examples">
+                        <h4>🌐 Protocol-Specific Encoding Issues</h4>
+                        <div class="protocol-tabs">
+                            <button class="tab-btn active" data-protocol="http">HTTP</button>
+                            <button class="tab-btn" data-protocol="email">Email</button>
+                            <button class="tab-btn" data-protocol="ftp">FTP</button>
+                            <button class="tab-btn" data-protocol="database">Database</button>
+                        </div>
+                        
+                        <div class="protocol-content">
+                            <div id="http-content" class="protocol-panel active">
+                                <h5>📡 HTTP Content-Type Mismatch</h5>
+                                <div class="protocol-example">
+                                    <div class="header-example">
+                                        <strong>Server Response:</strong><br>
+                                        <code>Content-Type: text/html; charset=<span id="http-charset">UTF-8</span></code>
+                                    </div>
+                                    <div class="content-example">
+                                        <strong>Actual Content:</strong><br>
+                                        <div class="example-text" id="http-example">Türkçe içerik burada görünecek</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="email-content" class="protocol-panel">
+                                <h5>📧 Email MIME Encoding</h5>
+                                <div class="protocol-example">
+                                    <div class="header-example">
+                                        <strong>Email Headers:</strong><br>
+                                        <code>Content-Type: text/plain; charset=<span id="email-charset">UTF-8</span></code><br>
+                                        <code>Content-Transfer-Encoding: <span id="email-encoding">8bit</span></code>
+                                    </div>
+                                    <div class="content-example">
+                                        <strong>Email Body:</strong><br>
+                                        <div class="example-text" id="email-example">Email içeriği burada görünecek</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="ftp-content" class="protocol-panel">
+                                <h5>📁 FTP Transfer Mode</h5>
+                                <div class="protocol-example">
+                                    <div class="header-example">
+                                        <strong>FTP Mode:</strong><br>
+                                        <code>TYPE <span id="ftp-mode">A</span> (ASCII/Binary)</code>
+                                    </div>
+                                    <div class="content-example">
+                                        <strong>File Content:</strong><br>
+                                        <div class="example-text" id="ftp-example">Dosya içeriği burada görünecek</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="database-content" class="protocol-panel">
+                                <h5>🗄️ Database Connection Charset</h5>
+                                <div class="protocol-example">
+                                    <div class="header-example">
+                                        <strong>Connection String:</strong><br>
+                                        <code>charset=<span id="db-charset">utf8mb4</span></code>
+                                    </div>
+                                    <div class="content-example">
+                                        <strong>Stored Data:</strong><br>
+                                        <div class="example-text" id="db-example">Database verisi burada görünecek</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="hex-analyzer">
+                        <h4>🔬 Hex/Binary Analysis</h4>
+                        <div class="hex-display">
+                            <div class="hex-panel">
+                                <h5>Original Bytes (UTF-8)</h5>
+                                <div class="hex-output" id="original-hex">48 65 78 20 64 61 74 61 20 68 65 72 65...</div>
+                            </div>
+                            <div class="hex-panel">
+                                <h5>Converted Bytes</h5>
+                                <div class="hex-output" id="converted-hex">43 6F 6E 76 65 72 74 65 64 20 64 61 74 61...</div>
+                            </div>
+                        </div>
+                        
+                        <div class="detection-results">
+                            <h5>🎯 Encoding Detection Results</h5>
+                            <div class="detection-list" id="detection-results">
+                                <div class="detection-item">
+                                    <span class="confidence">95%</span>
+                                    <span class="encoding-name">UTF-8</span>
+                                    <span class="detection-reason">BOM detected, valid UTF-8 sequences</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4>Packet Tracer Simülasyon Dosyaları:</h4>
+                <ul>
+                    <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/encoding_problem.pkt" download>encoding_problem.pkt</a> - Character encoding problemi</li>
+                    <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/encoding_solution.pkt" download>encoding_solution.pkt</a> - Encoding düzeltilmiş</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>🔍 Character Encoding Problemlerinin Ana Sebepleri</h2>
+                
+                <h3>1. Encoding Standard Uyuşmazlığı</h3>
+                <ul>
+                    <li><strong>ASCII vs UTF-8:</strong> Eski sistemlerde ASCII, yeni sistemlerde UTF-8 kullanımı</li>
+                    <li><strong>Latin1 vs UTF-8:</strong> Avrupa karakterleri için farklı encoding'ler</li>
+                    <li><strong>Windows-1252 vs ISO-8859-1:</strong> Microsoft ve standard encoding farkları</li>
+                    <li><strong>Regional Encoding:</strong> Farklı ülke/dil specific encoding'leri</li>
+                </ul>
+                
+                <h3>2. Protocol Level Encoding Issues</h3>
+                <ul>
+                    <li><strong>HTTP Header Mismatch:</strong> Content-Type header'da yanlış charset</li>
+                    <li><strong>FTP Binary vs ASCII:</strong> FTP transfer mode yanlış seçimi</li>
+                    <li><strong>Email MIME Encoding:</strong> Email attachment'larda encoding sorunları</li>
+                    <li><strong>Database Connection Charset:</strong> DB bağlantısında charset mismatch</li>
+                </ul>
+                
+                <h3>3. System Level Configuration</h3>
+                <ul>
+                    <li><strong>Terminal Encoding:</strong> SSH/Telnet session'da locale ayarları</li>
+                    <li><strong>File System Encoding:</strong> Dosya sistemi ile application encoding farklılığı</li>
+                    <li><strong>Network Device Charset:</strong> Router/Switch console encoding'i</li>
+                    <li><strong>Proxy/Gateway Conversion:</strong> Ara cihazlarda charset dönüşümü</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>🔧 Tespit Yöntemleri ve Analiz</h2>
+                
+                <div class="info-box">
+                    <strong>💡 Not:</strong> Character encoding problemlerini tespit etmek için hex editor, protocol analyzer ve charset detection araçları kullanılabilir.
+                </div>
+                
+                <h3>Network Protocol Analizi</h3>
+                <div class="code-block">
+<span class="comment"># HTTP header'da charset kontrolü</span>
+<span class="command">curl -I http://example.com/page.html</span>
+<span class="output">Content-Type: text/html; charset=UTF-8</span>
+
+<span class="comment"># FTP transfer mode kontrolü</span>
+<span class="command">ftp> type</span>
+<span class="output">Using ascii mode to transfer files.</span>
+
+<span class="comment"># Email header charset kontrolü</span>
+<span class="command">Content-Type: text/plain; charset=iso-8859-1</span>
+<span class="output">Content-Transfer-Encoding: quoted-printable</span>
+                </div>
+                
+                <h3>System Level Charset Detection</h3>
+                <div class="code-block">
+<span class="comment"># Linux sistem locale kontrolü</span>
+<span class="command">locale</span>
+<span class="output">LANG=en_US.UTF-8
+LC_CTYPE="en_US.UTF-8"
+LC_ALL=</span>
+
+<span class="comment"># File encoding detection</span>
+<span class="command">file -i document.txt</span>
+<span class="output">document.txt: text/plain; charset=utf-8</span>
+
+<span class="comment"># SSH session encoding</span>
+<span class="command">echo $LANG</span>
+<span class="output">tr_TR.UTF-8</span>
+                </div>
+                
+                <h3>Database Charset Analysis</h3>
+                <div class="code-block">
+<span class="comment"># MySQL charset kontrolü</span>
+<span class="command">SHOW VARIABLES LIKE 'character_set%';</span>
+<span class="output">character_set_client    | utf8mb4
+character_set_connection | utf8mb4
+character_set_database  | utf8mb4</span>
+
+<span class="comment"># PostgreSQL encoding kontrolü</span>
+<span class="command">SHOW client_encoding;</span>
+<span class="output">UTF8</span>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>⚠️ Character Encoding Problem Belirtileri</h2>
+                
+                <h3>Görsel Belirtiler:</h3>
+                        <ul>
+                    <li><strong>Garbled Text:</strong> "ÄÅ‚Ã¡Ã¤Ã¶Ã¼" gibi anlaşılmaz karakterler</li>
+                    <li><strong>Question Marks:</strong> "???" şeklinde soru işaretleri</li>
+                    <li><strong>Black Diamonds:</strong> ♦ şeklinde replacement karakterler</li>
+                    <li><strong>Empty Boxes:</strong> □ şeklinde boş kutular</li>
+                        </ul>
+                
+                <h3>Protocol Specific Issues:</h3>
+                <ul>
+                    <li><strong>Web Pages:</strong> Türkçe karakterler bozuk görünür</li>
+                    <li><strong>Email:</strong> Subject ve body'de encoding sorunları</li>
+                    <li><strong>FTP:</strong> Dosya isimleri bozuk transfer olur</li>
+                    <li><strong>Database:</strong> Kayıtlı veriler okunamaz hale gelir</li>
+                </ul>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Kritik Riskler:</strong>
+                    <ul>
+                        <li>Critical data'nın okunamaz hale gelmesi</li>
+                        <li>International kullanıcılar için erişilebilirlik sorunları</li>
+                        <li>Data migration'da veri kaybı</li>
+                        <li>Legal document'larda character corruption</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🌐 Yaygın Encoding Problemleri ve Örnekleri</h2>
+                
+                <div class="info-box">
+                    <h4>🔤 Tipik Encoding Sorunları:</h4>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <tr style="background: #f5f5f5; font-weight: bold;">
+                            <td style="padding: 8px; border: 1px solid #ddd;">Doğru Text</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Yanlış Encoding</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Sebep</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Türkçe çıktı</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">TÃ¼rkÃ§e Ã§Ä±ktÄ±</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">UTF-8 → Latin1 yorumlaması</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">résumé</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">rÃ©sumÃ©</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">UTF-8 → Windows-1252</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">café</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">cafÃ©</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Double encoding</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Simülasyonu</h2>
+                <div class="packet-tracer-box">
+                    <p>Character encoding problemlerinin farklı protocol'lerde nasıl ortaya çıktığını ve çözüm yöntemlerini görmek için Packet Tracer simülasyonunu inceleyebilirsiniz. Lab, FTP, HTTP ve Email protokollerinde encoding issues'ları kapsar.</p>
+                    
+                    <h4>📁 Lab Dosyaları:</h4>
+                    <ul>
+                        <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/encoding_problem.pkt" class="file-link">encoding_problem.pkt</a></li>
+                        <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/encoding_solution.pkt" class="file-link">encoding_solution.pkt</a></li>
+                    </ul>
+                    
+                    <h4>Lab Senaryoları:</h4>
+                    <ul>
+                        <li>HTTP Content-Type charset mismatch</li>
+                        <li>FTP ASCII vs Binary transfer mode</li>
+                        <li>Email MIME encoding problemleri</li>
+                        <li>Terminal/SSH session locale ayarları</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>💼 Gerçek Dünya Character Encoding Senaryoları</h2>
+                
+                <div class="info-box">
+                    <h4>🏢 Vaka: International E-commerce Platform</h4>
+                    <p><strong>Durum:</strong> Çok uluslu e-ticaret sitesinde ürün adları bozuk görünüyor</p>
+                    <p><strong>Problem:</strong> Database UTF-8 ama web server Latin1 kullanıyor</p>
+                    <p><strong>Etki:</strong> Avrupa ve Türkiye pazarında satışlar durdu</p>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>🚨 Vaka: Banking System Integration</h4>
+                    <p><strong>Durum:</strong> Banka sistemleri arası veri transferinde customer isimleri bozuluyor</p>
+                    <p><strong>Problem:</strong> Legacy system EBCDIC, yeni system UTF-8 kullanıyor</p>
+                    <p><strong>Sonuç:</strong> KYC (Know Your Customer) compliance problemleri</p>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🛠️ Encoding Detection ve Conversion Araçları</h2>
+                
+                <h3>Command Line Tools:</h3>
+                <div class="code-block">
+<span class="comment"># File encoding detection</span>
+<span class="command">chardet document.txt</span>
+<span class="output">document.txt: windows-1252 with confidence 0.73</span>
+
+<span class="comment"># Character set conversion</span>
+<span class="command">iconv -f windows-1252 -t utf-8 input.txt > output.txt</span>
+
+<span class="comment"># Hex dump for character analysis</span>
+<span class="command">hexdump -C file.txt | head -5</span>
+<span class="output">00000000  c3 84 c3 b6 c3 bc 0a</span>
+                </div>
+                
+                <h3>Network Analysis Tools:</h3>
+                <ul>
+                    <li><strong>Wireshark:</strong> Protocol packet'larında charset analysis</li>
+                    <li><strong>curl:</strong> HTTP header charset verification</li>
+                    <li><strong>telnet/netcat:</strong> Raw protocol text inspection</li>
+                    <li><strong>Browser DevTools:</strong> Web page encoding debugging</li>
+                </ul>
+            </section>
+        </main>
+
+        <nav class="navigation">
+            <a href="../../index.html" class="nav-button">← Ana Sayfa</a>
+            <a href="../problem_08/description.html" class="nav-button">← Problem 8</a>
+            <a href="solution.html" class="nav-button">Çözüm Detayları →</a>
+            <a href="../problem_10/description.html" class="nav-button">Problem 10 →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN and Interactive Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <style>
+        /* Character Encoding Simulator Styles */
+        .encoding-simulator-container {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #581c87 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 25px 0;
+            border: 1px solid #4338ca;
+            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .encoding-simulator-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            pointer-events: none;
+        }
+
+        .encoding-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .input-section {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #475569;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-section h4 {
+            color: #60a5fa;
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #input-text {
+            width: 100%;
+            height: 120px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #input-text:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+        .quick-samples {
+            margin-top: 15px;
+        }
+
+        .quick-samples h5 {
+            color: #cbd5e1;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .sample-btn {
+            background: linear-gradient(135deg, #475569, #64748b);
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            color: white;
+            font-size: 10px;
+            cursor: pointer;
+            margin: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .sample-btn:hover {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            transform: translateY(-1px);
+        }
+
+        .encoding-settings {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #475569;
+            backdrop-filter: blur(10px);
+        }
+
+        .encoding-settings h4 {
+            color: #fbbf24;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .setting-row {
+            margin-bottom: 15px;
+        }
+
+        .setting-row label {
+            display: block;
+            color: #cbd5e1;
+            font-size: 12px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .setting-row select {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 8px;
+            color: #e2e8f0;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .corruption-controls {
+            margin-top: 20px;
+        }
+
+        .corruption-controls h5 {
+            color: #f472b6;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            margin: 3px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .action-btn.corrupt {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+        }
+
+        .action-btn.detect {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+
+        .action-btn.convert {
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            color: white;
+        }
+
+        .action-btn.clear {
+            background: linear-gradient(135deg, #64748b, #94a3b8);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            transition: transform 0.15s ease;
+        }
+
+        .output-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .display-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid #334155;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .display-panel.original {
+            border-left: 4px solid #10b981;
+        }
+
+        .display-panel.converted {
+            border-left: 4px solid #60a5fa;
+        }
+
+        .display-panel.corrupted {
+            border-left: 4px solid #ef4444;
+        }
+
+        .display-panel h4 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #e2e8f0;
+        }
+
+        .text-preview {
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 6px;
+            padding: 12px;
+            min-height: 80px;
+            max-height: 120px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #cbd5e1;
+            border: 1px solid #475569;
+        }
+
+        .text-preview.corrupted-text {
+            color: #fca5a5;
+            background: rgba(127, 29, 29, 0.2);
+        }
+
+        .encoding-info {
+            margin-top: 10px;
+            font-size: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-label {
+            color: #94a3b8;
+        }
+
+        .byte-count {
+            background: rgba(96, 165, 250, 0.2);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #60a5fa;
+        }
+
+        .encoding-info.error .info-label {
+            color: #fca5a5;
+        }
+
+        .protocol-examples {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #334155;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .protocol-examples h4 {
+            color: #34d399;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .protocol-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tab-btn {
+            background: rgba(75, 85, 99, 0.6);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: #d1d5db;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+
+        .protocol-panel {
+            display: none;
+        }
+
+        .protocol-panel.active {
+            display: block;
+        }
+
+        .protocol-panel h5 {
+            color: #06b6d4;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .protocol-example {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .header-example {
+            margin-bottom: 10px;
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .header-example code {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 2px 4px;
+            border-radius: 3px;
+            color: #fbbf24;
+        }
+
+        .content-example {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .example-text {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-family: 'Courier New', monospace;
+            color: #e2e8f0;
+        }
+
+        .hex-analyzer {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .hex-analyzer h4 {
+            color: #a78bfa;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .hex-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .hex-panel h5 {
+            color: #c084fc;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .hex-output {
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            border: 1px solid #475569;
+            min-height: 60px;
+            overflow-x: auto;
+        }
+
+        .detection-results h5 {
+            color: #34d399;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .detection-list {
+            space-y: 5px;
+        }
+
+        .detection-item {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 6px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .confidence {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        .encoding-name {
+            color: #60a5fa;
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .detection-reason {
+            color: #94a3b8;
+            flex: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .encoding-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .output-display {
+                grid-template-columns: 1fr;
+            }
+            
+            .hex-display {
+                grid-template-columns: 1fr;
+            }
+            
+            .protocol-tabs {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Optimized Animation Effects */
+        .encoding-simulator-container {
+            /* Removed heavy shimmer animation for better performance */
+            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.3);
+        }
+
+        .text-preview {
+            /* Reduced transition time for faster response */
+            transition: border-color 0.2s ease;
+        }
+
+        .text-preview:focus-within {
+            border-color: #60a5fa;
+        }
+
+        /* Performance optimized hover effects */
+        .sample-btn:hover {
+            transform: translateY(-1px);
+            transition: transform 0.15s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            transition: transform 0.15s ease;
+        }
+    </style>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                setTimeout(() => { cursor.style.opacity = '1'; cursorOutline.style.opacity = '1'; }, 500);
+                document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px'; });
+                function animateOutline() { outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1; cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px'; requestAnimationFrame(animateOutline); }
+                animateOutline();
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .sample-btn, .action-btn, .tab-btn').forEach(el => {
+                    el.addEventListener('mouseenter', () => { cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover'); });
+                    el.addEventListener('mouseleave', () => { cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover'); });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            document.querySelectorAll('.section').forEach(section => gsap.fromTo(section, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", scrollTrigger: { trigger: section, start: "top 85%", once: true } }));
+
+            // Character Encoding Simulator - Performance Optimized
+            const inputText = document.getElementById('input-text');
+            const sourceEncoding = document.getElementById('source-encoding');
+            const targetEncoding = document.getElementById('target-encoding');
+            const originalPreview = document.getElementById('original-preview');
+            const convertedPreview = document.getElementById('converted-preview');
+            const corruptedPreview = document.getElementById('corrupted-preview');
+            const originalEncodingInfo = document.getElementById('original-encoding-info');
+            const convertedEncodingInfo = document.getElementById('converted-encoding-info');
+            const originalBytes = document.getElementById('original-bytes');
+            const convertedBytes = document.getElementById('converted-bytes');
+            const corruptionType = document.getElementById('corruption-type');
+            const originalHex = document.getElementById('original-hex');
+            const convertedHex = document.getElementById('converted-hex');
+            const detectionResults = document.getElementById('detection-results');
+
+            // Protocol examples
+            const httpExample = document.getElementById('http-example');
+            const emailExample = document.getElementById('email-example');
+            const ftpExample = document.getElementById('ftp-example');
+            const dbExample = document.getElementById('db-example');
+            const httpCharset = document.getElementById('http-charset');
+            const emailCharset = document.getElementById('email-charset');
+            const dbCharset = document.getElementById('db-charset');
+
+            // Performance optimization - Debounce timer
+            let updateTimer = null;
+            const DEBOUNCE_DELAY = 150; // 150ms delay for smooth performance
+
+            // Pre-compiled regex patterns for better performance
+            const turkishCharsRegex = /[çğıöşüÇĞIÖŞÜ]/g;
+            const unicodeCharsRegex = /[^\x00-\x7F]/g;
+            const frenchCharsRegex = /[àáâäèéêëçñ]/g;
+
+            // Optimized encoding mapping - cached for performance
+            const encodingMappings = {
+                'utf-8': new Map([
+                    ['ç', 'ç'], ['ğ', 'ğ'], ['ı', 'ı'], ['ö', 'ö'], ['ş', 'ş'], ['ü', 'ü'],
+                    ['é', 'é'], ['ñ', 'ñ'], ['€', '€'], ['£', '£']
+                ]),
+                'iso-8859-1': new Map([
+                    ['ç', 'Ã§'], ['ğ', 'Ä\u009F'], ['ı', 'Ä±'], ['ö', 'Ã¶'], ['ş', 'ÅŸ'], ['ü', 'Ã¼'],
+                    ['é', 'é'], ['ñ', 'ñ'], ['€', '?'], ['£', '£']
+                ]),
+                'windows-1252': new Map([
+                    ['ç', 'Ã§'], ['ğ', 'Ä\u009F'], ['ı', 'Ä±'], ['ö', 'Ã¶'], ['ş', 'ÅŸ'], ['ü', 'Ã¼'],
+                    ['é', 'é'], ['ñ', 'ñ'], ['€', '€'], ['£', '£']
+                ]),
+                'ascii': new Map([
+                    ['ç', '?'], ['ğ', '?'], ['ı', '?'], ['ö', '?'], ['ş', '?'], ['ü', '?'],
+                    ['é', '?'], ['ñ', '?'], ['€', '?'], ['£', '?']
+                ])
+            };
+
+            // Debounced update function for smooth performance
+            function debouncedUpdateDisplay() {
+                clearTimeout(updateTimer);
+                updateTimer = setTimeout(updateDisplay, DEBOUNCE_DELAY);
+            }
+
+            // Optimized update display function
+            function updateDisplay() {
+                const text = inputText.value;
+                const sourceEnc = sourceEncoding.value;
+                const targetEnc = targetEncoding.value;
+                
+                // Early return for empty text - minimal DOM updates
+                if (!text) {
+                    originalPreview.textContent = 'Metin girildikten sonra burada görünecek...';
+                    convertedPreview.textContent = 'Dönüştürülmüş text burada görünecek...';
+                    corruptedPreview.textContent = 'Encoding hatası simülasyonu burada görünecek...';
+                    return;
+                }
+
+                // Batch DOM updates for better performance
+                requestAnimationFrame(() => {
+                    // Original text display
+                    originalPreview.textContent = text;
+                    originalEncodingInfo.textContent = sourceEnc.toUpperCase();
+                    originalBytes.textContent = text.length + ' chars';
+
+                    // Optimized encoding conversion
+                    let convertedText = text;
+                    if (sourceEnc !== targetEnc) {
+                        convertedText = optimizedSimulateEncoding(text, targetEnc);
+                    }
+                    
+                    convertedPreview.textContent = convertedText;
+                    convertedEncodingInfo.textContent = targetEnc.toUpperCase();
+                    convertedBytes.textContent = convertedText.length + ' chars';
+
+                    // Fast corruption simulation
+                    const corruptedText = fastSimulateCorruption(text, sourceEnc, targetEnc);
+                    corruptedPreview.textContent = corruptedText;
+                    corruptionType.textContent = `${sourceEnc.toUpperCase()} → ${targetEnc.toUpperCase()}`;
+
+                    // Conditional hex display (only for shorter texts)
+                    if (text.length < 100) {
+                        originalHex.textContent = fastTextToHex(text);
+                        convertedHex.textContent = fastTextToHex(convertedText);
+                    } else {
+                        originalHex.textContent = 'Text too long for hex display...';
+                        convertedHex.textContent = 'Text too long for hex display...';
+                    }
+
+                    // Optimized protocol examples
+                    updateProtocolExamples(text, sourceEnc, targetEnc);
+                });
+            }
+
+            // Optimized encoding simulation using Map for faster lookups
+            function optimizedSimulateEncoding(text, encoding) {
+                const mapping = encodingMappings[encoding] || encodingMappings['utf-8'];
+                return text.replace(/./g, char => mapping.get(char) || char);
+            }
+
+            // Fast corruption simulation with pre-compiled regex
+            function fastSimulateCorruption(text, sourceEnc, targetEnc) {
+                if (sourceEnc === targetEnc) return text;
+                
+                // Fast corruption patterns
+                if (sourceEnc === 'utf-8' && targetEnc === 'iso-8859-1') {
+                    return text.replace(turkishCharsRegex, (match) => {
+                        const map = { 'ç': 'Ã§', 'ğ': 'Ä\u009F', 'ı': 'Ä±', 'ö': 'Ã¶', 'ş': 'ÅŸ', 'ü': 'Ã¼' };
+                        return map[match] || match;
+                    });
+                }
+                
+                if (targetEnc === 'ascii') {
+                    return text.replace(unicodeCharsRegex, '?');
+                }
+                
+                return optimizedSimulateEncoding(text, targetEnc);
+            }
+
+            // Fast hex conversion with length limit
+            function fastTextToHex(text) {
+                if (text.length > 50) return 'Text too long...';
+                
+                const encoder = new TextEncoder();
+                const bytes = encoder.encode(text.substring(0, 20));
+                return Array.from(bytes, byte => 
+                    byte.toString(16).padStart(2, '0').toUpperCase()
+                ).join(' ') + (text.length > 20 ? '...' : '');
+            }
+
+            // Optimized protocol examples - less DOM manipulation
+            function updateProtocolExamples(text, sourceEnc, targetEnc) {
+                const shortText = text.length > 30 ? text.substring(0, 30) + '...' : text;
+                
+                // Batch updates
+                httpExample.textContent = shortText;
+                httpCharset.textContent = targetEnc.toUpperCase();
+                
+                emailExample.textContent = shortText;
+                emailCharset.textContent = targetEnc.toUpperCase();
+                
+                ftpExample.textContent = shortText;
+                
+                dbExample.textContent = shortText;
+                dbCharset.textContent = targetEnc === 'utf-8' ? 'utf8mb4' : targetEnc;
+            }
+
+            // Fast encoding detection with pre-compiled regex
+            function fastDetectEncoding(text) {
+                const hasUnicode = unicodeCharsRegex.test(text);
+                const hasTurkish = turkishCharsRegex.test(text);
+                const hasEuro = text.includes('€');
+                
+                if (!hasUnicode) {
+                    return [{ encoding: 'ASCII', confidence: 95, reason: '7-bit karakterler tespit edildi' }];
+                }
+                
+                const results = [];
+                if (hasTurkish) {
+                    results.push({ encoding: 'UTF-8', confidence: 90, reason: 'Türkçe karakterler tespit edildi' });
+                    results.push({ encoding: 'ISO-8859-9', confidence: 75, reason: 'Türkçe encoding mümkün' });
+                } else {
+                    results.push({ encoding: 'UTF-8', confidence: 85, reason: 'Unicode karakterler tespit edildi' });
+                    results.push({ encoding: 'ISO-8859-1', confidence: 70, reason: 'Latin karakterler mevcut' });
+                }
+                
+                if (hasEuro) {
+                    results.unshift({ encoding: 'UTF-8', confidence: 95, reason: 'Euro simgesi UTF-8 gerektirir' });
+                }
+                
+                return results;
+            }
+
+            // Optimized Event listeners - Debounced for performance
+            inputText.addEventListener('input', debouncedUpdateDisplay); // Use debounced version
+            sourceEncoding.addEventListener('change', updateDisplay); // Immediate for dropdowns
+            targetEncoding.addEventListener('change', updateDisplay); // Immediate for dropdowns
+
+            // Optimized sample button handlers
+            document.querySelectorAll('.sample-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    inputText.value = btn.getAttribute('data-text');
+                    updateDisplay(); // Immediate update for button clicks
+                    // Removed heavy GSAP animation to improve performance
+                    btn.style.transform = 'scale(0.95)';
+                    setTimeout(() => { btn.style.transform = ''; }, 150);
+                });
+            });
+
+            // Action button handlers
+            document.getElementById('simulate-corruption').addEventListener('click', () => {
+                if (!inputText.value) {
+                    inputText.value = 'Türkçe: çıktı, ğüzel, öğretici, şahane! Email: test@şirket.com.tr';
+                }
+                sourceEncoding.value = 'utf-8';
+                targetEncoding.value = 'iso-8859-1';
+                updateDisplay();
+                gsap.to('.display-panel.corrupted', { scale: 1.05, duration: 0.3, yoyo: true, repeat: 1 });
+            });
+
+            document.getElementById('detect-encoding').addEventListener('click', () => {
+                const text = inputText.value || 'Türkçe test metni: çıktı, ğüzel, öğretici!';
+                const results = fastDetectEncoding(text);
+                
+                // Fast DOM update without heavy animations
+                detectionResults.innerHTML = results.map(result => `
+                    <div class="detection-item">
+                        <span class="confidence">${result.confidence}%</span>
+                        <span class="encoding-name">${result.encoding}</span>
+                        <span class="detection-reason">${result.reason}</span>
+                    </div>
+                `).join('');
+                
+                // Lightweight animation alternative
+                detectionResults.style.opacity = '0';
+                setTimeout(() => { detectionResults.style.opacity = '1'; }, 50);
+            });
+
+            document.getElementById('convert-encoding').addEventListener('click', () => {
+                updateDisplay();
+                gsap.to('.display-panel.converted', { scale: 1.05, duration: 0.3, yoyo: true, repeat: 1 });
+            });
+
+            document.getElementById('clear-all').addEventListener('click', () => {
+                inputText.value = '';
+                sourceEncoding.value = 'utf-8';
+                targetEncoding.value = 'utf-8';
+                updateDisplay();
+                detectionResults.innerHTML = '<div class="detection-item"><span class="confidence">-</span><span class="encoding-name">-</span><span class="detection-reason">Input text to detect encoding</span></div>';
+            });
+
+            // Protocol tab handlers
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all tabs and panels
+                    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.protocol-panel').forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding panel
+                    btn.classList.add('active');
+                    const protocol = btn.getAttribute('data-protocol');
+                    document.getElementById(`${protocol}-content`).classList.add('active');
+                    
+                    updateDisplay();
+                });
+            });
+
+            // Initialize with default text
+            inputText.value = `Türkçe karakterler test: çıktı, ğüzel, öğretici, şahane!
+Email: admin@şirket.com.tr
+Avrupa: résumé, café, naïve, fiancée
+Para: €1,234.56, £789.00`;
+            updateDisplay();
+
+            console.log('🔧 Problem 9: Character Encoding Simulator - Fully loaded! 🎮');
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem 10: HTTP/HTTPS Web Server Protocol Problemleri - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-l7" style="background: linear-gradient(135deg, #8e44ad, #9b59b6);">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="description.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="description-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+            <h1>🔵 Problem 10: HTTP/HTTPS Web Server Protocol Problemleri</h1>
+            <p>L7 - Application Layer (Uygulama Katmanı) - Admin Rehber Tutorial</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Ana Sayfa</a> / L7 Application Layer / Problem 10
+        </nav>
+
+        <main class="content">
+            <section class="section">
+                <h2>📋 Problem Tanımı</h2>
+                <p>HTTP (HyperText Transfer Protocol) ve HTTPS (HTTP Secure), web'in temelini oluşturan Application Layer (L7) protokolleridir. Bu protokoller, web browser'lar ile web server'lar arasında HTML dökümanları, resimler, video ve diğer web içeriklerinin güvenli ve verimli bir şekilde transfer edilmesini sağlar.</p>
+                
+                <div class="danger-box">
+                    <strong>⚠️ Kritik Durum:</strong> HTTP/HTTPS protocol problemleri web site erişilemezliğine ve business continuity sorunlarına neden olur.
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>🖼️ HTTP/HTTPS Protocol Problem Örnekleri</h2>
+                <p>Aşağıda web server protocol problemlerinin tipik belirtileri gösterilmektedir:</p>
+                
+                <div class="image-container">
+                    <img src="../../images/screenshots/http_error_display.png" alt="HTTP Error Codes" class="screenshot" style="background: #f8f9fa; border: 2px dashed #666; padding: 20px; text-align: center; color: #666;">
+                    <figcaption>Resim 1: HTTP status code errors (404, 500, 503, timeout)</figcaption>
+                </div>
+                
+                <p>Web server düzeltildikten sonra normal HTTP response'ların döndüğü durum:</p>
+                
+                <div class="image-container">
+                    <img src="../../images/screenshots/http_success_display.png" alt="HTTP Success Response" class="screenshot" style="background: #f8f9fa; border: 2px dashed #666; padding: 20px; text-align: center; color: #666;">
+                    <figcaption>Resim 2: Başarılı HTTP 200 OK responses ve normal web site loading</figcaption>
+                </div>
+
+                <h3>🎮 Ultimate HTTP/HTTPS Web Server Testing Laboratory</h3>
+                <p><strong>🔥 FINAL SIMULATOR:</strong> Comprehensive web server testing laboratory! Real-time HTTP request testing, SSL analysis, performance monitoring, and complete web server diagnostic tools!</p>
+                
+                <div class="web-lab-container">
+                    <div class="lab-header">
+                        <div class="lab-title">
+                            <h4>🌐 Web Server Testing Laboratory</h4>
+                            <div class="lab-status">
+                                <span class="status-indicator" id="lab-status">●</span>
+                                <span id="lab-status-text">Laboratory Ready</span>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-controls">
+                            <button id="start-lab" class="lab-btn primary">🚀 Start Testing</button>
+                            <button id="reset-lab" class="lab-btn secondary">🔄 Reset Lab</button>
+                            <button id="export-results" class="lab-btn tertiary">📊 Export Results</button>
+                        </div>
+                    </div>
+                    
+                    <div class="lab-workspace">
+                        <div class="lab-sidebar">
+                            <div class="tool-section">
+                                <h5>🔧 Testing Tools</h5>
+                                <div class="tool-tabs">
+                                    <button class="tool-tab active" data-tool="http-tester">📡 HTTP Tester</button>
+                                    <button class="tool-tab" data-tool="ssl-analyzer">🔒 SSL Analyzer</button>
+                                    <button class="tool-tab" data-tool="performance">⚡ Performance</button>
+                                    <button class="tool-tab" data-tool="diagnostics">🔍 Diagnostics</button>
+                                    <button class="tool-tab" data-tool="monitoring">📊 Monitoring</button>
+                                </div>
+                            </div>
+                            
+                            <div class="server-config">
+                                <h5>⚙️ Test Server Configuration</h5>
+                                <div class="config-item">
+                                    <label>Target URL:</label>
+                                    <input type="text" id="target-url" value="https://example.com" placeholder="Enter website URL">
+                                </div>
+                                <div class="config-item">
+                                    <label>Request Method:</label>
+                                    <select id="request-method">
+                                        <option value="GET">GET</option>
+                                        <option value="POST">POST</option>
+                                        <option value="PUT">PUT</option>
+                                        <option value="DELETE">DELETE</option>
+                                        <option value="HEAD">HEAD</option>
+                                        <option value="OPTIONS">OPTIONS</option>
+                                    </select>
+                                </div>
+                                <div class="config-item">
+                                    <label>Timeout (seconds):</label>
+                                    <input type="range" id="timeout-slider" min="1" max="30" value="10">
+                                    <span id="timeout-value">10s</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-main">
+                            <!-- HTTP Request Tester -->
+                            <div id="http-tester-panel" class="tool-panel active">
+                                <div class="panel-header">
+                                    <h4>📡 HTTP Request Builder & Tester</h4>
+                                    <button id="send-request" class="action-btn send">📤 Send Request</button>
+                                </div>
+                                
+                                <div class="request-builder">
+                                    <div class="request-headers">
+                                        <h6>📋 Request Headers</h6>
+                                        <div class="header-editor">
+                                            <textarea id="request-headers-text" placeholder="User-Agent: Mozilla/5.0
+Accept: text/html,application/xhtml+xml
+Content-Type: application/json
+Authorization: Bearer token123">User-Agent: WebLab HTTP Tester 1.0
+Accept: text/html,application/xhtml+xml,*/*
+Cache-Control: no-cache
+Connection: keep-alive</textarea>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="request-body">
+                                        <h6>📝 Request Body (POST/PUT)</h6>
+                                        <textarea id="request-body-text" placeholder='{"key": "value", "test": "data"}'></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="response-display">
+                                    <div class="response-header">
+                                        <h6>📥 HTTP Response</h6>
+                                        <div class="response-status">
+                                            <span class="status-code" id="response-status">200</span>
+                                            <span class="status-text" id="response-status-text">OK</span>
+                                            <span class="response-time" id="response-time">245ms</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="response-tabs">
+                                        <button class="response-tab active" data-tab="headers">Headers</button>
+                                        <button class="response-tab" data-tab="body">Body</button>
+                                        <button class="response-tab" data-tab="cookies">Cookies</button>
+                                        <button class="response-tab" data-tab="timing">Timing</button>
+                                    </div>
+                                    
+                                    <div class="response-content">
+                                        <div id="response-headers" class="response-panel active">
+                                            <pre id="response-headers-text">Waiting for request...</pre>
+                                        </div>
+                                        <div id="response-body" class="response-panel">
+                                            <pre id="response-body-text">Send a request to see response body...</pre>
+                                        </div>
+                                        <div id="response-cookies" class="response-panel">
+                                            <pre id="response-cookies-text">No cookies found...</pre>
+                                        </div>
+                                        <div id="response-timing" class="response-panel">
+                                            <div class="timing-chart" id="timing-chart">
+                                                <div class="timing-bar dns" data-label="DNS Lookup">
+                                                    <div class="bar-fill" style="width: 15%"></div>
+                                                    <span class="timing-value">45ms</span>
+                                                </div>
+                                                <div class="timing-bar connect" data-label="TCP Connect">
+                                                    <div class="bar-fill" style="width: 25%"></div>
+                                                    <span class="timing-value">78ms</span>
+                                                </div>
+                                                <div class="timing-bar ssl" data-label="SSL Handshake">
+                                                    <div class="bar-fill" style="width: 35%"></div>
+                                                    <span class="timing-value">112ms</span>
+                                                </div>
+                                                <div class="timing-bar request" data-label="Request Sent">
+                                                    <div class="bar-fill" style="width: 10%"></div>
+                                                    <span class="timing-value">10ms</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SSL/HTTPS Analyzer -->
+                            <div id="ssl-analyzer-panel" class="tool-panel">
+                                <div class="panel-header">
+                                    <h4>🔒 SSL/TLS Security Analyzer</h4>
+                                    <button id="analyze-ssl" class="action-btn analyze">🔍 Analyze SSL</button>
+                                </div>
+                                
+                                <div class="ssl-test-results">
+                                    <div class="ssl-overview">
+                                        <div class="ssl-grade">
+                                            <div class="grade-circle" id="ssl-grade">A+</div>
+                                            <div class="grade-info">
+                                                <span class="grade-label">SSL Rating</span>
+                                                <span class="grade-desc" id="ssl-description">Excellent Security</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="ssl-details">
+                                            <div class="ssl-item">
+                                                <span class="ssl-label">Protocol:</span>
+                                                <span class="ssl-value" id="ssl-protocol">TLS 1.3</span>
+                                            </div>
+                                            <div class="ssl-item">
+                                                <span class="ssl-label">Cipher Suite:</span>
+                                                <span class="ssl-value" id="ssl-cipher">TLS_AES_256_GCM_SHA384</span>
+                                            </div>
+                                            <div class="ssl-item">
+                                                <span class="ssl-label">Key Exchange:</span>
+                                                <span class="ssl-value" id="ssl-key-exchange">X25519</span>
+                                            </div>
+                                            <div class="ssl-item">
+                                                <span class="ssl-label">Certificate:</span>
+                                                <span class="ssl-value" id="ssl-cert">RSA 2048-bit</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="ssl-handshake-viz">
+                                        <h6>🤝 TLS Handshake Visualization</h6>
+                                        <div class="handshake-steps">
+                                            <div class="handshake-step" id="step1">
+                                                <div class="step-number">1</div>
+                                                <div class="step-content">
+                                                    <div class="step-title">Client Hello</div>
+                                                    <div class="step-desc">Supported TLS versions & cipher suites</div>
+                                                </div>
+                                                <div class="step-arrow">→</div>
+                                            </div>
+                                            <div class="handshake-step" id="step2">
+                                                <div class="step-number">2</div>
+                                                <div class="step-content">
+                                                    <div class="step-title">Server Hello</div>
+                                                    <div class="step-desc">Selected TLS version & cipher suite</div>
+                                                </div>
+                                                <div class="step-arrow">←</div>
+                                            </div>
+                                            <div class="handshake-step" id="step3">
+                                                <div class="step-number">3</div>
+                                                <div class="step-content">
+                                                    <div class="step-title">Certificate</div>
+                                                    <div class="step-desc">Server sends SSL certificate</div>
+                                                </div>
+                                                <div class="step-arrow">←</div>
+                                            </div>
+                                            <div class="handshake-step" id="step4">
+                                                <div class="step-number">4</div>
+                                                <div class="step-content">
+                                                    <div class="step-title">Key Exchange</div>
+                                                    <div class="step-desc">Encrypted session keys exchanged</div>
+                                                </div>
+                                                <div class="step-arrow">↔</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Performance Testing -->
+                            <div id="performance-panel" class="tool-panel">
+                                <div class="panel-header">
+                                    <h4>⚡ Website Performance Testing</h4>
+                                    <button id="run-performance" class="action-btn performance">🏃‍♂️ Run Test</button>
+                                </div>
+                                
+                                <div class="performance-config">
+                                    <div class="perf-setting">
+                                        <label>Concurrent Users:</label>
+                                        <input type="range" id="users-slider" min="1" max="100" value="10">
+                                        <span id="users-value">10</span>
+                                    </div>
+                                    <div class="perf-setting">
+                                        <label>Test Duration:</label>
+                                        <input type="range" id="duration-slider" min="10" max="300" value="60">
+                                        <span id="duration-value">60s</span>
+                                    </div>
+                                    <div class="perf-setting">
+                                        <label>Request Rate:</label>
+                                        <input type="range" id="rate-slider" min="1" max="50" value="5">
+                                        <span id="rate-value">5 req/s</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="performance-results">
+                                    <div class="perf-metrics">
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="avg-response">245ms</div>
+                                            <div class="metric-label">Avg Response Time</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="req-per-sec">23.4</div>
+                                            <div class="metric-label">Requests/sec</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="success-rate">98.2%</div>
+                                            <div class="metric-label">Success Rate</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="error-count">12</div>
+                                            <div class="metric-label">Errors</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="performance-chart">
+                                        <canvas id="perf-chart" width="600" height="300"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Network Diagnostics -->
+                            <div id="diagnostics-panel" class="tool-panel">
+                                <div class="panel-header">
+                                    <h4>🔍 Network Diagnostics & Troubleshooting</h4>
+                                    <button id="run-diagnostics" class="action-btn diagnostic">🩺 Diagnose</button>
+                                </div>
+                                
+                                <div class="diagnostic-tools">
+                                    <div class="diag-tool">
+                                        <h6>🏓 Ping Test</h6>
+                                        <div class="tool-output" id="ping-output">
+                                            <div class="ping-result">PING example.com (93.184.216.34): 56 bytes</div>
+                                            <div class="ping-result">64 bytes from 93.184.216.34: icmp_seq=1 time=23.4ms</div>
+                                            <div class="ping-result">64 bytes from 93.184.216.34: icmp_seq=2 time=24.1ms</div>
+                                            <div class="ping-result">64 bytes from 93.184.216.34: icmp_seq=3 time=22.8ms</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="diag-tool">
+                                        <h6>🛣️ Traceroute</h6>
+                                        <div class="tool-output" id="traceroute-output">
+                                            <div class="trace-hop">1  192.168.1.1 (Gateway)  1.234ms</div>
+                                            <div class="trace-hop">2  10.0.0.1 (ISP Router)  12.456ms</div>
+                                            <div class="trace-hop">3  203.0.113.1 (ISP Core)  23.789ms</div>
+                                            <div class="trace-hop">4  93.184.216.34 (Target)  45.123ms</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="diag-tool">
+                                        <h6>🔌 Port Scanner</h6>
+                                        <div class="tool-output" id="port-scan-output">
+                                            <div class="port-result open">Port 80 (HTTP): Open ✅</div>
+                                            <div class="port-result open">Port 443 (HTTPS): Open ✅</div>
+                                            <div class="port-result closed">Port 22 (SSH): Closed ❌</div>
+                                            <div class="port-result filtered">Port 21 (FTP): Filtered 🔒</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Real-time Monitoring -->
+                            <div id="monitoring-panel" class="tool-panel">
+                                <div class="panel-header">
+                                    <h4>📊 Real-time Server Monitoring</h4>
+                                    <button id="start-monitoring" class="action-btn monitor">📡 Start Monitor</button>
+                                </div>
+                                
+                                <div class="monitoring-dashboard">
+                                    <div class="monitor-widgets">
+                                        <div class="widget">
+                                            <h6>🔄 Server Status</h6>
+                                            <div class="status-indicator online" id="server-status-indicator"></div>
+                                            <div class="status-text" id="server-status-text">Online</div>
+                                            <div class="uptime">Uptime: <span id="server-uptime">99.9%</span></div>
+                                        </div>
+                                        
+                                        <div class="widget">
+                                            <h6>📈 Request Rate</h6>
+                                            <div class="gauge">
+                                                <canvas id="request-gauge" width="120" height="120"></canvas>
+                                                <div class="gauge-value" id="request-rate">156/s</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="widget">
+                                            <h6>⚡ Response Time</h6>
+                                            <div class="response-time-chart">
+                                                <canvas id="response-chart" width="200" height="100"></canvas>
+                                            </div>
+                                            <div class="rt-value">Avg: <span id="avg-rt">245ms</span></div>
+                                        </div>
+                                        
+                                        <div class="widget">
+                                            <h6>🚨 Error Rate</h6>
+                                            <div class="error-percentage" id="error-percentage">2.1%</div>
+                                            <div class="error-trend" id="error-trend">↓ Decreasing</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="live-logs">
+                                        <h6>📋 Live Server Logs</h6>
+                                        <div class="log-output" id="live-logs">
+                                            <div class="log-entry info">[2025-01-21 15:30:45] INFO: GET /index.html 200 245ms</div>
+                                            <div class="log-entry success">[2025-01-21 15:30:46] SUCCESS: POST /api/users 201 134ms</div>
+                                            <div class="log-entry warning">[2025-01-21 15:30:47] WARNING: GET /missing.css 404 12ms</div>
+                                            <div class="log-entry info">[2025-01-21 15:30:48] INFO: GET /images/logo.png 200 89ms</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lab-footer">
+                        <div class="test-summary">
+                            <h6>📋 Test Summary</h6>
+                            <div class="summary-stats">
+                                <span>Tests Run: <strong id="tests-count">0</strong></span>
+                                <span>Success: <strong id="tests-success">0</strong></span>
+                                <span>Failures: <strong id="tests-failures">0</strong></span>
+                                <span>Total Time: <strong id="total-time">0s</strong></span>
+                            </div>
+                        </div>
+                        
+                        <div class="lab-actions">
+                            <button id="save-config" class="lab-btn save">💾 Save Config</button>
+                            <button id="load-config" class="lab-btn load">📂 Load Config</button>
+                            <button id="generate-report" class="lab-btn report">📄 Generate Report</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4>Packet Tracer Simülasyon Dosyaları:</h4>
+                <ul>
+                    <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/http_problem.pkt" download>http_problem.pkt</a> - Web server protocol issues</li>
+                    <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/http_solution.pkt" download>http_solution.pkt</a> - Optimized web server</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>🔍 HTTP/HTTPS Protocol Problemlerinin Ana Sebepleri</h2>
+                
+                <h3>1. HTTP Status Code Errors</h3>
+                <ul>
+                    <li><strong>404 Not Found:</strong> İstenen resource/sayfa bulunamıyor</li>
+                    <li><strong>500 Internal Server Error:</strong> Web server internal hatası</li>
+                    <li><strong>503 Service Unavailable:</strong> Server aşırı yüklenmiş veya maintenance'da</li>
+                    <li><strong>504 Gateway Timeout:</strong> Load balancer/proxy timeout</li>
+                </ul>
+                
+                <h3>2. Connection ve Performance Issues</h3>
+                <ul>
+                    <li><strong>HTTP Timeout:</strong> Request/response timeout ayarları yanlış</li>
+                    <li><strong>Keep-Alive Problems:</strong> Connection reuse problemleri</li>
+                    <li><strong>Slow Loading:</strong> Large file download sorunları</li>
+                    <li><strong>Concurrent Connection Limits:</strong> Simultaneous connection sınırları</li>
+                        </ul>
+                
+                <h3>3. HTTPS/SSL Protocol Issues</h3>
+                <ul>
+                    <li><strong>SSL Handshake Failure:</strong> TLS negotiation problemleri</li>
+                    <li><strong>Mixed Content:</strong> HTTP ve HTTPS karışık içerik</li>
+                    <li><strong>Certificate Problems:</strong> SSL certificate validation hataları</li>
+                    <li><strong>Protocol Version Mismatch:</strong> TLS version uyumsuzluğu</li>
+                        </ul>
+                
+                <h3>4. Web Server Configuration Issues</h3>
+                <ul>
+                    <li><strong>Apache/Nginx Misconfiguration:</strong> Server config hataları</li>
+                    <li><strong>Virtual Host Problems:</strong> Multiple domain hosting sorunları</li>
+                    <li><strong>Resource Limits:</strong> Memory/CPU/disk space sorunları</li>
+                    <li><strong>Load Balancing Issues:</strong> Traffic distribution problemleri</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>🔧 HTTP Protocol Problem Tespit Yöntemleri</h2>
+                
+                <div class="info-box">
+                    <strong>💡 Not:</strong> HTTP protocol problemlerini tespit etmek için browser dev tools, curl command ve web server log'ları en etkili yöntemlerdir.
+                </div>
+                
+                <h3>Browser Developer Tools Analysis</h3>
+                <div class="code-block">
+<span class="comment"># Chrome/Firefox Developer Tools</span>
+<span class="command">F12 → Network Tab → Reload Page</span>
+<span class="output">Status: 404 Not Found
+Time: 5.2s (slow)
+Size: 1.2KB</span>
+
+<span class="comment"># Response Headers inspection</span>
+<span class="command">Server: Apache/2.4.41
+Content-Type: text/html
+Cache-Control: no-cache</span>
+                </div>
+                
+                <h3>Command Line HTTP Testing</h3>
+                <div class="code-block">
+<span class="comment"># curl ile HTTP response test</span>
+<span class="command">curl -I http://webserver.local</span>
+<span class="output">HTTP/1.1 500 Internal Server Error
+Server: Apache/2.4.41
+Content-Type: text/html</span>
+
+<span class="comment"># Verbose HTTP transaction</span>
+<span class="command">curl -v http://webserver.local/test.html</span>
+<span class="output">* Timeout after 30 seconds
+* Could not connect to webserver.local</span>
+
+<span class="comment"># HTTPS certificate check</span>
+<span class="command">curl -k -I https://webserver.local</span>
+<span class="output">curl: (35) SSL handshake failed</span>
+                </div>
+                
+                <h3>Web Server Log Analysis</h3>
+                <div class="code-block">
+<span class="comment"># Apache access log monitoring</span>
+<span class="command">tail -f /var/log/apache2/access.log</span>
+<span class="output">192.168.1.10 - - [23/Jun/2025:14:30:15] "GET /index.html HTTP/1.1" 404 -</span>
+
+<span class="comment"># Apache error log checking</span>
+<span class="command">tail -f /var/log/apache2/error.log</span>
+<span class="output">[error] [client 192.168.1.10] File does not exist: /var/www/html/index.html</span>
+
+<span class="comment"># Nginx status checking</span>
+<span class="command">systemctl status nginx</span>
+<span class="output">nginx.service - A high performance web server
+Active: failed (Result: exit-code)</span>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>⚠️ HTTP/HTTPS Problem Belirtileri</h2>
+                
+                <h3>User-Visible Symptoms:</h3>
+                <ul>
+                    <li><strong>Page Load Failures:</strong> "This site can't be reached" errors</li>
+                    <li><strong>Slow Website Loading:</strong> Pages taking minutes to load</li>
+                    <li><strong>Broken Images/Resources:</strong> Missing CSS, JS, images</li>
+                    <li><strong>SSL Warnings:</strong> "Connection is not secure" messages</li>
+                </ul>
+                
+                <h3>Technical Indicators:</h3>
+                <ul>
+                    <li><strong>HTTP Status Codes:</strong> Non-200 response codes</li>
+                    <li><strong>Connection Timeouts:</strong> TCP connection establishment failures</li>
+                    <li><strong>High Response Times:</strong> >5 second page loads</li>
+                    <li><strong>SSL Handshake Errors:</strong> TLS negotiation failures</li>
+                </ul>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Business Impact:</strong>
+                    <ul>
+                        <li>Website downtime → Revenue loss</li>
+                        <li>Poor user experience → Customer churn</li>
+                        <li>SEO ranking decrease → Traffic loss</li>
+                        <li>Security vulnerabilities → Data breach risk</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🌐 Yaygın HTTP Status Codes ve Anlamları</h2>
+                
+                <div class="info-box">
+                    <h4>📊 Critical HTTP Status Codes:</h4>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <tr style="background: #f5f5f5; font-weight: bold;">
+                            <td style="padding: 8px; border: 1px solid #ddd;">Status Code</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Meaning</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Common Cause</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">200 OK</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Success</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Normal operation</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">404 Not Found</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Resource missing</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">File deleted/moved</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">500 Internal Server Error</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Server malfunction</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Code bug/config error</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">503 Service Unavailable</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Server overloaded</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">High traffic/maintenance</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Web Server Simülasyonu</h2>
+                <div class="packet-tracer-box">
+                    <p>HTTP/HTTPS protocol problemlerinin farklı senaryolarda nasıl ortaya çıktığını ve çözüm yöntemlerini görmek için Packet Tracer simülasyonunu inceleyebilirsiniz. Lab, web server configuration errors, performance issues ve protocol problems'ı kapsar.</p>
+                    
+                    <h4>📁 Lab Dosyaları:</h4>
+                    <ul>
+                        <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/http_problem.pkt" class="file-link">http_problem.pkt</a></li>
+                        <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/http_solution.pkt" class="file-link">http_solution.pkt</a></li>
+                    </ul>
+                    
+                    <h4>Lab Senaryoları:</h4>
+                    <ul>
+                        <li>Web server timeout configuration</li>
+                        <li>HTTP status code simulation</li>
+                        <li>Load testing ve performance issues</li>
+                        <li>HTTPS certificate problems</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>💼 Gerçek Dünya HTTP/HTTPS Senaryoları</h2>
+                
+                <div class="info-box">
+                    <h4>🏢 Vaka: E-commerce Platform Performance</h4>
+                    <p><strong>Durum:</strong> Online shopping sitesi yavaş yükleniyor ve ara sıra timeout veriyor</p>
+                    <p><strong>Problem:</strong> Web server keepalive settings yanlış, static resource'lar optimize edilmemiş</p>
+                    <p><strong>Etki:</strong> %30 conversion rate düşüşü, customer complaints</p>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>🚨 Vaka: Enterprise Web Application Downtime</h4>
+                    <p><strong>Durum:</strong> Corporate intranet site'ı 500 error veriyor</p>
+                    <p><strong>Problem:</strong> Database connection pool exhausted, application server restart gerekiyor</p>
+                    <p><strong>Sonuç:</strong> Employee productivity impact, business process interruption</p>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🛠️ HTTP Protocol Debugging ve Analysis Tools</h2>
+                
+                <h3>Browser-Based Tools:</h3>
+                <ul>
+                    <li><strong>Chrome DevTools:</strong> Network tab for HTTP analysis</li>
+                    <li><strong>Firefox Developer Tools:</strong> Performance profiling</li>
+                    <li><strong>Browser Extensions:</strong> HTTP header analyzers</li>
+                </ul>
+                
+                <h3>Command Line Tools:</h3>
+                <div class="code-block">
+<span class="comment"># curl comprehensive HTTP testing</span>
+<span class="command">curl -w "Time: %{time_total}s, Status: %{http_code}\n" http://example.com</span>
+
+<span class="comment"># wget download testing</span>
+<span class="command">wget --spider -S http://example.com</span>
+
+<span class="comment"># nmap HTTP service detection</span>
+<span class="command">nmap -p 80,443 --script http-methods example.com</span>
+                </div>
+                
+                <h3>Server Monitoring Tools:</h3>
+                <ul>
+                    <li><strong>Apache ab:</strong> Load testing tool</li>
+                    <li><strong>htop/top:</strong> Server resource monitoring</li>
+                    <li><strong>tcpdump/Wireshark:</strong> HTTP packet analysis</li>
+                    <li><strong>New Relic/Datadog:</strong> Application performance monitoring</li>
+                </ul>
+            </section>
+        </main>
+
+        <nav class="navigation">
+            <a href="../../index.html" class="nav-button">← Ana Sayfa</a>
+            <a href="../problem_09/description.html" class="nav-button">← Problem 9</a>
+            <a href="solution.html" class="nav-button">Çözüm Detayları →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN and Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <!-- 🔥 ULTIMATE HTTP/HTTPS WEB SERVER TESTING LABORATORY 🔥 -->
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // 🚀 ULTIMATE WEB LAB CONTROLLER
+        class UltimateWebLab {
+            constructor() {
+                this.currentTool = 'http-tester';
+                this.labStatus = 'ready';
+                this.testResults = { count: 0, success: 0, failures: 0, totalTime: 0 };
+                this.monitoring = { active: false, interval: null, serverUptime: 99.9, requestRate: 156, avgResponseTime: 245, errorRate: 2.1 };
+                this.charts = {};
+                this.init();
+                console.log('🔥 ULTIMATE HTTP/HTTPS Lab initialized - BOMBA! 🔥');
+            }
+            
+            init() {
+                this.setupCursor();
+                this.setupScrollAnimations();
+                this.setupLabControls();
+                this.setupToolTabs();
+                this.setupHTTPTester();
+                this.setupSSLAnalyzer();
+                this.setupPerformanceTester();
+                this.setupDiagnostics();
+                this.setupMonitoring();
+                this.setupCharts();
+                this.updateLabStatus('Laboratory Ready', 'ready');
+            }
+            
+            setupCursor() {
+                const cursor = document.getElementById('cursor'), cursorOutline = document.getElementById('cursorOutline');
+                if (cursor && cursorOutline) {
+                    let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                    setTimeout(() => { cursor.style.opacity = '1'; cursorOutline.style.opacity = '1'; }, 500);
+                    document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px'; });
+                    function animateOutline() { outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1; cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px'; requestAnimationFrame(animateOutline); }
+                    animateOutline();
+                    document.querySelectorAll('a, button, .nav-button, .lang-btn, .lab-btn, .tool-tab, .action-btn').forEach(el => {
+                        el.addEventListener('mouseenter', () => { cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover'); });
+                        el.addEventListener('mouseleave', () => { cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover'); });
+                    });
+                }
+            }
+            
+            setupScrollAnimations() {
+                document.querySelectorAll('.section').forEach(section => gsap.fromTo(section, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", scrollTrigger: { trigger: section, start: "top 85%", once: true } }));
+                gsap.fromTo('.web-lab-container', { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: '.web-lab-container', start: "top 80%", once: true } });
+            }
+            
+            setupLabControls() {
+                const startBtn = document.getElementById('start-lab'), resetBtn = document.getElementById('reset-lab'), exportBtn = document.getElementById('export-results');
+                if (startBtn) startBtn.addEventListener('click', () => this.startLab());
+                if (resetBtn) resetBtn.addEventListener('click', () => this.resetLab());
+                if (exportBtn) exportBtn.addEventListener('click', () => this.exportResults());
+            }
+            
+            setupToolTabs() {
+                const tabs = document.querySelectorAll('.tool-tab'), panels = document.querySelectorAll('.tool-panel');
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tool = tab.getAttribute('data-tool');
+                        this.switchTool(tool);
+                        tabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
+                        panels.forEach(p => p.classList.remove('active'));
+                        const targetPanel = document.getElementById(tool + '-panel');
+                        if (targetPanel) { targetPanel.classList.add('active'); gsap.fromTo(targetPanel, { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }); }
+                    });
+                });
+            }
+            
+            setupHTTPTester() {
+                const sendBtn = document.getElementById('send-request'), timeoutSlider = document.getElementById('timeout-slider'), timeoutValue = document.getElementById('timeout-value');
+                if (timeoutSlider && timeoutValue) timeoutSlider.addEventListener('input', (e) => { timeoutValue.textContent = e.target.value + 's'; });
+                if (sendBtn) sendBtn.addEventListener('click', () => this.sendHTTPRequest());
+                
+                const responseTabs = document.querySelectorAll('.response-tab'), responsePanels = document.querySelectorAll('.response-panel');
+                responseTabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const targetTab = tab.getAttribute('data-tab');
+                        responseTabs.forEach(t => t.classList.remove('active')); tab.classList.add('active');
+                        responsePanels.forEach(p => p.classList.remove('active'));
+                        const targetPanel = document.getElementById('response-' + targetTab);
+                        if (targetPanel) targetPanel.classList.add('active');
+                    });
+                });
+            }
+            
+            setupSSLAnalyzer() {
+                const analyzeBtn = document.getElementById('analyze-ssl');
+                if (analyzeBtn) analyzeBtn.addEventListener('click', () => this.analyzeSSL());
+            }
+            
+            setupPerformanceTester() {
+                const runBtn = document.getElementById('run-performance');
+                [{ slider: 'users-slider', display: 'users-value' }, { slider: 'duration-slider', display: 'duration-value', suffix: 's' }, { slider: 'rate-slider', display: 'rate-value', suffix: ' req/s' }].forEach(item => {
+                    const slider = document.getElementById(item.slider);
+                    if (slider) slider.addEventListener('input', (e) => { const display = document.getElementById(item.display); if (display) display.textContent = e.target.value + (item.suffix || ''); });
+                });
+                if (runBtn) runBtn.addEventListener('click', () => this.runPerformanceTest());
+            }
+            
+            setupDiagnostics() {
+                const diagnoseBtn = document.getElementById('run-diagnostics');
+                if (diagnoseBtn) diagnoseBtn.addEventListener('click', () => this.runDiagnostics());
+            }
+            
+            setupMonitoring() {
+                const startMonitorBtn = document.getElementById('start-monitoring');
+                if (startMonitorBtn) startMonitorBtn.addEventListener('click', () => this.toggleMonitoring());
+            }
+            
+            setupCharts() {
+                const perfCtx = document.getElementById('perf-chart');
+                if (perfCtx) {
+                    this.charts.performance = new Chart(perfCtx, {
+                        type: 'line', data: { labels: ['0s', '10s', '20s', '30s', '40s', '50s', '60s'], datasets: [{ label: 'Response Time (ms)', data: [245, 220, 267, 198, 301, 189, 234], borderColor: '#64ffda', backgroundColor: 'rgba(100, 255, 218, 0.1)', tension: 0.4 }] },
+                        options: { responsive: true, plugins: { legend: { labels: { color: '#ccd6f6' } } }, scales: { x: { ticks: { color: '#8892b0' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } }, y: { ticks: { color: '#8892b0' }, grid: { color: 'rgba(100, 255, 218, 0.1)' } } } }
+                    });
+                }
+                
+                const gaugeCtx = document.getElementById('request-gauge');
+                if (gaugeCtx) this.charts.gauge = new Chart(gaugeCtx, { type: 'doughnut', data: { datasets: [{ data: [156, 44], backgroundColor: ['#64ffda', 'rgba(100, 255, 218, 0.1)'], borderWidth: 0 }] }, options: { cutout: '70%', plugins: { legend: { display: false } } } });
+                
+                const responseCtx = document.getElementById('response-chart');
+                if (responseCtx) this.charts.responseTime = new Chart(responseCtx, { type: 'line', data: { labels: Array.from({length: 20}, (_, i) => i), datasets: [{ data: Array.from({length: 20}, () => Math.random() * 100 + 200), borderColor: '#58a6ff', backgroundColor: 'rgba(88, 166, 255, 0.1)', pointRadius: 0, tension: 0.4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } } });
+            }
+            
+            startLab() { this.updateLabStatus('Laboratory Active', 'active'); this.animateLabStart(); console.log('🚀 HTTP/HTTPS Laboratory started!'); }
+            
+            resetLab() {
+                this.updateLabStatus('Laboratory Reset', 'reset'); this.testResults = { count: 0, success: 0, failures: 0, totalTime: 0 }; this.updateTestSummary();
+                if (this.monitoring.active) this.toggleMonitoring(); console.log('🔄 Laboratory reset completed');
+                setTimeout(() => { this.updateLabStatus('Laboratory Ready', 'ready'); }, 1000);
+            }
+            
+            sendHTTPRequest() {
+                const url = document.getElementById('target-url')?.value || 'https://example.com', method = document.getElementById('request-method')?.value || 'GET';
+                this.updateLabStatus('Sending Request...', 'testing');
+                setTimeout(() => {
+                    const responseData = this.simulateHTTPResponse(url, method); this.displayHTTPResponse(responseData);
+                    this.testResults.count++; this.testResults.success++; this.testResults.totalTime += responseData.timing.total;
+                    this.updateTestSummary(); this.updateLabStatus('Request Complete', 'success');
+                }, Math.random() * 2000 + 500);
+            }
+            
+            analyzeSSL() {
+                this.updateLabStatus('Analyzing SSL/TLS...', 'testing');
+                const steps = document.querySelectorAll('.handshake-step');
+                steps.forEach((step, index) => { gsap.fromTo(step, { scale: 1, backgroundColor: 'rgba(100, 255, 218, 0.05)' }, { scale: 1.05, backgroundColor: 'rgba(100, 255, 218, 0.2)', duration: 0.5, delay: index * 0.3, yoyo: true, repeat: 1 }); });
+                setTimeout(() => { this.updateSSLResults(); this.updateLabStatus('SSL Analysis Complete', 'success'); }, 2000);
+            }
+            
+            runPerformanceTest() {
+                const users = document.getElementById('users-slider')?.value || 10, duration = document.getElementById('duration-slider')?.value || 60;
+                this.updateLabStatus(`Performance Test Running (${users} users, ${duration}s)`, 'testing'); this.animatePerformanceMetrics();
+                setTimeout(() => { this.updateLabStatus('Performance Test Complete', 'success'); this.testResults.count++; this.testResults.success++; this.updateTestSummary(); }, parseInt(duration) * 100);
+            }
+            
+            runDiagnostics() {
+                this.updateLabStatus('Running Diagnostics...', 'testing');
+                const outputs = ['ping-output', 'traceroute-output', 'port-scan-output'];
+                outputs.forEach((outputId, index) => { setTimeout(() => { const output = document.getElementById(outputId); if (output) gsap.fromTo(output.children, { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.3, stagger: 0.1 }); }, index * 800); });
+                setTimeout(() => { this.updateLabStatus('Diagnostics Complete', 'success'); this.testResults.count++; this.testResults.success++; this.updateTestSummary(); }, 3000);
+            }
+            
+            toggleMonitoring() {
+                const btn = document.getElementById('start-monitoring');
+                if (this.monitoring.active) { this.stopMonitoring(); if (btn) btn.textContent = '📡 Start Monitor'; }
+                else { this.startMonitoring(); if (btn) btn.textContent = '⏹️ Stop Monitor'; }
+            }
+            
+            startMonitoring() {
+                this.monitoring.active = true; this.updateLabStatus('Real-time Monitoring Active', 'monitoring');
+                this.monitoring.interval = setInterval(() => { this.addLiveLogEntry(); this.updateMonitoringMetrics(); }, 2000);
+                console.log('📊 Real-time monitoring started');
+            }
+            
+            stopMonitoring() {
+                this.monitoring.active = false; if (this.monitoring.interval) { clearInterval(this.monitoring.interval); this.monitoring.interval = null; }
+                this.updateLabStatus('Monitoring Stopped', 'ready'); console.log('📊 Real-time monitoring stopped');
+            }
+            
+            updateLabStatus(text, status) {
+                const statusText = document.getElementById('lab-status-text'), statusIndicator = document.getElementById('lab-status');
+                if (statusText) statusText.textContent = text;
+                if (statusIndicator) {
+                    statusIndicator.className = 'status-indicator';
+                    switch(status) {
+                        case 'active': statusIndicator.style.background = '#26d0ce'; break;
+                        case 'testing': statusIndicator.style.background = '#ffd700'; break;
+                        case 'success': statusIndicator.style.background = '#26d0ce'; break;
+                        case 'error': statusIndicator.style.background = '#f85149'; break;
+                        case 'monitoring': statusIndicator.style.background = '#9b59b6'; break;
+                        default: statusIndicator.style.background = '#64ffda'; break;
+                    }
+                }
+            }
+            
+            simulateHTTPResponse(url, method) {
+                const statusCodes = [200, 201, 404, 500, 503], statusCode = statusCodes[Math.floor(Math.random() * statusCodes.length)];
+                const timing = { dns: Math.floor(Math.random() * 50) + 20, connect: Math.floor(Math.random() * 100) + 50, ssl: Math.floor(Math.random() * 150) + 80, request: Math.floor(Math.random() * 20) + 5 };
+                timing.total = timing.dns + timing.connect + timing.ssl + timing.request;
+                return {
+                    status: statusCode, statusText: statusCode === 200 ? 'OK' : statusCode === 404 ? 'Not Found' : 'Server Error', timing: timing,
+                    headers: `HTTP/1.1 ${statusCode}\\nServer: nginx/1.18.0\\nContent-Type: text/html\\nContent-Length: 1247\\nCache-Control: max-age=3600`,
+                    body: statusCode === 200 ? '<!DOCTYPE html>\\n<html>\\n<head><title>Example Domain</title></head>\\n<body>\\n<h1>Example Domain</h1>\\n<p>This domain is for illustrative examples.</p>\\n</body>\\n</html>' : `Error ${statusCode}: ${statusCode === 404 ? 'Page not found' : 'Internal server error'}`
+                };
+            }
+            
+            displayHTTPResponse(data) {
+                const statusCode = document.getElementById('response-status'), statusText = document.getElementById('response-status-text'), responseTime = document.getElementById('response-time');
+                if (statusCode) { statusCode.textContent = data.status; statusCode.className = 'status-code'; if (data.status >= 400) statusCode.style.background = '#f85149'; else if (data.status >= 300) statusCode.style.background = '#ffd700'; else statusCode.style.background = '#26d0ce'; }
+                if (statusText) statusText.textContent = data.statusText; if (responseTime) responseTime.textContent = data.timing.total + 'ms';
+                const headersText = document.getElementById('response-headers-text'), bodyText = document.getElementById('response-body-text');
+                if (headersText) headersText.textContent = data.headers; if (bodyText) bodyText.textContent = data.body;
+                this.updateTimingChart(data.timing);
+            }
+            
+            updateTimingChart(timing) {
+                const bars = document.querySelectorAll('.timing-bar'), total = timing.total;
+                bars.forEach((bar, index) => {
+                    const fill = bar.querySelector('.bar-fill'), value = bar.querySelector('.timing-value'), timings = [timing.dns, timing.connect, timing.ssl, timing.request];
+                    if (fill && value) { const width = (timings[index] / total) * 100; gsap.to(fill, { width: width + '%', duration: 0.8, ease: "power2.out" }); value.textContent = timings[index] + 'ms'; }
+                });
+            }
+            
+            updateSSLResults() {
+                const grades = ['A+', 'A', 'B+', 'B', 'C'], protocols = ['TLS 1.3', 'TLS 1.2', 'TLS 1.1'], ciphers = ['TLS_AES_256_GCM_SHA384', 'TLS_CHACHA20_POLY1305_SHA256', 'TLS_AES_128_GCM_SHA256'];
+                const gradeEl = document.getElementById('ssl-grade'), protocolEl = document.getElementById('ssl-protocol'), cipherEl = document.getElementById('ssl-cipher');
+                if (gradeEl) { gradeEl.textContent = grades[Math.floor(Math.random() * grades.length)]; gsap.fromTo(gradeEl.parentElement, { scale: 0.8, rotation: -5 }, { scale: 1, rotation: 0, duration: 0.6, ease: "back.out(1.7)" }); }
+                if (protocolEl) protocolEl.textContent = protocols[Math.floor(Math.random() * protocols.length)]; if (cipherEl) cipherEl.textContent = ciphers[Math.floor(Math.random() * ciphers.length)];
+            }
+            
+            animatePerformanceMetrics() {
+                const metrics = [{ id: 'avg-response', value: Math.floor(Math.random() * 100) + 200, suffix: 'ms' }, { id: 'req-per-sec', value: (Math.random() * 20 + 15).toFixed(1), suffix: '' }, { id: 'success-rate', value: (Math.random() * 5 + 95).toFixed(1), suffix: '%' }, { id: 'error-count', value: Math.floor(Math.random() * 20), suffix: '' }];
+                metrics.forEach(metric => { const el = document.getElementById(metric.id); if (el) gsap.fromTo(el, { scale: 0.8, opacity: 0.5 }, { scale: 1, opacity: 1, duration: 0.5, onComplete: () => { el.textContent = metric.value + metric.suffix; } }); });
+            }
+            
+            addLiveLogEntry() {
+                const logOutput = document.getElementById('live-logs'); if (!logOutput) return;
+                const logTypes = ['info', 'success', 'warning'], messages = ['GET /api/users 200 189ms', 'POST /api/login 201 245ms', 'GET /missing.css 404 12ms', 'GET /images/banner.jpg 200 567ms', 'POST /api/data 500 89ms'];
+                const now = new Date().toLocaleString(), type = logTypes[Math.floor(Math.random() * logTypes.length)], message = messages[Math.floor(Math.random() * messages.length)];
+                const logEntry = document.createElement('div'); logEntry.className = `log-entry ${type}`; logEntry.textContent = `[${now}] ${type.toUpperCase()}: ${message}`;
+                logOutput.insertBefore(logEntry, logOutput.firstChild); while (logOutput.children.length > 10) logOutput.removeChild(logOutput.lastChild);
+                gsap.fromTo(logEntry, { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.3 });
+            }
+            
+            updateMonitoringMetrics() {
+                this.monitoring.serverUptime += (Math.random() - 0.5) * 0.01; const uptimeEl = document.getElementById('server-uptime'); if (uptimeEl) uptimeEl.textContent = this.monitoring.serverUptime.toFixed(1) + '%';
+                this.monitoring.requestRate += Math.floor((Math.random() - 0.5) * 20); this.monitoring.requestRate = Math.max(50, Math.min(300, this.monitoring.requestRate)); const rateEl = document.getElementById('request-rate'); if (rateEl) rateEl.textContent = this.monitoring.requestRate + '/s';
+                if (this.charts.responseTime) { const newData = Math.random() * 100 + 200; this.charts.responseTime.data.datasets[0].data.shift(); this.charts.responseTime.data.datasets[0].data.push(newData); this.charts.responseTime.update('none'); }
+            }
+            
+            updateTestSummary() {
+                const elements = { 'tests-count': this.testResults.count, 'tests-success': this.testResults.success, 'tests-failures': this.testResults.failures, 'total-time': this.testResults.totalTime.toFixed(1) + 's' };
+                Object.entries(elements).forEach(([id, value]) => { const el = document.getElementById(id); if (el) { el.textContent = value; gsap.fromTo(el, { scale: 1.2 }, { scale: 1, duration: 0.3 }); } });
+            }
+            
+            animateLabStart() { gsap.fromTo('.lab-header', { borderBottomColor: 'rgba(100, 255, 218, 0.2)' }, { borderBottomColor: 'rgba(100, 255, 218, 0.8)', duration: 0.5, yoyo: true, repeat: 1 }); }
+            
+            exportResults() {
+                const results = { timestamp: new Date().toISOString(), testResults: this.testResults, labStatus: this.labStatus, monitoring: this.monitoring };
+                console.log('📊 Exporting lab results:', results); this.updateLabStatus('Results Exported', 'success');
+                const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a');
+                a.href = url; a.download = `http-lab-results-${Date.now()}.json`; a.click(); URL.revokeObjectURL(url);
+            }
+            
+            switchTool(tool) { this.currentTool = tool; console.log(`🔧 Switched to tool: ${tool}`); }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            window.webLab = new UltimateWebLab();
+            console.log('🔥 PROBLEM 10: ULTIMATE HTTP/HTTPS Laboratory loaded! 💥');
+        });
+    </script>
+</body>
+</html> 

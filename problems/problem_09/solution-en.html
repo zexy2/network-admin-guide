@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solution: Character Encoding and Data Format Problems - Admin Guide</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-solution">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="solution.html" class="lang-btn">🇹🇷 Türkçe</a>
+                <a href="solution-en.html" class="lang-btn active">🇺🇸 English</a>
+            </div>
+            
+            <h1>✅ Solution Steps: Character Encoding and Data Format Problems</h1>
+            <p>L6 - Presentation Layer - Practical Solution Guide</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Home</a> / <a href="description-en.html">Problem 9</a> / Solution
+        </nav>
+
+        <main class="content">
+            <section class="section">
+                <h2>🖼️ Character Encoding Solution Examples</h2>
+                <p>Below shows the successful states after character encoding problems have been resolved:</p>
+                
+                <div class="image-container">
+                    <img src="../../images/screenshots/encoding_success_display.png" alt="Character Encoding Fixed" class="screenshot" style="background: #d4edda; border: 2px solid #28a745; padding: 20px; text-align: center; color: #155724;">
+                    <figcaption>Figure 1: Normal text display with correct encoding - UTF-8 standard</figcaption>
+                </div>
+                
+                <div class="success-box">
+                    <strong>✅ Solution Result:</strong> After correcting character encoding, all special characters (çıştı, résumé, café) are displayed correctly.
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>📋 Character Encoding Problem Solutions</h2>
+                
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>HTTP Protocol Level Encoding Correction</h3>
+                        <p><strong>Web Server Configuration:</strong> Specifying correct charset information in HTTP response headers is critically important.</p>
+                        
+                        <div class="code-block">
+<span class="comment"># Apache .htaccess file charset specification</span>
+<span class="command">AddDefaultCharset UTF-8</span>
+<span class="command">AddCharset UTF-8 .html .css .js</span>
+
+<span class="comment"># Nginx charset configuration</span>
+<span class="command">charset utf-8;</span>
+<span class="command">charset_types text/xml text/plain text/vnd.wap.wml application/javascript application/rss+xml;</span>
+
+<span class="comment"># PHP header charset specification</span>
+<span class="command">header('Content-Type: text/html; charset=UTF-8');</span>
+                        </div>
+                        
+                        <p><strong>HTML Meta Tag:</strong> Charset meta tag is critical in HTML pages</p>
+                        <div class="code-block">
+<span class="command">&lt;meta charset="UTF-8"&gt;</span>
+<span class="comment"># This tag should be at the beginning of HTML document</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Database Level Encoding Standardization</h3>
+                        <p>Database connection and table encoding settings must be consistent:</p>
+                        
+                        <div class="code-block">
+<span class="comment"># MySQL UTF-8 configuration</span>
+<span class="command">ALTER DATABASE mydb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;</span>
+<span class="command">ALTER TABLE mytable CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;</span>
+
+<span class="comment"># PostgreSQL connection encoding</span>
+<span class="command">SET client_encoding = 'UTF8';</span>
+
+<span class="comment"># MongoDB UTF-8 default</span>
+<span class="command">db.collection.insertOne({name: "Türkçe çıktı"});</span>
+                        </div>
+                        
+                        <p><strong>Connection String Charset:</strong> Application connection string'lerinde charset belirtmek</p>
+                        <div class="code-block">
+<span class="comment"># MySQL PDO connection</span>
+<span class="command">$pdo = new PDO('mysql:host=localhost;dbname=test;charset=utf8mb4', $user, $pass);</span>
+
+<span class="comment"># Node.js MySQL connection</span>
+<span class="command">const connection = mysql.createConnection({
+  host: 'localhost',
+  charset: 'UTF8MB4_UNICODE_CI'
+});</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>System Level Locale and Environment Settings</h3>
+                        <p>Proper configuration of locale settings at operating system level:</p>
+                        
+                        <div class="code-block">
+<span class="comment"># Linux locale settings</span>
+<span class="command">export LANG=en_US.UTF-8</span>
+<span class="command">export LC_ALL=en_US.UTF-8</span>
+<span class="command">locale-gen en_US.UTF-8</span>
+
+<span class="comment"># SSH session encoding</span>
+<span class="command">echo 'export LANG=en_US.UTF-8' >> ~/.bashrc</span>
+<span class="command">echo 'export LC_ALL=en_US.UTF-8' >> ~/.bashrc</span>
+
+<span class="comment"># Terminal encoding settings</span>
+<span class="command">stty -a | grep -o "charset.*"</span>
+                        </div>
+                        
+                        <div class="info-box">
+                            <strong>💡 Best Practice:</strong> Use UTF-8 encoding as standard on your servers. This provides the widest character support in the modern world.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>FTP and File Transfer Encoding Correction</h3>
+                        <p>Correct selection of FTP transfer modes and preservation of file encodings:</p>
+                        
+                        <div class="code-block">
+<span class="comment"># FTP ASCII mode for text files</span>
+<span class="command">ftp> ascii</span>
+<span class="output">200 Type set to A.</span>
+
+<span class="comment"># FTP Binary mode for binary files</span>
+<span class="command">ftp> binary</span>
+<span class="output">200 Type set to I.</span>
+
+<span class="comment"># File encoding conversion during transfer</span>
+<span class="command">iconv -f ISO-8859-1 -t UTF-8 input.txt > output.txt</span>
+<span class="command">scp -O output.txt user@server:/remote/path/</span>
+
+<span class="comment"># rSync with charset preservation</span>
+<span class="command">rsync -avz --iconv=utf8,iso88591 /local/path/ user@server:/remote/path/</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Email Protocol Encoding (MIME) Correction</h3>
+                        <p>Proper configuration of email header and body encodings:</p>
+                        
+                        <div class="code-block">
+<span class="comment"># Email header encoding</span>
+<span class="command">Subject: =?UTF-8?B?VMO8cmvDp2UgZW1haWwgYmFzxZ9sxLHEn8SB?=</span>
+<span class="command">Content-Type: text/plain; charset=UTF-8</span>
+<span class="command">Content-Transfer-Encoding: base64</span>
+
+<span class="comment"># PHP mail encoding</span>
+<span class="command">$headers = "Content-Type: text/html; charset=UTF-8\r\n";</span>
+<span class="command">$subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";</span>
+
+<span class="comment"># SMTP server encoding configuration</span>
+<span class="command">default_charset = UTF-8</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h3>Network Device Console Encoding</h3>
+                        <p>Router, Switch ve firewall console'larında encoding ayarları:</p>
+                        
+                        <div class="code-block">
+<span class="comment"># Cisco router terminal encoding</span>
+<span class="command">Router(config)# terminal charset utf-8</span>
+<span class="command">Router(config)# logging charset utf-8</span>
+
+<span class="comment"># SSH client encoding</span>
+<span class="command">ssh -o SendEnv=LANG user@router</span>
+<span class="command">export LANG=en_US.UTF-8</span>
+
+<span class="comment"># PuTTY terminal encoding</span>
+<span class="command"># Settings > Translation > Remote character set: UTF-8</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">7</div>
+                    <div class="step-content">
+                        <h3>Validation and Testing</h3>
+                        <p>Testing and monitoring the accuracy of encoding corrections:</p>
+                        
+                        <div class="code-block">
+<span class="comment"># Web page charset validation</span>
+<span class="command">curl -I https://example.com | grep -i "charset"</span>
+<span class="output">Content-Type: text/html; charset=UTF-8</span>
+
+<span class="comment"># File encoding verification</span>
+<span class="command">file -bi document.txt</span>
+<span class="output">text/plain; charset=utf-8</span>
+
+<span class="comment"># Database charset check</span>
+<span class="command">SHOW VARIABLES LIKE 'character_set%';</span>
+
+<span class="comment"># System locale verification</span>
+<span class="command">locale charmap</span>
+<span class="output">UTF-8</span>
+                        </div>
+                        
+                        <div class="success-box">
+                            <strong>✅ Test Results:</strong> All test commands show that UTF-8 encoding is being used. Character corruption problems have been resolved.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Lab Simulation</h2>
+                <div class="packet-tracer-box">
+                    <h4>📁 Lab Files:</h4>
+                    <ul>
+                        <li><strong>Problem Scenario:</strong> <a href="packet_tracer/encoding_problem.pkt" class="file-link">encoding_problem.pkt</a> - Character encoding mismatches</li>
+                        <li><strong>Solution Scenario:</strong> <a href="packet_tracer/encoding_solution.pkt" class="file-link">encoding_solution.pkt</a> - Standardized UTF-8 encoding</li>
+                    </ul>
+                    
+                    <h4>📊 Lab Test Results:</h4>
+                    <div class="code-block">
+<span class="comment"># HTTP Response Test</span>
+<span class="command">curl -I http://webserver/test.html</span>
+<span class="output">Content-Type: text/html; charset=UTF-8</span>
+
+<span class="comment"># FTP Transfer Test</span>
+<span class="command">ftp> ls türkçe_dosya.txt</span>
+<span class="output">türkçe_dosya.txt</span>
+
+<span class="comment"># Email Transfer Test</span>
+<span class="command">telnet mailserver 25</span>
+<span class="output">Subject: =?UTF-8?B?VMO8cmvDp2UgYmFzxZ9sxLHEn8SB?=</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>📈 Monitoring and Ongoing Maintenance</h2>
+                
+                <div class="info-box">
+                    <h4>🔍 Proactive Monitoring:</h4>
+                    <ul>
+                        <li><strong>Log Analysis:</strong> Encoding error patterns in web server and application logs</li>
+                        <li><strong>User Feedback:</strong> Feedback system for character corruption reports</li>
+                        <li><strong>Automated Testing:</strong> Encoding validation tests in CI/CD pipeline</li>
+                        <li><strong>Database Integrity:</strong> Regular charset consistency checks</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>⚠️ Common Pitfalls and Prevention:</h4>
+                    <ul>
+                        <li><strong>Legacy System Integration:</strong> Encoding gateway between old systems and modern UTF-8 systems</li>
+                        <li><strong>Migration Planning:</strong> Encoding preservation strategy in data migration</li>
+                        <li><strong>Multi-Region Deployment:</strong> Encoding standardization for different country/language regions</li>
+                        <li><strong>Backup Encoding:</strong> Encoding integrity in backup/restore operations</li>
+                    </ul>
+                </div>
+                
+                <div class="success-box">
+                    <h4>🎯 Final Validation Checklist:</h4>
+                    <ul>
+                        <li>✅ Web server returns HTTP headers with charset=UTF-8</li>
+                        <li>✅ Database connections and tables use UTF-8 encoding</li>
+                        <li>✅ System locale set to UTF-8</li>
+                        <li>✅ FTP transfer modes selected correctly</li>
+                        <li>✅ Email MIME encoding working successfully</li>
+                        <li>✅ Network device consoles use UTF-8</li>
+                        <li>✅ Monitoring tools detect character corruption</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🌟 Best Practices Summary</h2>
+                <div class="info-box">
+                    <ul>
+                        <li><strong>Standardization:</strong> Use UTF-8 encoding on all systems</li>
+                        <li><strong>Validation:</strong> Perform encoding validation at every layer</li>
+                        <li><strong>Documentation:</strong> Document encoding policies</li>
+                        <li><strong>Testing:</strong> Test encoding with multi-language test data</li>
+                        <li><strong>Monitoring:</strong> Proactively monitor character corruption</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <nav class="navigation">
+            <a href="description-en.html" class="nav-button">← Problem Description</a>
+            <a href="../problem_08/solution.html" class="nav-button">← Problem 8 Solution</a>
+            <a href="../../index.html" class="nav-button">Home</a>
+            <a href="../problem_10/description-en.html" class="nav-button">Problem 10 →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                gsap.fromTo(section, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+            
+            console.log('🔧 Problem 09 Solution (EN) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

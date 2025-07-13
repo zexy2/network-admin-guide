@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solution: DHCP IP Conflicts - Admin Guide</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-solution">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="solution.html" class="lang-btn">🇹🇷 Türkçe</a>
+                <a href="solution-en.html" class="lang-btn active">🇺🇸 English</a>
+            </div>
+            
+            <h1>✅ Solution Steps: DHCP IP Conflicts</h1>
+            <p>L3 - Network Layer - Practical Solution Guide</p>
+        </header>
+        
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Home</a> / <a href="description-en.html">Problem 5</a> / Solution Details
+        </nav>
+        
+        <main class="content">
+            <section class="section">
+                <h2>🔧 Step-by-Step DHCP Conflict Repair Process</h2>
+                <p>This guide details the steps to be followed for detecting and resolving IP address conflicts in DHCP server.</p>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ After Solution: DHCP Working Properly</h2>
+                <p>After correcting the DHCP configuration, IP address conflicts are resolved and network communication returns to normal. Below is the corrected network topology:</p>
+                
+                <div class="topology-diagram">
+                    <pre class="ascii-art">
+                 DHCP Server (Router)                    Corrected Network Structure
+                 192.168.1.1/24                         
+                ┌─────────────────┐                    
+                │ DHCP Pool:      │                    ✅ DHCP CONFLICT RESOLVED ✅
+                │ 192.168.1.10-50 │                    
+                │ Gateway: .1     │                    
+                │ DNS: 8.8.8.8    │                    
+                │ Excluded: 1-9   │                    
+                └─────────┬───────┘                    
+                          │                            
+              ┌───────────┼───────────┐                
+              │                       │                
+              │                       │                
+        ┌─────▼─────┐             ┌───▼───┐            
+        │    PC1    │             │  PC2  │            
+        │Dynamic IP │             │Static │            
+        │192.168.1.25│             │192.168.1.5 │      ✅ DIFFERENT IPs!
+        │(From DHCP)│             │(Excluded)│         
+        └───────────┘             └───────┘            
+              │                       │                
+              └──── Successful Comm ──┘                
+                   ARP Resolved Successfully!          
+    </pre>
+                    <p><strong>✅ Solution:</strong> PC2's static IP moved to excluded range (192.168.1.5)</p>
+                    <p><strong>🔧 DHCP Pool:</strong> 192.168.1.10-50 range is safely distributed</p>
+                    <p><strong>🌐 Connectivity:</strong> No IP conflicts anymore, all devices working</p>
+                </div>
+                
+                <h3>After Solution: Successful Ping Test</h3>
+                <div class="image-container">
+                    <img src="../../images/screenshots/dhcp_ping_success.png" alt="DHCP Solution - Ping Successful" class="screenshot">
+                    <figcaption>Figure 1: Successful ping test after DHCP correction</figcaption>
+                </div>
+                
+                <h3>Technical Verification: DHCP Conflict Cleared</h3>
+                <div class="code-block">
+<span class="command">Router# show ip dhcp conflict</span>
+<span class="output">(Empty result - no conflicts anymore)</span>
+<span class="comment"># ✅ All IP conflicts resolved!</span>
+
+<span class="command">Router# show ip dhcp binding</span>
+<span class="output">
+IP address       Client-ID/          Lease expiration     Type    State  Interface
+                 Hardware address
+192.168.1.25     01aa.bb.cc.dd.22   May 15 2024 14:30:45 Auto    Active Vlan10</span>
+<span class="comment"># PC1 now has IP from safe range</span>
+
+<span class="command">Router# show ip arp | include 192.168.1</span>
+<span class="output">
+Internet  192.168.1.5            0   ff.ee.dd.33.44  ARPA   Vlan10
+Internet  192.168.1.25           0   aa.bb.cc.dd.22  ARPA   Vlan10</span>
+<span class="comment"># ✅ Single MAC per IP - no conflicts!</span>
+                </div>
+                
+                <h4>Packet Tracer Solution File:</h4>
+                <p>You can download the Packet Tracer file showing the working state after solution <a href="packet_tracer/dhcp_solution.pkt" download>here</a>.</p>
+            </section>
+
+            <section class="section">
+                <h2>Step 1: DHCP Conflict Problem Detection</h2>
+                
+                <div class="step">
+                    <div class="step-number">1A</div>
+                    <div class="step-content">
+                        <h3>Monitor IP Conflict Errors</h3>
+                        <p>DHCP conflicts are usually detected through console messages and client errors.</p>
+                        <div class="image-container">
+                            <img src="../../images/screenshots/dhcp_conflict_error.png" alt="DHCP Conflict Error" class="screenshot">
+                            <figcaption>Example of DHCP conflict error message</figcaption>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">1B</div>
+                    <div class="step-content">
+                        <h3>Check DHCP Pool Status</h3>
+                        <p>Check the pool status and conflicting IPs on the DHCP server.</p>
+                        <div class="code-block">
+<span class="command">Router# show ip dhcp pool</span>
+<span class="output">Pool VLAN10_POOL :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 100
+ Leased addresses               : 45
+ Excluded addresses             : 5
+ Pending event                  : none</span>
+
+<span class="command">Router# show ip dhcp conflict</span>
+<span class="output">IP address       Detection method   Detection time
+192.168.10.11    Ping              Mar 01 1993 00:05:02</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Step 2: Fix DHCP Conflicts</h2>
+                
+                <div class="step">
+                    <div class="step-number">2A</div>
+                    <div class="step-content">
+                        <h3>Clear Conflicting IP Addresses</h3>
+                        <p>Clear the DHCP conflict table to release problematic IPs.</p>
+                        <div class="code-block">
+<span class="command">Router(config)# ip dhcp conflict logging</span>
+<span class="comment"># Enable conflict logging</span>
+
+<span class="command">Router# clear ip dhcp conflict *</span>
+<span class="comment"># Clear all conflicts</span>
+
+<span class="command">Router# clear ip dhcp binding *</span>
+<span class="comment"># Clear all existing leases</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2B</div>
+                    <div class="step-content">
+                        <h3>Fix DHCP Pool Configuration</h3>
+                        <p>Exclude static IPs and correct scope settings.</p>
+                        <div class="code-block">
+<span class="command">Router(config)# ip dhcp excluded-address 192.168.10.1 192.168.10.10</span>
+<span class="comment"># Exclude gateway and static devices</span>
+
+<span class="command">Router(config)# ip dhcp pool VLAN10_POOL</span>
+<span class="command">Router(dhcp-config)# network 192.168.10.0 255.255.255.0</span>
+<span class="command">Router(dhcp-config)# default-router 192.168.10.1</span>
+<span class="command">Router(dhcp-config)# dns-server 8.8.8.8</span>
+<span class="command">Router(dhcp-config)# lease 0 12 0</span>
+<span class="comment"># 12 hour lease time</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Step 3: Restart DHCP Service</h2>
+
+                <div class="step">
+                    <div class="step-number">3A</div>
+                    <div class="step-content">
+                        <h3>Restart DHCP Service</h3>
+                        <p>Restart the DHCP service for changes to take effect.</p>
+                        <div class="code-block">
+<span class="command">Router(config)# no service dhcp</span>
+<span class="command">Router(config)# service dhcp</span>
+<span class="comment"># Restart DHCP service</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3B</div>
+                    <div class="step-content">
+                        <h3>Renew Client IP Addresses</h3>
+                        <p>Renew IP addresses on client devices and test connectivity.</p>
+                        <div class="code-block">
+<span class="command">PC> ipconfig /release</span>
+<span class="command">PC> ipconfig /renew</span>
+<span class="output">IP Address: 192.168.10.50
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.10.1</span>
+
+<span class="command">PC> ping 192.168.10.1</span>
+<span class="output">Reply from 192.168.10.1: bytes=32 time=1ms TTL=255</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Lab Summary</h2>
+                <div class="packet-tracer-box">
+                    <h4>📁 Lab Files:</h4>
+                    <ul>
+                        <li><strong>Problem File:</strong> <a href="packet_tracer/dhcp_problem.pkt" class="file-link">dhcp_problem.pkt</a> - IP conflicts exist</li>
+                        <li><strong>Solution File:</strong> <a href="packet_tracer/dhcp_solution.pkt" class="file-link">dhcp_solution.pkt</a> - DHCP fixed</li>
+                    </ul>
+                    
+                    <h4>Lab Objectives:</h4>
+                    <ul>
+                        <li>Detect DHCP IP conflict problems</li>
+                        <li>Clear conflict table</li>
+                        <li>Fix DHCP pool configuration</li>
+                        <li>Set excluded address ranges correctly</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>💡 DHCP Best Practices</h2>
+                <div class="info-box">
+                    <h4>To Prevent Conflicts:</h4>
+                    <ul>
+                        <li><strong>Excluded Range:</strong> Always exclude static IPs</li>
+                        <li><strong>Conflict Detection:</strong> Keep DHCP conflict logging active</li>
+                        <li><strong>Lease Time:</strong> Set appropriate lease times</li>
+                        <li><strong>Pool Monitoring:</strong> Regularly monitor DHCP pool usage</li>
+                        <li><strong>Backup DHCP:</strong> Use redundant DHCP servers</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        
+        <nav class="navigation">
+            <a href="description-en.html" class="nav-button">← Problem Description</a>
+            <a href="../../index.html" class="nav-button">Home</a>
+            <a href="../problem_06/description-en.html" class="nav-button">Go to Problem 6 →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                gsap.fromTo(section, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+            
+            console.log('🔧 Problem 05 Solution (EN) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

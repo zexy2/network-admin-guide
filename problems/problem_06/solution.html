@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çözüm: Static Route Yanlış Konfigürasyonu - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-solution">
+                        <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="solution.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="solution-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+<h1>✅ Çözüm Adımları: Static Route Yanlış Konfigürasyonu</h1>
+            <p>L3 - Network Layer - Uygulamalı Çözüm Rehberi</p>
+        </header>
+        
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Ana Sayfa</a> / <a href="description.html">Problem 6</a> / Çözüm Detayları
+        </nav>
+        
+        <main class="content">
+            <section class="section">
+                <h2>🔧 Adım Adım Static Route Onarım Süreci</h2>
+                <p>Bu rehber, hatalı static route yapılandırmalarının tespit edilmesi ve düzeltilmesi için izlenmesi gereken adımları detaylı olarak açıklamaktadır.</p>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ Çözüm Sonrası: Static Route Düzeltildi</h2>
+                <p>Static route yapılandırması düzeltildikten sonra, ağlar arası iletişim başarıyla sağlanır. Aşağıda doğru routing sonrası başarılı iletişim görülmektedir:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/static_route_cozum_semasi.png" alt="Static Route Çözümü" class="screenshot">
+                    <figcaption>Resim 1: Doğru static route yapılandırması sonrası başarılı iletişim</figcaption>
+                </div>
+                
+                <h4>Packet Tracer Çözüm Dosyası:</h4>
+                <p>Çözüm sonrası çalışır durumu gösteren Packet Tracer dosyasını <a href="packet_tracer/Problem_6_COZUM.pkt" download>buradan</a> indirebilirsiniz.</p>
+            </section>
+
+            <section class="section">
+                <h2>Adım 1: Static Route Probleminin Tespiti</h2>
+                
+                <div class="step">
+                    <div class="step-number">1A</div>
+                    <div class="step-content">
+                        <h3>Ağlar Arası Bağlantıyı Test Etme</h3>
+                        <p>Hatalı static route durumunda, uzak ağlardaki cihazlarla iletişim kurulamaz.</p>
+                        <div class="image-container">
+                            <img src="../../images/screenshots/static_route_hata_semasi.png" alt="Static Route Hatası" class="screenshot">
+                            <figcaption>Yanlış static route nedeniyle ağlar arası iletişim sorunu</figcaption>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">1B</div>
+                    <div class="step-content">
+                        <h3>Routing Table'ı Kontrol Etme</h3>
+                        <p>Router'lardaki routing table'ları kontrol ederek eksik veya hatalı route'ları tespit edin.</p>
+                        <div class="code-block">
+<span class="command">Router# show ip route</span>
+<span class="output">Codes: L - local, C - connected, S - static
+       O - OSPF, IA - OSPF inter area 
+
+Gateway of last resort is not set
+
+     10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks
+C       10.1.1.0/24 is directly connected, GigabitEthernet0/0
+L       10.1.1.1/32 is directly connected, GigabitEthernet0/0
+C       10.1.2.0/24 is directly connected, GigabitEthernet0/1
+L       10.1.2.1/32 is directly connected, GigabitEthernet0/1</span>
+<span class="comment"># Uzak ağlar için route yok - static route eksik</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Adım 2: Static Route Konfigürasyonunu Düzeltme</h2>
+                
+                <div class="step">
+                    <div class="step-number">2A</div>
+                    <div class="step-content">
+                        <h3>Doğru Static Route Ekleme</h3>
+                        <p>Eksik olan uzak ağlar için doğru next-hop IP adresleri ile static route'lar ekleyin.</p>
+                        <div class="code-block">
+<span class="command">Router-A(config)# ip route 192.168.30.0 255.255.255.0 10.1.2.2</span>
+<span class="comment"># 192.168.30.0 ağına Router-B üzerinden ulaş</span>
+
+<span class="command">Router-A(config)# ip route 192.168.40.0 255.255.255.0 10.1.2.2</span>
+<span class="comment"># 192.168.40.0 ağına Router-B üzerinden ulaş</span>
+
+<span class="command">Router-B(config)# ip route 192.168.10.0 255.255.255.0 10.1.2.1</span>
+<span class="comment"># 192.168.10.0 ağına Router-A üzerinden ulaş</span>
+
+<span class="command">Router-B(config)# ip route 192.168.20.0 255.255.255.0 10.1.2.1</span>
+<span class="comment"># 192.168.20.0 ağına Router-A üzerinden ulaş</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2B</div>
+                    <div class="step-content">
+                        <h3>Route Verifikasyonu</h3>
+                        <p>Eklenen static route'ların routing table'a doğru şekilde eklendiğini kontrol edin.</p>
+                        <div class="code-block">
+<span class="command">Router-A# show ip route static</span>
+<span class="output">     192.168.30.0/24 [1/0] via 10.1.2.2
+     192.168.40.0/24 [1/0] via 10.1.2.2</span>
+<span class="comment"># Static route'lar başarıyla eklendi</span>
+
+<span class="command">Router-B# show ip route static</span>
+<span class="output">     192.168.10.0/24 [1/0] via 10.1.2.1
+     192.168.20.0/24 [1/0] via 10.1.2.1</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Adım 3: Uçtan Uca Bağlantı Testi</h2>
+
+                <div class="step">
+                    <div class="step-number">3A</div>
+                    <div class="step-content">
+                        <h3>Ping Testleri</h3>
+                        <p>Farklı ağlardaki cihazlar arasında ping testleri yaparak routing'in çalıştığını doğrulayın.</p>
+                        <div class="code-block">
+<span class="command">PC-A> ping 192.168.30.10</span>
+<span class="output">Reply from 192.168.30.10: bytes=32 time=2ms TTL=126</span>
+<span class="output">Reply from 192.168.30.10: bytes=32 time=1ms TTL=126</span>
+<span class="comment"># Static route çalışıyor - ping başarılı</span>
+
+<span class="command">PC-C> ping 192.168.10.10</span>
+<span class="output">Reply from 192.168.10.10: bytes=32 time=2ms TTL=126</span>
+<span class="output">Reply from 192.168.10.10: bytes=32 time=1ms TTL=126</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3B</div>
+                    <div class="step-content">
+                        <h3>Traceroute ile Path Kontrolü</h3>
+                        <p>Paketlerin doğru yolu izlediğini traceroute ile kontrol edin.</p>
+                        <div class="code-block">
+<span class="command">PC-A> tracert 192.168.30.10</span>
+<span class="output">Tracing route to 192.168.30.10 over a maximum of 30 hops:
+
+  1    1 ms    1 ms    1 ms  192.168.10.1 (Gateway)
+  2    2 ms    1 ms    1 ms  10.1.2.2 (Router-B)
+  3    2 ms    2 ms    1 ms  192.168.30.10 (Destination)</span>
+<span class="comment"># Paketler doğru rotayı izliyor</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Lab Özeti</h2>
+                <div class="packet-tracer-box">
+                    <h4>📁 Lab Dosyaları:</h4>
+                    <ul>
+                        <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/Problem_6_HATA.pkt" class="file-link">Problem_6_HATA.pkt</a> - Hatalı/eksik static route'lar</li>
+                        <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/Problem_6_COZUM.pkt" class="file-link">Problem_6_COZUM.pkt</a> - Doğru static route yapılandırması</li>
+                    </ul>
+                    
+                    <h4>Lab Hedefleri:</h4>
+                    <ul>
+                        <li>Static route problemlerini tespit etme</li>
+                        <li>Routing table analizi yapma</li>
+                        <li>Doğru next-hop adresleri ile route ekleme</li>
+                        <li>Uçtan uca connectivity test yapma</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>💡 Static Route En İyi Uygulamaları</h2>
+                <div class="info-box">
+                    <h4>Static Routing İçin Önemli Noktalar:</h4>
+                    <ul>
+                        <li><strong>Next-hop Kontrolü:</strong> Next-hop IP'sinin erişilebilir olduğundan emin olun</li>
+                        <li><strong>Subnet Mask:</strong> Hedef ağın subnet mask'ini doğru belirtin</li>
+                        <li><strong>Administrative Distance:</strong> Gerekirse AD değerini ayarlayın</li>
+                        <li><strong>Return Path:</strong> Geri dönüş route'larını da yapılandırın</li>
+                        <li><strong>Documentation:</strong> Tüm static route'ları dokümante edin</li>
+                        <li><strong>Backup Routes:</strong> Kritik bağlantılar için backup static route'lar ekleyin</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        
+        <nav class="navigation">
+            <a href="description.html" class="nav-button">← Problem Tanımı</a>
+            <a href="../../index.html" class="nav-button">Ana Sayfa</a>
+            <a href="../problem_07/description.html" class="nav-button">Problem 7'ye Geç →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                gsap.fromTo(section, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+            
+            console.log('🔧 Problem 06 Solution (TR) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

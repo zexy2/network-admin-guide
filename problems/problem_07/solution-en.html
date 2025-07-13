@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solution: TCP Connection Timeout Problems - Admin Guide</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-solution">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="solution.html" class="lang-btn">🇹🇷 Türkçe</a>
+                <a href="solution-en.html" class="lang-btn active">🇺🇸 English</a>
+            </div>
+            
+            <h1>✅ Solution Steps: TCP Connection Timeout Problems</h1>
+            <p>L4 - Transport Layer - Practical Solution Guide</p>
+        </header>
+        
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Home</a> / <a href="description-en.html">Problem 7</a> / Solution Details
+        </nav>
+        
+        <main class="content">
+            <section class="section">
+                <h2>🔧 Step-by-Step TCP Timeout Repair Process</h2>
+                <p>This guide describes in detail the steps to be followed for detecting and resolving TCP connection timeout problems.</p>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ After Solution: TCP Handshake Successful</h2>
+                <p>After TCP parameters are optimized, the normal TCP 3-way handshake process completes successfully. Below you can see the successful TCP handshake process:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/tcp_handshake_semasi.png" alt="TCP Handshake Successful" class="screenshot">
+                    <figcaption>Figure 1: Successful TCP 3-way handshake process</figcaption>
+                </div>
+                
+                <h4>Packet Tracer Solution File:</h4>
+                <p>You can download the Packet Tracer file showing the working state after solution <a href="packet_tracer/Problem_7_COZUM.pkt" download>here</a>.</p>
+            </section>
+
+            <section class="section">
+                <h2>Step 1: TCP Timeout Problem Detection</h2>
+                
+                <div class="step">
+                    <div class="step-number">1A</div>
+                    <div class="step-content">
+                        <h3>Connection Timeout Belirtilerini İzleme</h3>
+                        <p>TCP timeout durumunda uygulamalar bağlantı kuramaz ve hata mesajları alır.</p>
+                        <div class="image-container">
+                            <img src="../../images/screenshots/tcp_timeout_semasi.png" alt="TCP Timeout Problemi" class="screenshot">
+                            <figcaption>TCP connection timeout senaryosu</figcaption>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">1B</div>
+                    <div class="step-content">
+                        <h3>Check TCP Connection Status</h3>
+                        <p>Check TCP connection states on server and client side.</p>
+                        <div class="code-block">
+<span class="command">Server# netstat -an | grep :80</span>
+<span class="output">tcp4       0      0  *.80                   *.*                    LISTEN</span>
+<span class="comment"># Sunucu port 80'de dinliyor</span>
+
+<span class="command">Client# netstat -an | grep 192.168.1.100</span>
+<span class="output">tcp4       0      0  192.168.1.10.12345     192.168.1.100.80       SYN_SENT</span>
+<span class="comment"># Client SYN_SENT durumunda - timeout yaşanıyor</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Step 2: Optimizing TCP Timeout Parameters</h2>
+                
+                <div class="step">
+                    <div class="step-number">2A</div>
+                    <div class="step-content">
+                        <h3>OS Level TCP Parameter Optimization</h3>
+                        <p>Optimize TCP timeout parameters at operating system level.</p>
+                        <div class="code-block">
+<span class="comment"># Linux sistemlerde TCP timeout ayarları</span>
+<span class="command">sysctl net.ipv4.tcp_syn_retries</span>
+<span class="output">net.ipv4.tcp_syn_retries = 6</span>
+
+<span class="command">echo 3 > /proc/sys/net/ipv4/tcp_syn_retries</span>
+<span class="comment"># SYN retry sayısını 3'e düşür (daha hızlı timeout)</span>
+
+<span class="command">sysctl net.ipv4.tcp_keepalive_time</span>
+<span class="output">net.ipv4.tcp_keepalive_time = 7200</span>
+
+<span class="command">echo 1800 > /proc/sys/net/ipv4/tcp_keepalive_time</span>
+<span class="comment"># Keepalive süresini 30 dakikaya düşür</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2B</div>
+                    <div class="step-content">
+                        <h3>Uygulama Seviyesi Timeout Ayarları</h3>
+                        <p>Uygulama seviyesinde connection timeout ve read timeout değerlerini ayarlayın.</p>
+                        <div class="code-block">
+<span class="comment"># Web sunucu (Apache) timeout ayarları</span>
+<span class="command">TimeOut 60</span>
+<span class="comment"># HTTP request timeout 60 saniye</span>
+
+<span class="command">KeepAliveTimeout 5</span>
+<span class="comment"># Keep-alive timeout 5 saniye</span>
+
+<span class="comment"># Client-side timeout ayarları (örnek: curl)</span>
+<span class="command">curl --connect-timeout 10 --max-time 30 http://192.168.1.100</span>
+<span class="comment"># Connection timeout: 10s, Total timeout: 30s</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Step 3: Network Infrastructure Optimization</h2>
+
+                <div class="step">
+                    <div class="step-number">3A</div>
+                    <div class="step-content">
+                        <h3>Network Latency and Packet Loss Minimization</h3>
+                        <p>Minimize latency and packet loss in the network.</p>
+                        <div class="code-block">
+<span class="command">ping -c 10 192.168.1.100</span>
+<span class="output">PING 192.168.1.100: 56 data bytes
+64 bytes from 192.168.1.100: icmp_seq=0 time=1.234 ms
+64 bytes from 192.168.1.100: icmp_seq=1 time=1.567 ms
+...
+--- 192.168.1.100 ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss
+round-trip min/avg/max/stddev = 1.234/1.456/2.123/0.234 ms</span>
+<span class="comment"># Packet loss yok, latency düşük - ağ sağlıklı</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3B</div>
+                    <div class="step-content">
+                        <h3>QoS ve Traffic Shaping</h3>
+                        <p>Kritik TCP trafiği için QoS politikaları uygulayın.</p>
+                        <div class="code-block">
+<span class="comment"># Cisco router QoS configuration</span>
+<span class="command">Router(config)# access-list 100 permit tcp any any eq 80</span>
+<span class="command">Router(config)# access-list 100 permit tcp any any eq 443</span>
+
+<span class="command">Router(config)# class-map HTTP_TRAFFIC</span>
+<span class="command">Router(config-cmap)# match access-group 100</span>
+
+<span class="command">Router(config)# policy-map WAN_QOS</span>
+<span class="command">Router(config-pmap)# class HTTP_TRAFFIC</span>
+<span class="command">Router(config-pmap-c)# priority percent 30</span>
+<span class="comment"># HTTP trafiğine %30 priority ver</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Step 4: TCP Window Scaling and Buffer Optimization</h2>
+
+                <div class="step">
+                    <div class="step-number">4A</div>
+                    <div class="step-content">
+                        <h3>TCP Window Size Optimization</h3>
+                        <p>Optimize TCP window size according to network bandwidth.</p>
+                        <div class="code-block">
+<span class="comment"># Linux'da TCP buffer ayarları</span>
+<span class="command">sysctl net.core.rmem_max</span>
+<span class="output">net.core.rmem_max = 212992</span>
+
+<span class="command">echo 16777216 > /proc/sys/net/core/rmem_max</span>
+<span class="comment"># Receive buffer max size: 16MB</span>
+
+<span class="command">echo 16777216 > /proc/sys/net/core/wmem_max</span>
+<span class="comment"># Send buffer max size: 16MB</span>
+
+<span class="command">echo "4096 87380 16777216" > /proc/sys/net/ipv4/tcp_rmem</span>
+<span class="comment"># TCP receive buffer: min 4KB, default 85KB, max 16MB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4B</div>
+                    <div class="step-content">
+                        <h3>Connection Verification After Optimization</h3>
+                        <p>Test that TCP connections are successful after optimization.</p>
+                        <div class="code-block">
+<span class="command">telnet 192.168.1.100 80</span>
+<span class="output">Trying 192.168.1.100...
+Connected to 192.168.1.100.
+Escape character is '^]'.</span>
+<span class="comment"># TCP bağlantısı başarıyla kuruldu</span>
+
+<span class="command">curl -w "%{time_connect} %{time_total}\n" http://192.168.1.100</span>
+<span class="output">0.045 0.234</span>
+<span class="comment"># Connection time: 45ms, Total time: 234ms - optimize edildi</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Lab Özeti</h2>
+                <div class="packet-tracer-box">
+                    <h4>📁 Lab Dosyaları:</h4>
+                    <ul>
+                        <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/Problem_7_HATA.pkt" class="file-link">Problem_7_HATA.pkt</a> - TCP timeout problemi</li>
+                        <li><strong>Solution Dosyası:</strong> <a href="packet_tracer/Problem_7_COZUM.pkt" class="file-link">Problem_7_COZUM.pkt</a> - TCP optimize edildi</li>
+                    </ul>
+                    
+                    <h4>Lab Objectives:</h4>
+                    <ul>
+                        <li>TCP timeout problemlerini tespit etme</li>
+                        <li>TCP handshake sürecini analiz etme</li>
+                        <li>Connection timeout parametrelerini optimize etme</li>
+                        <li>Network performans testleri yapma</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>💡 TCP Timeout En İyi Uygulamaları</h2>
+                <div class="info-box">
+                    <h4>To Prevent TCP Timeout Problems:</h4>
+                    <ul>
+                        <li><strong>Timeout Tuning:</strong> Set appropriate timeout values</li>
+                        <li><strong>Connection Pooling:</strong> Reuse TCP connections</li>
+                        <li><strong>QoS Priority:</strong> Prioritize critical traffic</li>
+                        <li><strong>Buffer Tuning:</strong> Optimize TCP buffer sizes</li>
+                        <li><strong>Monitoring:</strong> Monitor connection metrics</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>📊 TCP Performance Metrikleri</h2>
+                <div class="warning-box">
+                    <h4>İzlenmesi Gereken TCP Metrikleri:</h4>
+                    <ul>
+                        <li><strong>Connection Time:</strong> TCP handshake süresi</li>
+                        <li><strong>Retransmission Rate:</strong> Yeniden gönderim oranı</li>
+                        <li><strong>Window Size:</strong> TCP window büyüklüğü</li>
+                        <li><strong>Throughput:</strong> Aktarım hızı</li>
+                        <li><strong>Round Trip Time (RTT):</strong> Tur süresi</li>
+                        <li><strong>Congestion Window:</strong> Tıkanıklık penceresi</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        
+        <nav class="navigation">
+            <a href="description-en.html" class="nav-button">← Problem Description</a>
+            <a href="../../index.html" class="nav-button">Home</a>
+            <a href="../problem_08/description-en.html" class="nav-button">Go to Problem 8 →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                gsap.fromTo(section, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+            
+            console.log('🔧 Problem 07 Solution (EN) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

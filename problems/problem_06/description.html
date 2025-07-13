@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem 6: Statik Yönlendirme Hataları - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-l3">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="description.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="description-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+            <h1>🟠 Problem 6: Statik Yönlendirme Hataları</h1>
+            <p>L3 - Network Layer (Ağ Katmanı) - Admin Rehber Tutorial</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">Ana Sayfa</a> &gt;
+            <a href="#">Problem 6: Statik Yönlendirme</a>
+        </nav>
+
+        <main class="content">
+            <section class="section">
+                <h2>Problem Tanımı: Statik Yönlendirme ve Tuzakları</h2>
+                <p>
+                    Statik yönlendirme, bir ağ yöneticisinin manuel olarak bir router'ın yönlendirme tablosuna belirli bir hedefe nasıl ulaşılacağını girmesi işlemidir. Dinamik yönlendirme protokollerinin (OSPF, EIGRP vb.) karmaşıklığına veya getirdiği ek yüke gerek olmayan küçük ağlarda veya belirli, değişmeyen yolları tanımlamak için kullanılırlar.
+                </p>
+                <p>
+                    <strong>Statik Yönlendirme Problemi</strong>, yanlış veya eksik yapılandırılmış bir statik route nedeniyle trafiğin hedefine ulaşamaması durumudur. Bu, trafiğin bir "kara deliğe" (black hole) düşmesine, yani paketin kaybolmasına veya bir yönlendirme döngüsüne (routing loop) girerek ağda gereksiz yere dolaşmasına neden olabilir.
+                </p>
+                <div class="warning-box">
+                    <strong>Önemli Fark:</strong> Dinamik yönlendirme protokolleri ağdaki değişikliklere (örneğin bir linkin kopması) otomatik olarak adapte olurken, statik route'lar olmaz. Bir yol değiştiğinde, yöneticinin statik route'u manuel olarak güncellemesi gerekir. Aksi takdirde trafik kaybolur.
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>🖼️ Hatalı Static Route Konfigürasyonu (Örnek Şema)</h2>
+                <p>Aşağıda yanlış static route yapılandırması nedeniyle ağlar arası iletişimin sağlanamadığı bir durum gösterilmektedir:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/static_route_hata_semasi.png" alt="Static Route Hatası" class="screenshot">
+                    <figcaption>Resim 1: Yanlış static route nedeniyle ağlar arası iletişim sorunu</figcaption>
+                </div>
+                
+                <p>Static route'lar doğru şekilde yapılandırıldıktan sonra ağlar arası iletişimin sağlandığı görülmektedir:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/static_route_cozum_semasi.png" alt="Static Route Çözümü" class="screenshot">
+                    <figcaption>Resim 2: Doğru static route yapılandırması sonrası başarılı iletişim</figcaption>
+                </div>
+                
+                <h3>🎮 İnteraktif Static Routing Animasyonu</h3>
+                <p><strong>Tıklayarak başlatın:</strong> Paket yolculuğunu izleyin ve routing hatalarını görmek için farklı senaryoları test edin.</p>
+                
+                <div class="interactive-animation-container">
+                    <div class="animation-controls">
+                        <button id="play-correct" class="animation-btn">✅ Doğru Routing</button>
+                        <button id="play-loop" class="animation-btn">🔄 Routing Loop</button>
+                        <button id="play-blackhole" class="animation-btn">🕳️ Black Hole</button>
+                        <button id="reset-animation" class="animation-btn">↻ Reset</button>
+                    </div>
+                    
+                    <div class="animation-display">
+                        <svg id="routing-animation" width="800" height="500" viewBox="0 0 800 500">
+                            <!-- Network Background -->
+                            <defs>
+                                <filter id="glow">
+                                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                    <feMerge> 
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            
+                            <!-- Network Links -->
+                            <line x1="150" y1="200" x2="350" y2="200" stroke="#0ea5e9" stroke-width="3" class="network-link" />
+                            <line x1="350" y1="200" x2="550" y2="150" stroke="#0ea5e9" stroke-width="3" class="network-link" />
+                            <line x1="350" y1="200" x2="550" y2="250" stroke="#0ea5e9" stroke-width="3" class="network-link" />
+                            <line x1="550" y1="150" x2="650" y2="100" stroke="#0ea5e9" stroke-width="3" class="network-link" />
+                            <line x1="550" y1="250" x2="650" y2="300" stroke="#0ea5e9" stroke-width="3" class="network-link" />
+                            
+                            <!-- Routers -->
+                            <g id="router-a" class="router-node" data-tooltip="Router A&#10;192.168.1.1">
+                                <circle cx="150" cy="200" r="30" fill="#1e40af" stroke="#fff" stroke-width="2"/>
+                                <text x="150" y="205" text-anchor="middle" fill="white" font-size="12" font-weight="bold">R-A</text>
+                                <text x="150" y="240" text-anchor="middle" fill="#64748b" font-size="10">192.168.1.1</text>
+                            </g>
+                            
+                            <g id="router-b" class="router-node" data-tooltip="Router B&#10;192.168.2.1">
+                                <circle cx="350" cy="200" r="30" fill="#1e40af" stroke="#fff" stroke-width="2"/>
+                                <text x="350" y="205" text-anchor="middle" fill="white" font-size="12" font-weight="bold">R-B</text>
+                                <text x="350" y="240" text-anchor="middle" fill="#64748b" font-size="10">192.168.2.1</text>
+                            </g>
+                            
+                            <g id="router-c" class="router-node" data-tooltip="Router C&#10;192.168.3.1">
+                                <circle cx="550" cy="150" r="30" fill="#1e40af" stroke="#fff" stroke-width="2"/>
+                                <text x="550" y="155" text-anchor="middle" fill="white" font-size="12" font-weight="bold">R-C</text>
+                                <text x="550" y="185" text-anchor="middle" fill="#64748b" font-size="10">192.168.3.1</text>
+                            </g>
+                            
+                            <g id="router-d" class="router-node" data-tooltip="Router D&#10;192.168.4.1">
+                                <circle cx="550" cy="250" r="30" fill="#1e40af" stroke="#fff" stroke-width="2"/>
+                                <text x="550" y="255" text-anchor="middle" fill="white" font-size="12" font-weight="bold">R-D</text>
+                                <text x="550" y="285" text-anchor="middle" fill="#64748b" font-size="10">192.168.4.1</text>
+                            </g>
+                            
+                            <!-- End Networks -->
+                            <g id="pc-source">
+                                <rect x="50" y="180" width="60" height="40" rx="5" fill="#10b981" stroke="#fff" stroke-width="2"/>
+                                <text x="80" y="200" text-anchor="middle" fill="white" font-size="10" font-weight="bold">PC Source</text>
+                                <text x="80" y="215" text-anchor="middle" fill="white" font-size="8">192.168.1.10</text>
+                            </g>
+                            
+                            <g id="pc-dest-1">
+                                <rect x="620" y="80" width="60" height="40" rx="5" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+                                <text x="650" y="100" text-anchor="middle" fill="white" font-size="10" font-weight="bold">PC Dest1</text>
+                                <text x="650" y="115" text-anchor="middle" fill="white" font-size="8">192.168.5.10</text>
+                            </g>
+                            
+                            <g id="pc-dest-2">
+                                <rect x="620" y="280" width="60" height="40" rx="5" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+                                <text x="650" y="300" text-anchor="middle" fill="white" font-size="10" font-weight="bold">PC Dest2</text>
+                                <text x="650" y="315" text-anchor="middle" fill="white" font-size="8">192.168.6.10</text>
+                            </g>
+                            
+                            <!-- Animated Packet -->
+                            <g id="packet" style="opacity: 0;">
+                                <circle cx="0" cy="0" r="8" fill="#fbbf24" stroke="#f59e0b" stroke-width="2" filter="url(#glow)"/>
+                                <text x="0" y="4" text-anchor="middle" fill="#1f2937" font-size="10" font-weight="bold">📦</text>
+                            </g>
+                            
+                            <!-- Route Tables (Initially Hidden) -->
+                            <g id="route-table-a" class="route-table" style="opacity: 0;">
+                                <rect x="20" y="50" width="200" height="100" fill="#1f2937" stroke="#64748b" stroke-width="1" rx="5"/>
+                                <text x="30" y="70" fill="#f1f5f9" font-size="12" font-weight="bold">Router A - Route Table</text>
+                                <text x="30" y="90" fill="#10b981" font-size="10" id="route-a-1">192.168.5.0/24 → 192.168.2.1</text>
+                                <text x="30" y="105" fill="#10b981" font-size="10" id="route-a-2">192.168.6.0/24 → 192.168.2.1</text>
+                                <text x="30" y="120" fill="#64748b" font-size="10">Default: 0.0.0.0/0 → 192.168.2.1</text>
+                            </g>
+                            
+                            <!-- Status Messages -->
+                            <text id="status-message" x="400" y="450" text-anchor="middle" fill="#64748b" font-size="14" font-weight="bold"></text>
+                            
+                            <!-- Legend -->
+                            <g id="animation-legend">
+                                <text x="20" y="480" fill="#64748b" font-size="10">💡 İpucu: Router'lar üzerine gelin route table'ları görmek için</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+                
+                <h4>Packet Tracer Simülasyon Dosyaları:</h4>
+                <ul>
+                    <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/Problem_6_HATA.pkt" download>Problem_6_HATA.pkt</a> - Hatalı static route</li>
+                    <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/Problem_6_COZUM.pkt" download>Problem_6_COZUM.pkt</a> - Düzeltilmiş routing</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Statik Yönlendirme Hatalarının Yaygın Nedenleri</h2>
+                <ul>
+                    <li><strong>Yanlış Sonraki Adım (Next-Hop) IP Adresi:</strong> En sık yapılan hatadır. Statik route'da belirtilen "next-hop" IP adresinin yanlış olması veya erişilemez olması, paketin gönderilememesine neden olur.</li>
+                    <li><strong>Çıkış Arayüzü (Exit Interface) Hatası:</strong> Özellikle Ethernet gibi çoklu erişim (multi-access) ağlarında, next-hop IP adresi yerine sadece çıkış arayüzünün belirtilmesi ciddi performans sorunlarına ve ARP tablosunun şişmesine neden olabilir. Router, hedef IP'nin MAC adresini bulmak için o arayüzdeki her cihaza ARP isteği gönderir.</li>
+                    <li><strong>Yönlendirme Döngüsü (Routing Loop):</strong> İki veya daha fazla router'ın bir hedef için birbirini işaret ettiği durumdur. Örneğin, Router A, X ağı için Router B'yi işaret ederken, Router B de X ağı için Router A'yı işaret eder. Paketler bu iki router arasında sonsuza dek gidip gelir (TTL değeri bitene kadar).</li>
+                    <li><strong>Daha Spesifik Bir Route'un Olmaması:</strong> Bir router, bir hedefe ulaşmak için her zaman yönlendirme tablosundaki en spesifik (en uzun subnet mask'lı) kaydı seçer. Bazen genel bir default route (0.0.0.0/0) varken, daha spesifik bir alt ağ için route eklenmeyi unutulabilir.</li>
+                    <li><strong>Yedek Yolun (Floating Static Route) Yanlış Yapılandırılması:</strong> Ana yol koptuğunda devreye girmesi için daha yüksek Administrative Distance (AD) değeriyle yapılandırılan yedek yolların yanlış hedefe veya yanlış AD değerine sahip olması.</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Belirtiler ve Tespit Yöntemleri</h2>
+                <p>Ana belirti, ağın bir bölümüne erişilebilirken başka bir bölümüne erişilememesidir. Sorun giderme için en temel araçlar <code>ping</code> ve <code>traceroute</code> (Windows'ta <code>tracert</code>) komutlarıdır.</p>
+                
+                <h3>Tespit için Cisco IOS Komutları:</h3>
+                <div class="code-block">
+<pre><span class="comment"># Router'ın tüm yönlendirme tablosunu görüntüleme</span>
+<span class="command">Router# show ip route</span>
+<span class="comment">'S' harfi ile başlayan satırlar statik route'ları gösterir.</span>
+
+<span class="comment"># Sadece statik route'ları görme</span>
+<span class="command">Router# show ip route static</span>
+
+<span class="comment"># Belirli bir hedefe giden yolu test etme</span>
+<span class="command">Router# ping 192.168.10.5</span>
+
+<span class="comment"># Belirli bir hedefe giden yol üzerindeki tüm router'ları görme (yol takibi)</span>
+<span class="command">Router# traceroute 192.168.10.5</span>
+<span class="comment">Eğer traceroute bir noktada sürekli tekrarlanıyorsa bu bir döngüye, '*' karakterleriyle zaman aşımına uğruyorsa bu bir kara deliğe işarettir.</span>
+</pre>
+                </div>
+            </section>
+        </main>
+
+        <nav class="navigation">
+            <a href="../../index.html" class="nav-button">← Ana Sayfa</a>
+            <a href="solution.html" class="nav-button">Çözüm Detayları →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN and Interactive Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        .interactive-animation-container {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .animation-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .animation-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        .animation-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+        }
+        .animation-btn:active {
+            transform: translateY(0);
+        }
+        .animation-display {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .router-node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .router-node:hover circle {
+            fill: #2563eb;
+            transform: scale(1.1);
+            transform-origin: center;
+        }
+        .network-link {
+            transition: all 0.3s ease;
+        }
+        .route-table {
+            pointer-events: none;
+        }
+        #packet {
+            transition: all 0.2s ease;
+        }
+        .path-highlight {
+            stroke: #fbbf24 !important;
+            stroke-width: 5 !important;
+            filter: drop-shadow(0 0 8px #fbbf24);
+        }
+    </style>
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor'), cursorOutline = document.getElementById('cursorOutline');
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                setTimeout(() => { cursor.style.opacity = '1'; cursorOutline.style.opacity = '1'; }, 500);
+                document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px'; });
+                function animateOutline() { outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1; cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px'; requestAnimationFrame(animateOutline); }
+                animateOutline();
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .animation-btn').forEach(el => {
+                    el.addEventListener('mouseenter', () => { cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover'); });
+                    el.addEventListener('mouseleave', () => { cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover'); });
+                });
+            }
+
+            // Interactive Static Routing Animation System
+            const packet = document.getElementById('packet');
+            const statusMessage = document.getElementById('status-message');
+            const routeTableA = document.getElementById('route-table-a');
+            
+            let currentAnimation = null;
+            
+            // Animation coordinates for different paths
+            const paths = {
+                correct: [
+                    {x: 80, y: 200},   // Start at PC
+                    {x: 150, y: 200},  // Router A
+                    {x: 350, y: 200},  // Router B
+                    {x: 550, y: 150},  // Router C
+                    {x: 650, y: 100}   // Destination PC1
+                ],
+                loop: [
+                    {x: 80, y: 200},   // Start at PC
+                    {x: 150, y: 200},  // Router A
+                    {x: 350, y: 200},  // Router B
+                    {x: 550, y: 250},  // Router D (wrong)
+                    {x: 350, y: 200},  // Back to Router B (loop)
+                    {x: 550, y: 250},  // Router D again
+                    {x: 350, y: 200},  // Loop continues...
+                ],
+                blackhole: [
+                    {x: 80, y: 200},   // Start at PC
+                    {x: 150, y: 200},  // Router A
+                    {x: 350, y: 200},  // Router B
+                    {x: 400, y: 250}   // Disappears into void
+                ]
+            };
+            
+            // Reset animation state
+            function resetAnimation() {
+                if (currentAnimation) currentAnimation.kill();
+                gsap.set(packet, {opacity: 0, x: 0, y: 0});
+                gsap.set(statusMessage, {text: ""});
+                gsap.set('.network-link', {stroke: '#0ea5e9', strokeWidth: 3, filter: 'none'});
+                gsap.set(routeTableA, {opacity: 0});
+            }
+            
+            // Animate packet along path
+            function animatePacket(pathName, description) {
+                resetAnimation();
+                const path = paths[pathName];
+                const tl = gsap.timeline();
+                
+                // Show packet
+                tl.set(packet, {opacity: 1, x: path[0].x, y: path[0].y})
+                  .set(statusMessage, {text: `🚀 Başlatılıyor: ${description}`});
+                
+                // Animate through path points
+                for (let i = 1; i < path.length; i++) {
+                    tl.to(packet, {
+                        x: path[i].x,
+                        y: path[i].y,
+                        duration: 1,
+                        ease: "power2.inOut"
+                    });
+                    
+                    if (pathName === 'loop' && i >= 3) {
+                        // Add warning for loop
+                        tl.set(statusMessage, {text: "⚠️ Routing Loop Tespit Edildi! Paket döngüde..."});
+                        if (i === path.length - 1) {
+                            // Continue loop effect
+                            tl.repeat(2).yoyo(false);
+                        }
+                    }
+                }
+                
+                // Final status based on path type
+                if (pathName === 'correct') {
+                    tl.set(statusMessage, {text: "✅ Başarılı! Paket hedefe ulaştı."})
+                      .to(packet, {scale: 1.5, opacity: 0, duration: 0.5});
+                } else if (pathName === 'blackhole') {
+                    tl.set(statusMessage, {text: "🕳️ Black Hole! Paket kayboldu."})
+                      .to(packet, {scale: 0, opacity: 0, duration: 0.5});
+                } else if (pathName === 'loop') {
+                    tl.set(statusMessage, {text: "🔄 TTL bitene kadar loop devam ediyor..."});
+                }
+                
+                currentAnimation = tl;
+                return tl;
+            }
+            
+            // Button event handlers
+            document.getElementById('play-correct').addEventListener('click', () => {
+                animatePacket('correct', 'Doğru Static Route Yapılandırması');
+            });
+            
+            document.getElementById('play-loop').addEventListener('click', () => {
+                animatePacket('loop', 'Routing Loop Problemi');
+            });
+            
+            document.getElementById('play-blackhole').addEventListener('click', () => {
+                animatePacket('blackhole', 'Black Hole Route Problemi');
+            });
+            
+            document.getElementById('reset-animation').addEventListener('click', resetAnimation);
+            
+            // Router hover effects for route tables
+            document.querySelectorAll('.router-node').forEach(router => {
+                router.addEventListener('mouseenter', () => {
+                    if (router.id === 'router-a') {
+                        gsap.to(routeTableA, {opacity: 1, duration: 0.3});
+                    }
+                });
+                
+                router.addEventListener('mouseleave', () => {
+                    gsap.to(routeTableA, {opacity: 0, duration: 0.3});
+                });
+            });
+
+            // Page scroll animations
+            document.querySelectorAll('.section').forEach(section => gsap.fromTo(section, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", scrollTrigger: { trigger: section, start: "top 85%", once: true } }));
+            
+            console.log('🔧 Problem 6: Static Routing Animation - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

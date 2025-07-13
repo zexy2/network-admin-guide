@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çözüm: DHCP IP Dağıtım Çakışmaları - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-solution">
+                        <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="solution.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="solution-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+<h1>✅ Çözüm Adımları: DHCP IP Dağıtım Çakışmaları</h1>
+            <p>L3 - Network Layer - Uygulamalı Çözüm Rehberi</p>
+        </header>
+        
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Ana Sayfa</a> / <a href="description.html">Problem 5</a> / Çözüm Detayları
+        </nav>
+        
+        <main class="content">
+            <section class="section">
+                <h2>🔧 Adım Adım DHCP Çakışma Onarım Süreci</h2>
+                <p>Bu rehber, DHCP sunucusundaki IP adresi çakışmalarının tespit edilmesi ve çözülmesi için izlenmesi gereken adımları detaylı olarak açıklamaktadır.</p>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ Çözüm Sonrası: DHCP Düzgün Çalışıyor</h2>
+                <p>DHCP yapılandırması düzeltildikten sonra, IP adresi çakışmaları çözülür ve ağ iletişimi normale döner. Aşağıda düzeltilmiş ağ topolojisi görülmektedir:</p>
+                
+                <div class="topology-diagram">
+                    <pre class="ascii-art">
+                 DHCP Server (Router)                    Düzeltilmiş Ağ Yapısı
+                 192.168.1.1/24                         
+                ┌─────────────────┐                    
+                │ DHCP Pool:      │                    ✅ DHCP ÇAKIŞMA ÇÖZÜLDÜ ✅
+                │ 192.168.1.10-50 │                    
+                │ Gateway: .1     │                    
+                │ DNS: 8.8.8.8    │                    
+                │ Excluded: 1-9   │                    
+                └─────────┬───────┘                    
+                          │                            
+              ┌───────────┼───────────┐                
+              │                       │                
+              │                       │                
+        ┌─────▼─────┐             ┌───▼───┐            
+        │    PC1    │             │  PC2  │            
+        │Dynamic IP │             │Static │            
+        │192.168.1.25│             │192.168.1.5 │      ✅ FARKLI IP'LER!
+        │(DHCP'den) │             │(Excluded)│         
+        └───────────┘             └───────┘            
+              │                       │                
+              └──── Successful Comm ──┘                
+                   ARP Resolved Successfully!          
+    </pre>
+                    <p><strong>✅ Çözüm:</strong> PC2'nin statik IP'si excluded range'e taşındı (192.168.1.5)</p>
+                    <p><strong>🔧 DHCP Pool:</strong> 192.168.1.10-50 range'i güvenli şekilde dağıtılıyor</p>
+                    <p><strong>🌐 Connectivity:</strong> Artık hiç IP çakışması yok, tüm cihazlar çalışıyor</p>
+                </div>
+                
+                <h3>Çözüm Sonrası: Başarılı Ping Testi</h3>
+                <div class="image-container">
+                    <img src="../../images/screenshots/dhcp_ping_success.png" alt="DHCP Çözümü - Ping Başarılı" class="screenshot">
+                    <figcaption>Resim 1: DHCP düzeltildikten sonra başarılı ping testi</figcaption>
+                </div>
+                
+                <h3>Teknik Doğrulama: DHCP Conflict Temizlendi</h3>
+                <div class="code-block">
+<span class="command">Router# show ip dhcp conflict</span>
+<span class="output">(Boş sonuç - artık hiç conflict yok)</span>
+<span class="comment"># ✅ Tüm IP çakışmaları çözüldü!</span>
+
+<span class="command">Router# show ip dhcp binding</span>
+<span class="output">
+IP address       Client-ID/          Lease expiration     Type    State  Interface
+                 Hardware address
+192.168.1.25     01aa.bb.cc.dd.22   May 15 2024 14:30:45 Auto    Active Vlan10</span>
+<span class="comment"># PC1 artık güvenli IP range'inden IP almış</span>
+
+<span class="command">Router# show ip arp | include 192.168.1</span>
+<span class="output">
+Internet  192.168.1.5            0   ff.ee.dd.33.44  ARPA   Vlan10
+Internet  192.168.1.25           0   aa.bb.cc.dd.22  ARPA   Vlan10</span>
+<span class="comment"># ✅ Her IP için tek MAC adresi - çakışma yok!</span>
+                </div>
+                
+                <h4>Packet Tracer Çözüm Dosyası:</h4>
+                <p>Çözüm sonrası çalışır durumu gösteren Packet Tracer dosyasını <a href="packet_tracer/dhcp_solution.pkt" download>buradan</a> indirebilirsiniz.</p>
+            </section>
+
+            <section class="section">
+                <h2>Adım 1: DHCP Çakışma Probleminin Tespiti</h2>
+                
+                <div class="step">
+                    <div class="step-number">1A</div>
+                    <div class="step-content">
+                        <h3>IP Çakışma Hatalarını İzleme</h3>
+                        <p>DHCP çakışmaları genellikle console mesajları ve client hataları ile tespit edilir.</p>
+                        <div class="image-container">
+                            <img src="../../images/screenshots/dhcp_conflict_error.png" alt="DHCP Çakışma Hatası" class="screenshot">
+                            <figcaption>DHCP çakışma hata mesajı örneği</figcaption>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">1B</div>
+                    <div class="step-content">
+                        <h3>DHCP Pool Durumunu Kontrol Etme</h3>
+                        <p>DHCP sunucusunda pool durumunu ve çakışan IP'leri kontrol edin.</p>
+                        <div class="code-block">
+<span class="command">Router# show ip dhcp pool</span>
+<span class="output">Pool VLAN10_POOL :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0 
+ Total addresses                : 100
+ Leased addresses               : 45
+ Excluded addresses             : 5
+ Pending event                  : none</span>
+
+<span class="command">Router# show ip dhcp conflict</span>
+<span class="output">IP address       Detection method   Detection time
+192.168.10.11    Ping              Mar 01 1993 00:05:02</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Adım 2: DHCP Çakışmaları Düzeltme</h2>
+                
+                <div class="step">
+                    <div class="step-number">2A</div>
+                    <div class="step-content">
+                        <h3>Çakışan IP Adreslerini Temizleme</h3>
+                        <p>DHCP conflict tablosunu temizleyerek problemli IP'leri serbest bırakın.</p>
+                        <div class="code-block">
+<span class="command">Router(config)# ip dhcp conflict logging</span>
+<span class="comment"># Conflict logging'i etkinleştir</span>
+
+<span class="command">Router# clear ip dhcp conflict *</span>
+<span class="comment"># Tüm conflict'leri temizle</span>
+
+<span class="command">Router# clear ip dhcp binding *</span>
+<span class="comment"># Tüm mevcut lease'leri temizle</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2B</div>
+                    <div class="step-content">
+                        <h3>DHCP Pool Yapılandırmasını Düzeltme</h3>
+                        <p>Statik IP'leri exclude etmek ve scope ayarlarını doğru yapmak.</p>
+                        <div class="code-block">
+<span class="command">Router(config)# ip dhcp excluded-address 192.168.10.1 192.168.10.10</span>
+<span class="comment"># Gateway ve statik cihazları exclude et</span>
+
+<span class="command">Router(config)# ip dhcp pool VLAN10_POOL</span>
+<span class="command">Router(dhcp-config)# network 192.168.10.0 255.255.255.0</span>
+<span class="command">Router(dhcp-config)# default-router 192.168.10.1</span>
+<span class="command">Router(dhcp-config)# dns-server 8.8.8.8</span>
+<span class="command">Router(dhcp-config)# lease 0 12 0</span>
+<span class="comment"># 12 saatlik lease süresi</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Adım 3: DHCP Servisini Yeniden Başlatma</h2>
+
+                <div class="step">
+                    <div class="step-number">3A</div>
+                    <div class="step-content">
+                        <h3>DHCP Servisini Restart Etme</h3>
+                        <p>Değişikliklerin etkili olması için DHCP servisini yeniden başlatın.</p>
+                        <div class="code-block">
+<span class="command">Router(config)# no service dhcp</span>
+<span class="command">Router(config)# service dhcp</span>
+<span class="comment"># DHCP servisini restart et</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3B</div>
+                    <div class="step-content">
+                        <h3>Client'ların IP Yenileme</h3>
+                        <p>Client cihazlarda IP adreslerini yenileyin ve connectivity test yapın.</p>
+                        <div class="code-block">
+<span class="command">PC> ipconfig /release</span>
+<span class="command">PC> ipconfig /renew</span>
+<span class="output">IP Address: 192.168.10.50
+Subnet Mask: 255.255.255.0
+Default Gateway: 192.168.10.1</span>
+
+<span class="command">PC> ping 192.168.10.1</span>
+<span class="output">Reply from 192.168.10.1: bytes=32 time=1ms TTL=255</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Lab Özeti</h2>
+                <div class="packet-tracer-box">
+                    <h4>📁 Lab Dosyaları:</h4>
+                    <ul>
+                        <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/dhcp_problem.pkt" class="file-link">dhcp_problem.pkt</a> - IP çakışmaları var</li>
+                        <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/dhcp_solution.pkt" class="file-link">dhcp_solution.pkt</a> - DHCP düzeltildi</li>
+                    </ul>
+                    
+                    <h4>Lab Hedefleri:</h4>
+                    <ul>
+                        <li>DHCP IP çakışma problemlerini tespit etme</li>
+                        <li>Conflict tablosunu temizleme</li>
+                        <li>DHCP pool yapılandırmasını düzeltme</li>
+                        <li>Excluded address range'lerini doğru ayarlama</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>💡 DHCP En İyi Uygulamaları</h2>
+                <div class="info-box">
+                    <h4>Çakışmaları Önlemek İçin:</h4>
+                    <ul>
+                        <li><strong>Excluded Range:</strong> Statik IP'leri her zaman exclude edin</li>
+                        <li><strong>Conflict Detection:</strong> DHCP conflict logging'i aktif tutun</li>
+                        <li><strong>Lease Time:</strong> Uygun lease süreleri belirleyin</li>
+                        <li><strong>Pool Monitoring:</strong> DHCP pool kullanımını düzenli kontrol edin</li>
+                        <li><strong>Backup DHCP:</strong> Redundant DHCP sunucuları kullanın</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        
+        <nav class="navigation">
+            <a href="description.html" class="nav-button">← Problem Tanımı</a>
+            <a href="../../index.html" class="nav-button">Ana Sayfa</a>
+            <a href="../problem_06/description.html" class="nav-button">Problem 6'ya Geç →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                gsap.fromTo(section, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+            
+            console.log('🔧 Problem 05 Solution (TR) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

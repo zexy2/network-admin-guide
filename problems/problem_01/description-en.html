@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem 1: Fiber Optic Cable Break - Admin Guide</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-l1">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="description.html" class="lang-btn">🇹🇷 Türkçe</a>
+                <a href="description-en.html" class="lang-btn active">🇺🇸 English</a>
+            </div>
+            
+            <h1>🔴 Problem 1: Fiber Optic Cable Break and Detection Methods</h1>
+            <p>L1 - Physical Layer - Admin Guide Tutorial</p>
+        </header>
+        
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Home</a> / L1 Physical Layer / Problem 1
+        </nav>
+        
+        <main class="content">
+            <!-- Problem Definition -->
+            <section class="section">
+                <h2>📋 Problem Definition</h2>
+                <p>One of the most critical problems experienced in fiber optic networks is physical cable breakage. This situation causes complete network connection loss, data loss, and business continuity interruption. Since fiber optic infrastructure is widely used in modern data centers and WAN connections, rapid detection and resolution of such problems is critically important.</p>
+                
+                <div class="danger-box">
+                    <strong>⚠️ Critical Situation:</strong> Fiber optic cable breakage immediately causes network downtime and can lead to SLA (Service Level Agreement) violations.
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ Problem Diagram (Example)</h2>
+                <p>Below is an example of connection loss experienced during fiber optic cable breakage. When the fiber connection between Switch-A and Switch-B is broken, you can see that the ping test from PC-A to PC-B fails:</p>
+                
+                <!-- Interactive Fiber Cable Animation -->
+                <div class="svg-animation-container" id="fiberAnimation">
+                    <h3 style="text-align: center; margin-bottom: 1rem; color: var(--accent-teal);">🔬 Interactive Fiber Optic Cable Animation</h3>
+                    <svg viewBox="0 0 800 300" style="width: 100%; height: auto; background: #0a192f;">
+                        <defs>
+                            <linearGradient id="fiberGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#ffd700"/>
+                                <stop offset="100%" stop-color="#ff6b6b"/>
+                            </linearGradient>
+                            <linearGradient id="signalGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#64ffda" stop-opacity="0"/>
+                                <stop offset="50%" stop-color="#64ffda" stop-opacity="1"/>
+                                <stop offset="100%" stop-color="#64ffda" stop-opacity="0"/>
+                            </linearGradient>
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                <feMerge> 
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        
+                        <!-- Background -->
+                        <rect width="800" height="300" fill="#112240" opacity="0.5"/>
+                        
+                        <!-- Network Devices -->
+                        <!-- Switch A -->
+                        <rect x="50" y="120" width="60" height="40" rx="5" fill="#3498db" stroke="#64ffda" stroke-width="2"/>
+                        <text x="80" y="140" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Switch A</text>
+                        <circle cx="110" cy="140" r="3" fill="#2ecc71" id="portA"/>
+                        
+                        <!-- Switch B -->
+                        <rect x="690" y="120" width="60" height="40" rx="5" fill="#3498db" stroke="#64ffda" stroke-width="2"/>
+                        <text x="720" y="140" text-anchor="middle" fill="white" font-size="10" font-family="Arial">Switch B</text>
+                        <circle cx="690" cy="140" r="3" fill="#2ecc71" id="portB"/>
+                        
+                        <!-- Fiber Cable Path -->
+                        <path id="fiberCable" d="M 110 140 Q 400 100 690 140" 
+                              stroke="url(#fiberGradient)" stroke-width="8" fill="none" 
+                              stroke-linecap="round" filter="url(#glow)"/>
+                        
+                        <!-- Break Point -->
+                        <circle id="breakPoint" cx="400" cy="110" r="8" fill="#e74c3c" opacity="0">
+                            <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite"/>
+                        </circle>
+                        <text x="400" y="90" text-anchor="middle" fill="#e74c3c" font-size="12" font-weight="bold" opacity="0" id="breakText">BREAK!</text>
+                        
+                        <!-- Data Signal Pulses -->
+                        <circle id="dataSignal1" cx="110" cy="140" r="6" fill="url(#signalGradient)" opacity="0.8"/>
+                        <circle id="dataSignal2" cx="110" cy="140" r="4" fill="#64ffda" opacity="0.6"/>
+                        
+                        <!-- Status Indicators -->
+                        <text x="50" y="200" fill="#2ecc71" font-size="14" font-weight="bold" id="statusA">Status A: OK</text>
+                        <text x="550" y="200" fill="#2ecc71" font-size="14" font-weight="bold" id="statusB">Status B: OK</text>
+                        
+                        <!-- Legend -->
+                        <text x="50" y="280" fill="#64ffda" font-size="12">🔹 Normal Operation: Signals flow continuously</text>
+                        <text x="450" y="280" fill="#e74c3c" font-size="12">🔸 Break Detected: Signal loss at break point</text>
+                    </svg>
+                    <p style="text-align: center; margin-top: 1rem; color: var(--text-secondary); font-style: italic;">
+                        Scroll down to watch the fiber optic cable break simulation
+                    </p>
+                </div>
+                
+                <div class="image-container">
+                    <img src="../../images/screenshots/fiber_ping_failure.png" alt="Fiber Break - Ping Failed" class="screenshot">
+                    <figcaption>Figure 1: Failed ping test due to fiber cable breakage</figcaption>
+                </div>
+                
+                <h4>Packet Tracer Simulation File:</h4>
+                <p>You can download the Packet Tracer file containing the simulation of this fiber breakage problem <a href="packet_tracer/fiber_problem.pkt" download>here</a>.</p>
+            </section>
+
+            <!-- Problem Causes -->
+            <section class="section">
+                <h2>🔍 Problem Causes</h2>
+                
+                <h3>1. Physical Damage</h3>
+                <ul>
+                    <li><strong>Excavation work:</strong> Cutting fiber cables during road construction</li>
+                    <li><strong>Excessive bending:</strong> Exceeding the minimum bending radius of the cable</li>
+                    <li><strong>Mechanical stress:</strong> Heavy objects falling on the cable</li>
+                    <li><strong>Vandalism:</strong> Intentional damage actions</li>
+                </ul>
+                
+                <h3>2. Environmental Factors</h3>
+                <ul>
+                    <li><strong>Temperature changes:</strong> Extreme temperature fluctuations</li>
+                    <li><strong>Humidity:</strong> Water leakage and moisture accumulation</li>
+                    <li><strong>Rodents:</strong> Mice, rats, etc. chewing cables</li>
+                    <li><strong>Natural disasters:</strong> Natural events like earthquakes, floods, storms</li>
+                </ul>
+                
+                <h3>3. Incorrect Installation</h3>
+                <ul>
+                    <li><strong>Improper routing:</strong> Running cable on wrong routes</li>
+                    <li><strong>Lack of protection:</strong> Not using appropriate conduit or protection sleeve</li>
+                    <li><strong>Connector problems:</strong> Faulty connector connections</li>
+                </ul>
+            </section>
+
+            <!-- Detection Methods -->
+            <section class="section">
+                <h2>🔧 Detection Methods</h2>
+                
+                <div class="info-box">
+                    <strong>💡 Note:</strong> Various methods and tools can be used to detect fiber optic cable breaks. Each method has its advantages and limitations.
+                </div>
+                
+                <h3><span class="step-number">1</span>Visual Inspection</h3>
+                <p>The first and most basic step is visual inspection of the cable route.</p>
+                <ul>
+                    <li>Following the cable route</li>
+                    <li>Looking for visible damage</li>
+                    <li>Checking connector conditions</li>
+                    <li>Examining patch panels and splice boxes</li>
+                </ul>
+                
+                <h3><span class="step-number">2</span>Using Optical Power Meter</h3>
+                <p>Checking connection status by measuring optical power on the fiber.</p>
+                
+                <div class="code-block">
+<span class="comment"># Typical optical power readings</span>
+<span class="command">Normal Single Mode:</span> <span class="output">-5 dBm to -15 dBm</span>
+<span class="command">Normal Multi Mode:</span> <span class="output">-10 dBm to -20 dBm</span>
+<span class="command">Break condition:</span> <span class="output">No Signal / Below -40 dBm</span>
+                </div>
+                
+                <h3><span class="step-number">3</span>OTDR (Optical Time Domain Reflectometer) Analysis</h3>
+                <p>The most effective and precise detection method. Sends pulses along the cable and analyzes reflected signals.</p>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Attention:</strong> OTDR usage requires special training and is an expensive device. However, it can provide the exact location of the break with meter precision.
+                </div>
+                
+                <div class="code-block">
+<span class="comment"># OTDR Test Parameters</span>
+<span class="command">Wavelength:</span> <span class="output">1310nm / 1550nm</span>
+<span class="command">Pulse Width:</span> <span class="output">1-10 µs (depending on distance)</span>
+<span class="command">Range:</span> <span class="output">2-200 km (depending on fiber type)</span>
+<span class="command">Resolution:</span> <span class="output">1-5 meters</span>
+                </div>
+            </section>
+
+            <!-- Used Tools -->
+            <section class="section">
+                <h2>🛠️ Used Tools and Equipment</h2>
+                
+                <div class="tools-grid">
+                    <div class="tool-card">
+                        <h4>🔍 OTDR</h4>
+                        <p>Precisely determines break location. Price: $5000-$25000</p>
+                    </div>
+                    <div class="tool-card">
+                        <h4>📊 Optical Power Meter</h4>
+                        <p>Measures optical power in fiber. Price: $200-$1000</p>
+                    </div>
+                    <div class="tool-card">
+                        <h4>🔦 Fiber Light Source</h4>
+                        <p>Generates test signal. Price: $100-$500</p>
+                    </div>
+                    <div class="tool-card">
+                        <h4>👁️ Visual Fault Locator</h4>
+                        <p>Shows breaks with red laser. Price: $50-$300</p>
+                    </div>
+                    <div class="tool-card">
+                        <h4>🧹 Fiber Cleaner</h4>
+                        <p>For connector cleaning. Price: $10-$50</p>
+                    </div>
+                    <div class="tool-card">
+                        <h4>🔬 Microscope</h4>
+                        <p>Examines connector surface. Price: $200-$2000</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Solution Steps -->
+            <section class="section">
+                <h2>✅ Solution Steps</h2>
+                
+                <h3><span class="step-number">1</span>Emergency Procedure</h3>
+                <ol>
+                    <li>Responding to alarm via <strong>network monitoring system</strong></li>
+                    <li>Checking if there is a <strong>backup route</strong></li>
+                    <li>Redirecting <strong>affected services</strong> through alternative paths</li>
+                    <li>Informing <strong>relevant teams</strong> (NOC, field team)</li>
+                </ol>
+                
+                <div class="code-block">
+<span class="comment"># Network monitoring commands</span>
+<span class="command">ping -c 4 192.168.1.1</span>
+<span class="command">traceroute 8.8.8.8</span>
+<span class="command">show interface gi0/1</span>
+<span class="output">GigabitEthernet0/1 is down, line protocol is down</span>
+                </div>
+                
+                <h3><span class="step-number">2</span>Localization (Finding Break Location)</h3>
+                <ol>
+                    <li>Performing <strong>OTDR test</strong> to determine exact location</li>
+                    <li><strong>Fiber documentation</strong> check (as-built drawings)</li>
+                    <li>Field search with <strong>GPS coordinates</strong></li>
+                    <li>Final check with <strong>visual fault locator</strong></li>
+                </ol>
+                
+                <h3><span class="step-number">3</span>Temporary Fix</h3>
+                <div class="warning-box">
+                    <strong>⚠️ Temporary Solution:</strong> To restore service until permanent repair is made.
+                </div>
+                
+                <ol>
+                    <li>Creating bypass using <strong>spare fiber</strong></li>
+                    <li>Setting up <strong>microwave link</strong> (temporary)</li>
+                    <li><strong>Satellite connection</strong> activation</li>
+                    <li>Traffic routing through <strong>alternative route</strong></li>
+                </ol>
+                
+                <h3><span class="step-number">4</span>Permanent Repair</h3>
+                <ol>
+                    <li>Opening and cleaning <strong>damaged section</strong></li>
+                    <li>Joining fiber with <strong>fusion splicing</strong></li>
+                    <li>Applying <strong>splice protection</strong></li>
+                    <li>Performing <strong>test and verification</strong></li>
+                    <li>Updating <strong>documentation</strong></li>
+                </ol>
+                
+                <div class="code-block">
+<span class="comment"># Fusion splice test commands</span>
+<span class="command">OTDR Test Before:</span> <span class="output">Total Loss: 15.2 dB</span>
+<span class="command">Splice Loss:</span> <span class="output">0.05 dB (Excellent)</span>
+<span class="command">OTDR Test After:</span> <span class="output">Total Loss: 2.8 dB (Normal)</span>
+                </div>
+            </section>
+
+            <!-- Prevention Methods -->
+            <section class="section">
+                <h2>🛡️ Prevention Methods</h2>
+                
+                <h3>Physical Protection</h3>
+                <ul>
+                    <li>Using <strong>armored cable</strong></li>
+                    <li><strong>Underground conduit</strong> system</li>
+                    <li><strong>Proper burial depth</strong> (minimum 75cm)</li>
+                    <li>Placing <strong>warning tape</strong></li>
+                </ul>
+                
+                <h3>Monitoring and Alerting</h3>
+                <ul>
+                    <li>Setting up <strong>real-time monitoring</strong> system</li>
+                    <li><strong>Proactive OTDR testing</strong> (monthly)</li>
+                    <li><strong>Environmental monitoring</strong> (temperature, humidity)</li>
+                    <li><strong>Redundant path</strong> planning</li>
+                </ul>
+                
+                <div class="success-box">
+                    <strong>✅ Best Practice:</strong> Always plan 100% redundancy in fiber infrastructure and implement regular maintenance schedule.
+                </div>
+            </section>
+
+            <!-- Example Case -->
+            <section class="section">
+                <h2>📚 Real Case Example</h2>
+                
+                <div class="info-box">
+                    <h4>🏢 Case: Data Center Internet Connection Break</h4>
+                    <p><strong>Situation:</strong> Fiber break in intercity main internet line</p>
+                    <p><strong>Impact:</strong> 2500 users lost internet access</p>
+                    <p><strong>Duration:</strong> 4 hours 15 minutes downtime</p>
+                </div>
+                
+                <h3>Problem Detection:</h3>
+                <ol>
+                    <li><strong>09:15</strong> - NOC alarms started</li>
+                    <li><strong>09:20</strong> - OTDR test performed</li>
+                    <li><strong>09:25</strong> - Break detected at 45.2 km distance</li>
+                    <li><strong>09:30</strong> - Field team dispatched</li>
+                </ol>
+                
+                <h3>Solution Process:</h3>
+                <ol>
+                    <li><strong>10:00</strong> - Backup route activated (50% capacity)</li>
+                    <li><strong>11:30</strong> - Break found in field</li>
+                    <li><strong>12:45</strong> - Fusion splice completed</li>
+                    <li><strong>13:30</strong> - Test OK, full capacity restored</li>
+                </ol>
+                
+                <div class="success-box">
+                    <strong>✅ Result:</strong> Permanent protection measures were taken and redundant path capacity increased to 100%.
+                </div>
+            </section>
+
+            <!-- Important Notes -->
+            <section class="section">
+                <h2>⚠️ Important Notes and Warnings</h2>
+                
+                <div class="danger-box">
+                    <h4>🚫 Safety Warnings:</h4>
+                    <ul>
+                        <li>Use <strong>protective eyewear</strong> when working with fiber optic cables</li>
+                        <li>Do not look <strong>directly at laser light</strong></li>
+                        <li><strong>Safely dispose</strong> of cut fiber fragments</li>
+                        <li>Ensure <strong>proper ventilation</strong> during splice operations</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>⚠️ SLA and Business Impact:</h4>
+                    <p>Fiber breaks create business-critical impact. Consider the following factors:</p>
+                    <ul>
+                        <li><strong>RTO (Recovery Time Objective):</strong> Maximum 4 hours</li>
+                        <li><strong>RPO (Recovery Point Objective):</strong> Maximum 15 minutes</li>
+                        <li><strong>SLA penalties:</strong> Hourly penalties per downtime</li>
+                        <li><strong>Customer communication:</strong> Transparent and proactive notification</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        
+        <nav class="navigation">
+            <a href="../../index.html" class="nav-button">← Home</a>
+            <a href="solution-en.html" class="nav-button">Solution Details →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // Fiber Optic Cable Break Animation
+        function initFiberAnimation() {
+            const fiberContainer = document.getElementById('fiberAnimation');
+            if (!fiberContainer) return;
+            
+            // Get SVG elements
+            const dataSignal1 = document.getElementById('dataSignal1');
+            const dataSignal2 = document.getElementById('dataSignal2');
+            const breakPoint = document.getElementById('breakPoint');
+            const breakText = document.getElementById('breakText');
+            const statusA = document.getElementById('statusA');
+            const statusB = document.getElementById('statusB');
+            const portA = document.getElementById('portA');
+            const portB = document.getElementById('portB');
+            
+            // Timeline for normal operation
+            const normalTL = gsap.timeline({ repeat: -1 });
+            
+            // Signal 1 animation (main pulse)
+            normalTL.set(dataSignal1, { 
+                attr: { cx: 110, cy: 140, r: 6 },
+                opacity: 0.8
+            })
+            .to(dataSignal1, {
+                motionPath: {
+                    path: "M 110 140 Q 400 100 690 140",
+                    autoRotate: false,
+                },
+                duration: 3,
+                ease: "power2.inOut",
+                opacity: 0.8
+            })
+            .set(dataSignal1, { opacity: 0 });
+            
+            // Signal 2 animation (secondary pulse) with delay
+            normalTL.set(dataSignal2, { 
+                attr: { cx: 110, cy: 140, r: 4 },
+                opacity: 0.6
+            }, 1)
+            .to(dataSignal2, {
+                motionPath: {
+                    path: "M 110 140 Q 400 100 690 140",
+                    autoRotate: false,
+                },
+                duration: 3,
+                ease: "power2.inOut",
+                opacity: 0.6
+            }, 1)
+            .set(dataSignal2, { opacity: 0 }, 4);
+            
+            // ScrollTrigger for break animation
+            ScrollTrigger.create({
+                trigger: fiberContainer,
+                start: "top 60%",
+                end: "bottom 40%",
+                onEnter: () => triggerBreakSequence(),
+                onLeaveBack: () => restoreNormalOperation()
+            });
+            
+            function triggerBreakSequence() {
+                // Stop normal operation
+                normalTL.pause();
+                
+                // Create break sequence timeline
+                const breakTL = gsap.timeline();
+                
+                // Show break point and text
+                breakTL.to([breakPoint, breakText], {
+                    opacity: 1,
+                    duration: 0.5,
+                    ease: "power2.out"
+                })
+                
+                // Signal attempts to pass but stops at break
+                .set(dataSignal1, { 
+                    attr: { cx: 110, cy: 140, r: 6 },
+                    opacity: 0.8
+                })
+                .to(dataSignal1, {
+                    motionPath: {
+                        path: "M 110 140 Q 350 105 400 110",
+                        autoRotate: false,
+                    },
+                    duration: 2,
+                    ease: "power2.out"
+                })
+                
+                // Signal bounces back (reflection)
+                .to(dataSignal1, {
+                    motionPath: {
+                        path: "M 400 110 Q 350 105 110 140",
+                        autoRotate: false,
+                    },
+                    duration: 1.5,
+                    ease: "power2.in",
+                    fill: "#ff6b6b" // Change color to indicate error
+                })
+                .set(dataSignal1, { opacity: 0 })
+                
+                // Update status indicators
+                .to(statusA, {
+                    attr: { fill: "#e74c3c" },
+                    duration: 0.3,
+                    onComplete: () => {
+                        statusA.textContent = "Status A: LINK DOWN";
+                    }
+                }, 2)
+                .to(statusB, {
+                    attr: { fill: "#e74c3c" },
+                    duration: 0.3,
+                    onComplete: () => {
+                        statusB.textContent = "Status B: NO CARRIER";
+                    }
+                }, 2.2)
+                
+                // Change port colors to red
+                .to([portA, portB], {
+                    attr: { fill: "#e74c3c" },
+                    duration: 0.5
+                }, 2);
+                
+                // Pulse break point
+                gsap.to(breakPoint, {
+                    scale: 1.5,
+                    duration: 0.8,
+                    ease: "sine.inOut",
+                    repeat: -1,
+                    yoyo: true
+                });
+            }
+            
+            function restoreNormalOperation() {
+                // Kill break animations
+                gsap.killTweensOf([breakPoint, breakText, dataSignal1, dataSignal2]);
+                
+                // Hide break elements
+                gsap.set([breakPoint, breakText], { opacity: 0 });
+                
+                // Restore status indicators
+                gsap.set(statusA, { attr: { fill: "#2ecc71" } });
+                gsap.set(statusB, { attr: { fill: "#2ecc71" } });
+                statusA.textContent = "Status A: OK";
+                statusB.textContent = "Status B: OK";
+                
+                // Restore port colors
+                gsap.set([portA, portB], { attr: { fill: "#2ecc71" } });
+                
+                // Resume normal operation
+                normalTL.restart();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize fiber animation
+            setTimeout(() => {
+                initFiberAnimation();
+            }, 500);
+            
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section) => {
+                gsap.fromTo(section, { opacity: 0, y: 50 }, {
+                    opacity: 1, y: 0, duration: 0.8, ease: "power3.out",
+                    scrollTrigger: { trigger: section, start: "top 85%", once: true }
+                });
+            });
+            
+            console.log('🔧 Problem 1: Fiber Optic Cable (EN) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

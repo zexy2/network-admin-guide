@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çözüm: SSH Session Timeout ve Uzaktan Erişim Problemleri - Admin Rehberi</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-solution">
+                        <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="solution.html" class="lang-btn active">🇹🇷 Türkçe</a>
+                <a href="solution-en.html" class="lang-btn">🇺🇸 English</a>
+            </div>
+            
+<h1>✅ Çözüm Adımları: SSH Session Timeout ve Uzaktan Erişim Problemleri</h1>
+            <p>L5 - Session Layer - Uygulamalı Çözüm Rehberi</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">← Ana Sayfa</a> / <a href="description.html">Problem 8</a> / Çözüm Detayları
+        </nav>
+
+        <main class="content">
+            <section class="section">
+                <h2>🔧 Adım Adım SSH Session Timeout Onarım Süreci</h2>
+                <p>Bu rehber, SSH session timeout problemlerinin tespit edilmesi ve optimize edilmesi için izlenmesi gereken adımları detaylı olarak açıklamaktadır. Session Layer (L5) seviyesinde kalıcı çözümler sunulmuştur.</p>
+            </section>
+
+            <section class="section">
+                <h2>🖼️ Çözüm Sonrası: SSH Session Kararlılığı</h2>
+                <p>SSH timeout parametreleri optimize edildikten sonra, uzun süreli session'lar kararlı şekilde çalışır. Aşağıda SSH keepalive ile kararlı bağlantının sağlandığı görülmektedir:</p>
+                
+                <div class="image-container">
+                    <img src="../../images/screenshots/ssh_session_success.png" alt="SSH Keepalive Başarılı" class="screenshot" style="background: #f8f9fa; border: 2px dashed #666; padding: 20px; text-align: center; color: #666;">
+                    <figcaption>Resim 1: SSH keepalive ile kararlı ve uzun süreli bağlantı</figcaption>
+                </div>
+                
+                <h4>Packet Tracer Çözüm Dosyası:</h4>
+                <p>Çözüm sonrası optimize edilmiş SSH yapılandırmasını gösteren Packet Tracer dosyasını <a href="packet_tracer/ssh_timeout_solution.pkt" download>buradan</a> indirebilirsiniz.</p>
+            </section>
+
+            <section class="section">
+                <h2>Adım 1: Server-Side SSH Timeout Optimizasyonu</h2>
+                
+                <div class="step">
+                    <div class="step-number">1A</div>
+                    <div class="step-content">
+                        <h3>Cisco Router/Switch SSH Konfigürasyonu</h3>
+                        <p>Cisco cihazlarda SSH timeout ve keepalive ayarlarını optimize edin:</p>
+                        <div class="code-block">
+<span class="comment"># SSH daemon timeout süresini artırma</span>
+<span class="command">Router(config)# ip ssh time-out 300</span>
+<span class="comment"># SSH timeout 5 dakikaya çıkarıldı (default: 120 saniye)</span>
+
+<span class="command">Router(config)# ip ssh authentication-retries 5</span>
+<span class="comment"># Authentication retry sayısını artır</span>
+
+<span class="comment"># VTY line exec-timeout optimize etme</span>
+<span class="command">Router(config)# line vty 0 15</span>
+<span class="command">Router(config-line)# exec-timeout 60 0</span>
+<span class="comment"># VTY timeout 60 dakika (0 = sonsuz da olabilir ama güvenlik riski)</span>
+
+<span class="command">Router(config-line)# session-timeout 120</span>
+<span class="comment"># Absolute session timeout 120 dakika</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">1B</div>
+                    <div class="step-content">
+                        <h3>Linux/Unix SSH Server Optimizasyonu</h3>
+                        <p>SSH daemon konfigürasyonunu (/etc/ssh/sshd_config) optimize edin:</p>
+                        <div class="code-block">
+<span class="comment"># SSH server keepalive ayarları</span>
+<span class="command">ClientAliveInterval 120</span>
+<span class="comment"># Her 2 dakikada bir client'a keepalive gönder</span>
+
+<span class="command">ClientAliveCountMax 3</span>
+<span class="comment"># 3 defa cevap alamazsa bağlantıyı kes</span>
+
+<span class="command">TCPKeepAlive yes</span>
+<span class="comment"># TCP seviyesinde keepalive etkinleştir</span>
+
+<span class="command">LoginGraceTime 300</span>
+<span class="comment"># Login için 5 dakika grace time</span>
+
+<span class="comment"># Konfigürasyonu aktive etme</span>
+<span class="command">systemctl reload sshd</span>
+<span class="comment"># SSH daemon reload (mevcut bağlantıları koparmaz)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Adım 2: Client-Side SSH Optimizasyonu</h2>
+                
+                <div class="step">
+                    <div class="step-number">2A</div>
+                    <div class="step-content">
+                        <h3>SSH Client Keepalive Ayarları</h3>
+                        <p>SSH client'tan server'a düzenli keepalive paketleri gönderin:</p>
+                        <div class="code-block">
+<span class="comment"># Command line ile keepalive</span>
+<span class="command">ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=3 admin@192.168.1.1</span>
+<span class="comment"># Her 60 saniyede keepalive, 3 defa fail olursa disconnect</span>
+
+<span class="comment"># SSH config dosyası (~/.ssh/config) ile kalıcı ayar</span>
+<span class="command">Host network-devices</span>
+<span class="command">    HostName *.local</span>
+<span class="command">    User admin</span>
+<span class="command">    ServerAliveInterval 60</span>
+<span class="command">    ServerAliveCountMax 3</span>
+<span class="command">    ConnectTimeout 10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2B</div>
+                    <div class="step-content">
+                        <h3>Terminal Multiplexer Kullanımı</h3>
+                        <p>SSH session persistency için screen veya tmux kullanın:</p>
+                        <div class="code-block">
+<span class="comment"># Screen ile persistent session</span>
+<span class="command">ssh admin@192.168.1.1</span>
+<span class="command">screen -S router-config</span>
+<span class="comment"># Router konfigürasyonu yapın</span>
+<span class="command">Ctrl+A, D</span>
+<span class="comment"># Screen'i detach edin (SSH kapansa bile devam eder)</span>
+
+<span class="comment"># Tekrar bağlanıp session'ı resume etme</span>
+<span class="command">ssh admin@192.168.1.1</span>
+<span class="command">screen -r router-config</span>
+<span class="comment"># Kaldığınız yerden devam edin</span>
+
+<span class="comment"># tmux alternatifi</span>
+<span class="command">tmux new-session -s maintenance</span>
+<span class="command">tmux detach</span>
+<span class="command">tmux attach-session -t maintenance</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Adım 3: Network Infrastructure Optimizasyonu</h2>
+
+                <div class="step">
+                    <div class="step-number">3A</div>
+                    <div class="step-content">
+                        <h3>NAT/Firewall Timeout Ayarları</h3>
+                        <p>Network cihazlarında SSH connection tracking timeout'larını optimize edin:</p>
+                        <div class="code-block">
+<span class="comment"># Cisco ASA Firewall timeout ayarları</span>
+<span class="command">ASA(config)# timeout conn 2:00:00</span>
+<span class="comment"># Connection timeout 2 saat</span>
+
+<span class="command">ASA(config)# timeout tcp-proxy-reassembly 01:00:00</span>
+<span class="comment"># TCP proxy timeout 1 saat</span>
+
+<span class="comment"># pfSense firewall TCP timeout</span>
+<span class="command">Advanced > Firewall & NAT > Firewall Advanced</span>
+<span class="command">TCP connection timeout: 7200 seconds</span>
+
+<span class="comment"># Linux iptables connection tracking</span>
+<span class="command">echo 7200 > /proc/sys/net/netfilter/nf_conntrack_tcp_timeout_established</span>
+<span class="comment"># Established TCP connection timeout 2 saat</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3B</div>
+                    <div class="step-content">
+                        <h3>QoS ve Traffic Prioritization</h3>
+                        <p>SSH trafiği için QoS politikaları uygulayarak latency'yi minimize edin:</p>
+                        <div class="code-block">
+<span class="comment"># Cisco router SSH traffic QoS</span>
+<span class="command">Router(config)# access-list 101 permit tcp any any eq 22</span>
+<span class="command">Router(config)# class-map SSH_TRAFFIC</span>
+<span class="command">Router(config-cmap)# match access-group 101</span>
+
+<span class="command">Router(config)# policy-map WAN_QOS</span>
+<span class="command">Router(config-pmap)# class SSH_TRAFFIC</span>
+<span class="command">Router(config-pmap-c)# priority percent 20</span>
+<span class="comment"># SSH trafiğine %20 priority ver</span>
+
+<span class="command">Router(config-pmap-c)# set dscp ef</span>
+<span class="comment"># SSH paketlerini expedited forwarding olarak işaretle</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Adım 4: Session Management En İyi Uygulamaları</h2>
+
+                <div class="step">
+                    <div class="step-number">4A</div>
+                    <div class="step-content">
+                        <h3>Connection Pooling ve Multiplexing</h3>
+                        <p>SSH connection multiplexing ile session overhead'ini azaltın:</p>
+                        <div class="code-block">
+<span class="comment"># SSH config dosyasında connection multiplexing</span>
+<span class="command">Host *</span>
+<span class="command">    ControlMaster auto</span>
+<span class="command">    ControlPath ~/.ssh/master-%r@%h:%p</span>
+<span class="command">    ControlPersist 600</span>
+<span class="comment"># İlk bağlantı sonrası 10 dakika socket açık tut</span>
+
+<span class="comment"># Multiple session'lar aynı TCP connection kullanacak</span>
+<span class="command">ssh admin@router1.local</span>
+<span class="command">ssh admin@router1.local</span>
+<span class="comment"># İkinci bağlantı anında açılır</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4B</div>
+                    <div class="step-content">
+                        <h3>Monitoring ve Alerting</h3>
+                        <p>SSH session health'ini sürekli izleyin:</p>
+                        <div class="code-block">
+<span class="comment"># SSH connection monitoring script</span>
+<span class="command">#!/bin/bash</span>
+<span class="command">while true; do</span>
+<span class="command">  ssh -o ConnectTimeout=5 admin@router1 'echo "Keepalive: $(date)"'</span>
+<span class="command">  if [ $? -ne 0 ]; then</span>
+<span class="command">    echo "SSH connection failed at $(date)" | mail -s "SSH Alert" admin@company.com</span>
+<span class="command">  fi</span>
+<span class="command">  sleep 300</span>
+<span class="command">done</span>
+
+<span class="comment"># SSH session sayısını monitoring</span>
+<span class="command">Router# show ssh | count</span>
+<span class="command">Router# show users | include SSH</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎯 Packet Tracer Lab Özeti</h2>
+                <div class="packet-tracer-box">
+                    <h4>📁 Lab Dosyaları:</h4>
+                    <ul>
+                        <li><strong>Problem Dosyası:</strong> <a href="packet_tracer/ssh_timeout_problem.pkt" class="file-link">ssh_timeout_problem.pkt</a> - SSH timeout problemi</li>
+                        <li><strong>Çözüm Dosyası:</strong> <a href="packet_tracer/ssh_timeout_solution.pkt" class="file-link">ssh_timeout_solution.pkt</a> - SSH optimize edilmiş</li>
+                    </ul>
+                    
+                    <h4>Lab Çözüm Adımları:</h4>
+                    <ol>
+                        <li>SSH timeout ayarlarını diagnosis etme</li>
+                        <li>VTY line exec-timeout optimize etme</li>
+                        <li>Client-side keepalive yapılandırması</li>
+                        <li>Long-running session test etme</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>💡 SSH Session Management En İyi Uygulamaları</h2>
+                <div class="info-box">
+                    <h4>Production Environment İçin Öneriler:</h4>
+                    <ul>
+                        <li><strong>Reasonable Timeouts:</strong> Çok kısa timeout güvenlik riski, çok uzun timeout security risk</li>
+                        <li><strong>Keepalive Strategy:</strong> Hem client hem server-side keepalive kullanın</li>
+                        <li><strong>Session Persistence:</strong> Critical maintenance için screen/tmux kullanın</li>
+                        <li><strong>Connection Monitoring:</strong> SSH session health'ini otomatik izleyin</li>
+                        <li><strong>Backup Access:</strong> SSH fail olduğunda alternatif erişim yolları hazırlayın</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>⚠️ SSH Timeout Troubleshooting Checklist</h2>
+                <div class="warning-box">
+                    <h4>SSH Session Kesildiğinde Kontrol Edilecekler:</h4>
+                    <ol>
+                        <li><strong>Server SSH Config:</strong> ClientAliveInterval, TCPKeepAlive ayarları</li>
+                        <li><strong>Client Keepalive:</strong> ServerAliveInterval parametresi</li>
+                        <li><strong>VTY Timeout:</strong> exec-timeout ve session-timeout değerleri</li>
+                        <li><strong>Network Path:</strong> NAT/Firewall timeout ayarları</li>
+                        <li><strong>Network Quality:</strong> Latency, packet loss, jitter kontrolü</li>
+                        <li><strong>Load Balancer:</strong> Session persistence ayarları</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>📊 SSH Performance Metrics</h2>
+                <div class="success-box">
+                    <h4>İzlenmesi Gereken SSH Metrikleri:</h4>
+                    <ul>
+                        <li><strong>Connection Success Rate:</strong> Başarılı bağlantı oranı</li>
+                        <li><strong>Session Duration:</strong> Ortalama session süresi</li>
+                        <li><strong>Timeout Frequency:</strong> Timeout olaylarının sıklığı</li>
+                        <li><strong>Authentication Time:</strong> Login süresi</li>
+                        <li><strong>Response Time:</strong> Komut yanıt süreleri</li>
+                        <li><strong>Concurrent Sessions:</strong> Eşzamanlı session sayısı</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <nav class="navigation">
+            <a href="description.html" class="nav-button">← Problem Tanımı</a>
+            <a href="../../index.html" class="nav-button">Ana Sayfa</a>
+            <a href="../problem_09/description.html" class="nav-button">Problem 9'a Geç →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                gsap.fromTo(section, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+            
+            console.log('🔧 Problem 08 Solution (TR) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 

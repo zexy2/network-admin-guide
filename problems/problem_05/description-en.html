@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem 5: DHCP IP Conflicts - Admin Guide</title>
+    <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
+
+    <div class="container">
+        <header class="header header-l3">
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <a href="description.html" class="lang-btn">🇹🇷 Türkçe</a>
+                <a href="description-en.html" class="lang-btn active">🇺🇸 English</a>
+            </div>
+            
+            <h1>🟠 Problem 5: DHCP IP Distribution Conflicts</h1>
+            <p>L3 - Network Layer - Admin Guide Tutorial</p>
+        </header>
+
+        <nav class="breadcrumb">
+            <a href="../../index.html">Home</a> &gt;
+            <a href="#">Problem 5: DHCP Conflicts</a>
+        </nav>
+
+        <main class="content">
+            <section class="section">
+                <h2>Problem Definition: DHCP and IP Conflicts</h2>
+                <p>
+                    Dynamic Host Configuration Protocol (DHCP) is a network management protocol that automatically assigns IP addresses, subnet masks, default gateways, and DNS server information to devices (computers, phones, etc.) on a network. DHCP greatly simplifies IP address management.
+                </p>
+                <p>
+                    <strong>IP Address Conflict</strong> occurs when two or more devices in the same network segment (VLAN/subnet) try to use the same IP address. This causes serious communication problems in the network. When DHCP is properly configured, it prevents these conflicts, but misconfiguration or unexpected situations can cause this problem.
+                </p>
+                <div class="danger-box">
+                    <strong>Impact:</strong> Devices experiencing IP conflicts have unstable connections in the network, experience frequent disconnections, or cannot access the network at all. This situation causes a major productivity loss for end users.
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>🖼️ DHCP Conflict Problem (Example Diagram)</h2>
+                <p>Below is an example of IP address conflict problem in DHCP server. Network communication problems occur due to conflicting IP addresses in DHCP scope:</p>
+                
+                <div class="topology-diagram">
+                    <pre class="ascii-art">
+                 DHCP Server (Router)                    Problematic Network Structure
+                 192.168.1.1/24                         
+                ┌─────────────────┐                    
+                │ DHCP Pool:      │                    ⚠️ IP CONFLICT PROBLEM ⚠️
+                │ 192.168.1.10-50 │                    
+                │ Gateway: .1     │                    
+                │ DNS: 8.8.8.8    │                    
+                └─────────┬───────┘                    
+                          │                            
+              ┌───────────┼───────────┐                
+              │                       │                
+              │                       │                
+        ┌─────▼─────┐             ┌───▼───┐            
+        │    PC1    │             │  PC2  │            
+        │Dynamic IP │             │Static │            
+        │192.168.1.25│             │192.168.1.25│      ❌ SAME IP!
+        │(From DHCP)│             │(Manual)│            
+        └───────────┘             └───────┘            
+              │                       │                
+              └───── ARP Conflict ────┘                
+                   WHO HAS 192.168.1.25?              
+    </pre>
+                    <p><strong>⚠️ Problem:</strong> PC1 got 192.168.1.25 from DHCP, PC2 has same IP manually assigned!</p>
+                    <p><strong>🔍 Detection:</strong> ARP conflict, intermittent connectivity issues</p>
+                    <p><strong>📊 Impact:</strong> Both PCs experience network connectivity problems</p>
+                </div>
+                
+                <h3>User-Side Error Message</h3>
+                <div class="image-container">
+                    <img src="../../images/screenshots/dhcp_conflict_error.png" alt="DHCP Conflict Error" class="screenshot">
+                    <figcaption>Figure 1: Network problem caused by DHCP IP address conflict</figcaption>
+                </div>
+                
+                <h3>Technical Detection: DHCP Conflict Detection</h3>
+                <p>Conflict detection and details on DHCP server:</p>
+                <div class="code-block">
+<span class="command">Router# show ip dhcp conflict</span>
+<span class="output">
+IP address        Detection method    Detection time          VRF
+192.168.1.25      Ping               May 15 2024 10:30:45    
+192.168.1.25      Gratuitous ARP     May 15 2024 10:31:12    </span>
+<span class="comment"># Multiple conflicts detected for same IP</span>
+
+<span class="command">Router# show ip dhcp binding | include 192.168.1.25</span>
+<span class="output">
+IP address          Client-ID/              Lease expiration        Type       State      Interface
+                    Hardware address/
+                    User name
+192.168.1.25        01aa.bbcc.dd11.22      May 15 2024 11:30:45    Automatic  Active     Vlan10</span>
+<span class="comment"># DHCP leased this IP to PC1</span>
+
+<span class="command">Router# show ip arp 192.168.1.25</span>
+<span class="output">
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  192.168.1.25           0   aa.bb.cc.11.22  ARPA   Vlan10
+Internet  192.168.1.25           0   ff.ee.dd.33.44  ARPA   Vlan10</span>
+<span class="comment"># ❌ 2 different MAC addresses for same IP - CONFLICT!</span>
+                </div>
+                
+                <p>After DHCP problems are resolved, network communication returns to normal as shown below:</p>
+                <div class="image-container">
+                    <img src="../../images/screenshots/dhcp_ping_success.png" alt="DHCP Solution - Ping Successful" class="screenshot">
+                    <figcaption>Figure 2: Successful ping test after DHCP is fixed</figcaption>
+                </div>
+                
+                <h4>Packet Tracer Simulation File:</h4>
+                <p>You can download the Packet Tracer file containing the simulation of this DHCP conflict problem <a href="packet_tracer/dhcp_problem.pkt" download>here</a>.</p>
+                
+                <p><strong>Solution File:</strong> <a href="packet_tracer/dhcp_solution.pkt" download>dhcp_solution.pkt</a> - Fixed DHCP configuration</p>
+            </section>
+
+            <section class="section">
+                <h2>Common Causes of IP Conflicts</h2>
+                <ul>
+                    <li><strong>Multiple DHCP Servers:</strong> Presence of unauthorized or accidentally installed second DHCP server (Rogue DHCP) in the same VLAN or broadcast domain. These servers can distribute IPs that conflict with the main DHCP server's distribution range.</li>
+                    <li><strong>Static IP Addressing:</strong> Manually assigning a static IP address to a device (server, printer, etc.), but this IP address is also in the DHCP server's distribution pool. When the DHCP server assigns this address to another device, a conflict occurs.</li>
+                    <li><strong>DHCP Server Errors:</strong> Corruption of the DHCP server database or the server redistributing an IP it previously distributed (before lease time expires) to another device after restart.</li>
+                    <li><strong>Sleep Mode Problems:</strong> When a device (especially laptop) reconnects to the network after being in sleep mode for a long time, it tries to keep its old IP, but the DHCP server has assigned this IP to another device in the meantime.</li>
+                    <li><strong>Incorrect DHCP Relay Configuration:</strong> DHCP Relay Agent (IP Helper Address) configuration used to distribute IPs to clients in different VLANs pointing to servers with multiple, conflicting pools.</li>
+                </ul>
+            </section>
+
+            <section class="section">
+                <h2>Symptoms and Detection Methods</h2>
+                <h3>User-side Symptoms:</h3>
+                <ul>
+                    <li>"Duplicate IP address detected" error in operating systems like Windows.</li>
+                    <li>Network connection constantly coming and going, interruptions in internet access.</li>
+                    <li>Unable to connect to network or receiving limited connectivity warning.</li>
+                </ul>
+
+                <h3>Detection Commands for Network Administrator (Cisco IOS):</h3>
+                <div class="code-block">
+<pre><span class="comment"># List IP conflicts detected by DHCP server</span>
+<span class="command">Router# show ip dhcp conflict</span>
+<span class="comment">This command shows the conflicting IP address and MAC address.</span>
+
+<span class="comment"># See which MAC address is using a specific IP address (ARP table)</span>
+<span class="command">Router# show ip arp | include 192.168.1.55</span>
+<span class="comment">If MAC address for the same IP constantly changes in ARP table (ARP flapping), this is a conflict indication.</span>
+
+<span class="comment"># See which IPs the DHCP server has leased to which MAC addresses</span>
+<span class="command">Router# show ip dhcp binding</span>
+
+<span class="comment"># Find which port a MAC address comes from on switch</span>
+<span class="command">Switch# show mac address-table | include aabb.cc00.0100</span>
+<span class="comment">This helps find the physical location of devices causing conflict.</span>
+</pre>
+                </div>
+            </section>
+            
+            <section class="section">
+                <h2>Packet Tracer Simulation</h2>
+                <div class="packet-tracer-box">
+                    <p>To see the two most common scenarios of this problem, "Rogue DHCP Server" and "Static IP conflict" situations and their solution steps, you can examine the related Packet Tracer file.</p>
+                    <p><strong>Files:</strong> 
+                        <a href="packet_tracer/dhcp_conflict_problem.pkt" class="file-link">dhcp_conflict_problem.pkt</a>, 
+                        <a href="packet_tracer/rogue_dhcp_problem.pkt" class="file-link">rogue_dhcp_problem.pkt</a>
+                    </p>
+                </div>
+            </section>
+        </main>
+
+        <nav class="navigation">
+            <a href="../../index.html" class="nav-button">← Home</a>
+            <a href="solution-en.html" class="nav-button">Solution Details →</a>
+        </nav>
+    </div>
+
+    <!-- GSAP CDN for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom Cursor System
+            const cursor = document.getElementById('cursor');
+            const cursorOutline = document.getElementById('cursorOutline');
+            
+            if (cursor && cursorOutline) {
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+                
+                setTimeout(() => {
+                    cursor.style.opacity = '1';
+                    cursorOutline.style.opacity = '1';
+                }, 500);
+                
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+                });
+                
+                function animateOutline() {
+                    outlineX += (mouseX - outlineX) * 0.1; outlineY += (mouseY - outlineY) * 0.1;
+                    cursorOutline.style.left = outlineX + 'px'; cursorOutline.style.top = outlineY + 'px';
+                    requestAnimationFrame(animateOutline);
+                }
+                animateOutline();
+                
+                // Interactive elements hover effects
+                document.querySelectorAll('a, button, .nav-button, .lang-btn, .file-link').forEach(element => {
+                    element.addEventListener('mouseenter', () => {
+                        cursor.classList.add('cursor-hover'); cursorOutline.classList.add('cursor-outline-hover');
+                    });
+                    element.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('cursor-hover'); cursorOutline.classList.remove('cursor-outline-hover');
+                    });
+                });
+            }
+            
+            // Initialize scroll animations for sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
+                gsap.fromTo(section, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+            
+            console.log('🔧 Problem 05 Description (EN) - Interactive features loaded');
+        });
+    </script>
+</body>
+</html> 
