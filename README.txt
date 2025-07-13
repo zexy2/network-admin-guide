@@ -1,12 +1,6 @@
 PROJE: Bilgisayar Ağları Final Design Project - İnteraktif Admin Rehberi 🚀
 ===========================================================================
 
-ÖĞRENCİ BİLGİLERİ
----------------------
-Öğrenci No: [210315017]
-Adı Soyadı: [Zeki AKGÜL]
-Bölüm: [Bilgisayar Mühendisliği]
-
 PROJE HAKKINDA 📋
 -----------------
 Bu proje, Bilgisayar Ağları dersi final tasarım projesi kapsamında hazırlanmış **modern ve interaktif** bir "Admin Rehberi"dir. Proje, OSI modelinin 7 katmanını kapsayan 10 farklı ağ problemini ve bunların pratik çözüm yöntemlerini içerir.
@@ -126,24 +120,7 @@ Eğer animasyonlar çalışmıyorsa:
 3. Tarayıcı konsolunu açın (F12) ve hata mesajlarını kontrol edin
 4. Tarayıcıyı yenileyin (Ctrl+F5 / Cmd+Shift+R)
 
-KATKIDA BULUNANLAR 👥
--------------------
-• Modern CSS animations ve responsive design
-• GSAP integration ve performance optimizations  
-• Interactive simulations ve educational tools
-• Bilingual content management system
-• Advanced network diagnostic tools
 
-PROJE DURUMU ✅
---------------
-✅ Tüm 10 problem tamamlandı
-✅ İnteraktif özellikler eklendi
-✅ Responsive design uygulandı
-✅ Performance optimizasyonları yapıldı
-✅ Çift dil desteği eklendi
-✅ Modern UI/UX tasarımı tamamlandı
-
-TESLİM TARİHİ: 23 HAZİRAN 2025
 =============================
 
 🎉 Bu proje, geleneksel ağ dokümantasyonunu modern web teknolojileriyle birleştirerek 
