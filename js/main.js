@@ -1,29 +1,16 @@
-/**
- * NETWORK ADMIN GUIDE - INTERACTIVE ANIMATIONS
- * ==================================================
- * GSAP-powered scroll animations, custom cursor,
- * particle system and modern UI interactions
- * ==================================================
- */
+// Network Admin Guide - Main JS
+// GSAP animations and interactions
 
-// Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin);
 
-// Global animation state
 let animationsLoaded = false;
 let currentLanguage = 'tr';
 
-// ========================================
-// INITIALIZATION
-// ========================================
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
 });
 
 function initializeApp() {
-    console.log('🚀 Network Admin Guide - Interactive Mode Activated');
-    
-    // Initialize all components
     initCustomCursor();
     initLoadingScreen();
     initParticleSystem();
@@ -33,14 +20,10 @@ function initializeApp() {
     initScrollAnimations();
     initProblemCardAnimations();
     initNetworkBackgroundAnimation();
-    
-    // Mark animations as loaded
     animationsLoaded = true;
 }
 
-// ========================================
-// CUSTOM CURSOR SYSTEM
-// ========================================
+// Custom cursor
 function initCustomCursor() {
     const cursor = document.getElementById('cursor');
     const cursorOutline = document.getElementById('cursorOutline');
@@ -94,13 +77,10 @@ function initCustomCursor() {
     });
 }
 
-// ========================================
-// LOADING SCREEN
-// ========================================
+// Loading screen
 function initLoadingScreen() {
     const loadingScreen = document.getElementById('loadingScreen');
     
-    // Hide loading screen after content loads
     window.addEventListener('load', () => {
         setTimeout(() => {
             gsap.to(loadingScreen, {
@@ -109,17 +89,14 @@ function initLoadingScreen() {
                 ease: "power2.out",
                 onComplete: () => {
                     loadingScreen.style.display = 'none';
-                    // Trigger hero animations after loading
                     triggerHeroAnimations();
                 }
             });
-        }, 1500); // Show loading for at least 1.5 seconds
+        }, 1500);
     });
 }
 
-// ========================================
-// FLOATING PARTICLES SYSTEM
-// ========================================
+// Floating particles
 function initParticleSystem() {
     const particleContainer = document.getElementById('particles');
     if (!particleContainer) return;
@@ -163,9 +140,7 @@ function createParticle(container, index) {
     });
 }
 
-// ========================================
-// LANGUAGE SYSTEM
-// ========================================
+// Language switching (TR/EN)
 function initLanguageSystem() {
     const langButtons = document.querySelectorAll('.lang-btn');
     
@@ -228,9 +203,7 @@ function updateProblemLinks(lang) {
     });
 }
 
-// ========================================
-// NAVBAR ANIMATIONS
-// ========================================
+// Navbar scroll behavior
 function initNavbar() {
     const navbar = document.getElementById('navbar');
     
@@ -296,11 +269,8 @@ function initNavbar() {
     }
 }
 
-// ========================================
-// HERO SECTION ANIMATIONS
-// ========================================
+// Hero section
 function initHeroAnimations() {
-    // Initial state - all elements invisible
     gsap.set(['.hero-title', '.hero-subtitle', '.hero-cta'], {
         opacity: 0,
         y: 50
@@ -310,7 +280,6 @@ function initHeroAnimations() {
 function triggerHeroAnimations() {
     const tl = gsap.timeline();
     
-    // Animate hero elements in sequence
     tl.to('.hero-title', {
         opacity: 1,
         y: 0,
@@ -330,7 +299,6 @@ function triggerHeroAnimations() {
         ease: "power3.out"
     }, "-=0.3");
     
-    // Parallax effect for hero background
     gsap.to('.hero::before', {
         yPercent: -50,
         ease: "none",
@@ -343,9 +311,7 @@ function triggerHeroAnimations() {
     });
 }
 
-// ========================================
-// SCROLL-TRIGGERED ANIMATIONS
-// ========================================
+// Scroll animations
 function initScrollAnimations() {
     // Stats counter animation
     document.querySelectorAll('.stat-card').forEach((card, index) => {
@@ -406,9 +372,7 @@ function initScrollAnimations() {
     });
 }
 
-// ========================================
-// PROBLEM CARDS ANIMATIONS
-// ========================================
+// Problem card animations
 function initProblemCardAnimations() {
     document.querySelectorAll('.problem-card').forEach((card, index) => {
         // Hover effects
@@ -463,9 +427,7 @@ function initProblemCardAnimations() {
     });
 }
 
-// ========================================
-// NETWORK BACKGROUND ANIMATION
-// ========================================
+// Background network animation (hero section)
 function initNetworkBackgroundAnimation() {
     const svg = document.querySelector('.network-bg');
     if (!svg) return;
