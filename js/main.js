@@ -555,45 +555,15 @@ function handleResize() {
 // Debounced resize handler
 window.addEventListener('resize', debounce(handleResize, 250));
 
-// ========================================
-// PERFORMANCE MONITORING
-// ========================================
-function logPerformance() {
-    if (window.performance) {
-        const loadTime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
-        console.log(`🚀 Page loaded in ${loadTime}ms`);
-        
-        if (loadTime > 3000) {
-            console.warn('⚠️ Slow loading detected. Consider optimizing assets.');
-        }
-    }
-}
-
-// Monitor performance
-window.addEventListener('load', logPerformance);
-
-// ========================================
-// ERROR HANDLING
-// ========================================
-window.addEventListener('error', (e) => {
-    console.error('Animation Error:', e.error);
-    // Graceful degradation - continue without problematic animations
-});
-
 // GSAP error handling
 gsap.config({ 
     nullTargetWarn: false,
     trialWarn: false 
 });
 
-// ========================================
-// EXPORT FOR EXTERNAL USE
-// ========================================
+// Export for external use
 window.NetworkAdminGuide = {
     setLanguage,
     animationsLoaded: () => animationsLoaded,
-    refreshAnimations: () => ScrollTrigger.refresh(),
-    version: '1.0.0'
-};
-
-console.log('✨ Network Admin Guide Interactive System Loaded Successfully!'); 
+    refreshAnimations: () => ScrollTrigger.refresh()
+}; 
