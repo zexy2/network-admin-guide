@@ -2,7 +2,8 @@
 
 Interactive troubleshooting guide for common network problems, organized by OSI layers. Final project for Computer Networks course at Manisa Celal Bayar University.
 
-**Demo:** https://zexy2.github.io/network-admin-guide/
+**Demo:** https://zexy2.github.io/Network-troubleshooting-guide
+/
 
 ## Problems Covered
 
